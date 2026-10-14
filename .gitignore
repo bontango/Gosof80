@@ -1,0 +1,39 @@
+# Quartus build artifacts. They sit inside variants/<name>/, one set per variant,
+# because that is the Quartus project directory.
+db/
+incremental_db/
+output_files/
+atom_netlists/
+simulation/
+greybox_tmp/
+
+# Generated, but tracked on purpose: variants/*/GOSOF80.qsf (scripts/gen_qsf.ps1).
+# A fresh clone has to open in Quartus without running a script first.
+
+# Backup files
+*.bak
+*.qws
+
+# Quartus generated reports / logs
+*.rpt
+*.summary
+*.smsg
+*.pin
+*.jdi
+*.sld
+*.done
+*.qdf
+*.sopcinfo
+c5_pin_model_dump.txt
+PLLJ_PLLSPE_INFO.txt
+
+# Build/verification logs
+*.log
+
+# Windows / Office junk
+Thumbs.db
+desktop.ini
+~$*
+
+# NOTE: rtl/cyclone_*/*.cmp are tracked - the .qip lists them as MISC_FILE.
+# NOTE: bin/ is tracked - it holds the released .jic/.pof, as in AtariFA.

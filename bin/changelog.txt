@@ -1,0 +1,18 @@
+-- HW 'GOSOF80' v2.1
+-- Version 0.1 - rom read from SD card
+-- Version 0.2 - rom read from SD card MA 216 & MA390
+-- Version 0.3 - added MA55 support
+-- Version 0.4 - with option DIP4 to on, romcode is read always from first secor ( sector #660 in fact)
+-- Version 0.5 - MA490 support (SYS1 works partially)
+-- Version 0.6 - SYS1 support
+-- Version 0.7 - added Rocky
+-- Version 0.8 - sb_opt(6) was on wrong IO ( PIN_51 instead of PIN_93)
+---- 			 	- remark: sys1 playing only '10' & '1000' sounds is OK while game over is high!!
+-- Version 0.9 - betaX Testversion Backgroundmusic with SYS1&SYS80(MA55)
+-- Version 0.91 / 0.91 - clock adjustment via options DIPs 1..3 for all Soundboards
+-- Version 0.92 / 3.92 -- added matrix for striker & Qbert
+-- Version 0.93 -- with LED_1 showing playing sounds
+-- Version 0.94 -- activated folder 64 with all DIPs ON, CPU deactivated in this case
+-- Version 0.95 -- added Caveman
+-- Version 0.96 -- corrected Mars
+-- Version 0.97 - attract speech for Mars, Volcano and Black Hole

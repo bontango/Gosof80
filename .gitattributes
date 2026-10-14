@@ -1,0 +1,16 @@
+# Fresh tree (10.2026): git normalises to LF on check-in and checks out with the
+# platform convention, so the working copy stays CRLF for Quartus and the Windows
+# editors while the repository is LF. See skill fpga-varianten-sourcebaum.
+* text=auto
+
+# Binary files: never diff, never convert.
+*.sof binary
+*.jic binary
+*.pof binary
+*.rbf binary
+*.png binary
+*.jpg binary
+*.pdf binary
+*.xlsx binary
+*.docx binary
+*.zip binary
