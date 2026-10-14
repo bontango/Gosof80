@@ -31,6 +31,10 @@
 -- Version 0.95 -- added Caveman
 -- Version 0.96 -- corrected Mars
 -- Version 0.97 - attract speech for Mars, Volcano and Black Hole
+-- Version 0.98 - Votrax SC-01 emulation (rtl/common/votrax, PinMAME's SC-01 model) for
+--                MA-216 games, selected with DIP 2 ON. DIP 2 OFF = speech from MP3 as
+--                before. Not on Cyclone II (variant_pkg HAS_VOTRAX = false).
+--                Audio DAC now 10 bit: sound DAC + speech mixed with saturation.
 --
 -- Shared top level of all HW 2.x board variants (Cyclone II, Cyclone IV v3/v4,
 -- Cyclone 10). The board decides only chip, pins and megafunction family - see
@@ -41,6 +45,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.variant_pkg.all;
 
 entity gosof80 is
 	port(
@@ -138,7 +143,14 @@ architecture rtl of gosof80 is
 	signal sc01_strobe	:  std_logic;
 	signal sc01_AR			:  std_logic;
 	signal sc01_cs			:  std_logic;
-	
+	signal sc01_AR_timing	:  std_logic; -- A/R of the old timing-only SC01 (MP3 speech)
+
+	-- Votrax SC-01 emulation (MA-216, DIP 2 ON)
+	signal votrax_on		:  std_logic;
+	signal vtx_ar			:  std_logic;
+	signal vtx_audio		:  signed(15 downto 0);
+	signal audio_mix		:  std_logic_vector(9 downto 0);
+
 	signal send_flag	:  std_logic:='0';
 	signal DFcmd_cmd	:  std_logic_vector(7 downto 0);
 	signal DFcmd_par1	:  std_logic_vector(7 downto 0);
@@ -202,14 +214,60 @@ port map(
          txd => DFP_tx			
 );
 
+-- timing only SC-01 (A/R), used while the speech comes from the MP3 player
 SC01_Simu: entity work.SC01
-port map(   			
+port map(
          clk => clk_50,
 			strobe => sc01_strobe,
 			cpu_data => cpu_dout(5 downto 0),
-			AR => sc01_AR,
+			AR => sc01_AR_timing,
          rst => reset_l
 );
+
+-- Votrax SC-01 emulation: MA-216 games with DIP 2 ON (SB_Opt(2), unused by the
+-- MA-216 itself - J1 on the original board). Then MP3 speech and attract MP3 are off.
+votrax_on <= '1' when HAS_VOTRAX and SB_type = is_MA216 and SB_Opt(2) = '0' else '0';
+sc01_AR <= vtx_ar when votrax_on = '1' else sc01_AR_timing;
+
+gen_votrax: if HAS_VOTRAX generate
+	signal speech_clk_latch	:  std_logic_vector(7 downto 0); -- $3000, SC-01 clock
+	signal vtx_mute_stb		:  std_logic;
+begin
+	-- $3000: D/A converter for the SC-01 clock (0x7E = 720 kHz, games lower it for TILT)
+	Speech_Clock_Latch: process(clk_50) is
+	begin
+		if rising_edge(clk_50) then
+			if reset_l = '0' then
+				speech_clk_latch <= x"7E";
+			elsif dac_latch_speech = '1' then
+				speech_clk_latch <= cpu_dout;
+			end if;
+		end if;
+	end process;
+
+	-- PinMAME gts80s.c: a write to $7000-$7FFF (the ROM area, the program writes there
+	-- as a delay) mutes the speech until the next phoneme write to $2000
+	vtx_mute_stb <= '1' when cpu_addr(14 downto 12) = "111" and cpu_wr_n = '0' and cpu_clk = '0' else '0';
+
+	VOTRAX: entity work.votrax_sc01
+	generic map (G_TICK_DIV => 0)
+	port map(
+		clk       => clk_50,
+		rst_n     => reset_l,
+		stb       => sc01_strobe,
+		data      => cpu_dout,
+		mute_stb  => vtx_mute_stb,
+		clk_ctrl  => speech_clk_latch,
+		ar        => vtx_ar,
+		audio     => vtx_audio,
+		audio_stb => open,
+		tick_o    => open
+	);
+end generate;
+gen_no_votrax: if not HAS_VOTRAX generate
+	vtx_ar    <= '1';
+	vtx_audio <= (others => '0');
+end generate;
 
 
 -- phase 2 is complement of CPU clock
@@ -411,6 +469,7 @@ DFcmd_par2 <=  bg_DFcmd_par2 when ( SB_type = is_MA55 or SB_type = is_SYS1 )
 					  else "000" & Sound_meta;
 
 send_flag <= bg_send_flag when ( SB_type = is_MA55 or SB_type = is_SYS1 ) else
+				  '0' when votrax_on = '1' else -- speech (also in attract mode) from the SC-01 emulation
 				  riot_pa_i(7) when speech_ctrl(to_integer(unsigned(Sound_meta))) = '0' else
 				  attract_send_flag;
 				
@@ -506,14 +565,31 @@ audio_dat <= audio_dat_latch when ( SB_type = is_MA216 or SB_type = is_MA309) el
 				 riot_pa_o;
 				 
 				 
+-- Mixer: sound DAC (8 bit, 0x80 = silence) + SC-01 speech, 10 bit for the DAC.
+-- Without speech the 10 bit value is audio_dat & "00", i.e. exactly the old level.
+-- Speech: 1.0 (= 8192, PinMAME's output scale) -> 256 = half the sound DAC's full
+-- scale; the sum saturates.
+Audio_Mixer: process(clk_50) is
+	variable s : integer range -2048 to 2047;
+begin
+	if rising_edge(clk_50) then
+		s := (to_integer(unsigned(audio_dat)) - 128) * 4;
+		if votrax_on = '1' then
+			s := s + to_integer(shift_right(vtx_audio, 5));
+		end if;
+		if s > 511 then s := 511; elsif s < -512 then s := -512; end if;
+		audio_mix <= std_logic_vector(to_unsigned(s + 512, 10));
+	end if;
+end process;
+
 -- Delta-Sigma audio DAC
 Audio_DAC : entity work.dac
 generic map(
-  msbi_g => 7)
+  msbi_g => 9)
 port  map(
    clk_i   => clk_50,
    res_n_i => reset_l,
-   dac_i   => audio_dat,
+   dac_i   => audio_mix,
    dac_o   => audio_O
 );
 

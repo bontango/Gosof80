@@ -16,3 +16,9 @@
 -- Version 0.95 -- added Caveman
 -- Version 0.96 -- corrected Mars
 -- Version 0.97 - attract speech for Mars, Volcano and Black Hole
+-- 2026-10-14 17:52  version .98
+--   x.98: Votrax SC-01 emulation (PinMAME model) for MA-216 games with DIP 2 ON, 10 bit audio mixer; not on Cyclone II. NOT tested on hardware.
+--   hw2x_cyclone_10      v4.98   GOSOF80_HW2.x_v4.98.jic  sha256:916D5EC571EFD477
+--   hw2x_cyclone_II      v0.98   GOSOF80_HW2.x_v0.98.pof  sha256:F375DED7059F7BC1
+--   hw2x_cyclone_IV_v3   v2.98   GOSOF80_HW2.x_v2.98.jic  sha256:339EB9866012E6F4
+--   hw2x_cyclone_IV_v4   v3.98   GOSOF80_HW2.x_v3.98.jic  sha256:AFD8022338924BBB

@@ -5,5 +5,5 @@
 # e.g. v4.97 = board id 4 (hw2x_cyclone_10), software .97. A release bumps SwMinor
 # here, once, and every board follows. BoardId lives in variants\<name>\variant.psd1.
 @{
-    SwMinor = '97'
+    SwMinor = '98'
 }

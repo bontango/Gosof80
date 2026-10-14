@@ -11,11 +11,14 @@ Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
 - Soundboard-Typ aus `game_sel(5 downto 3)`: MA-216, MA-309, MA-55, MA-490, System 1, special.
   Adressdekodierung und RIOT-Belegung hängen davon ab.
 - Ton: 8-Bit-Latch (MA-216/309) bzw. RIOT PA (andere) → `dac` (Delta-Sigma) → `Audio_O`.
-- Sprache: `Votrax-SC01.vhd` bildet nur A/R-Timing nach. Die Sprache selbst spielt der DFPlayer als MP3
-  (`speech_ctrl`-Tabelle je Spiel, Ordnernummer in `DFcmd_par1`). Hintergrundmusik bei
-  System 1 über `background_sound`, Attract-Sprache über `attract`.
-- Eine echte Votrax-Emulation ist ausgearbeitet, aber noch nicht gebaut: `docs/Votrax_SC01_Evaluierung.md`.
-  Sie kommt erst **nach dem Hardwaretest dieses Baums**.
+- Sprache, zwei Wege:
+  - MP3 (DIP 2 OFF, und immer auf Cyclone II): `Votrax-SC01.vhd` bildet nur A/R-Timing nach, der
+    DFPlayer spielt die Sprache (`speech_ctrl`-Tabelle je Spiel, Ordner in `DFcmd_par1`),
+    Attract-Sprache über `attract`.
+  - Emulation (ab x.98, MA-216 mit DIP 2 ON, `HAS_VOTRAX` in `variant_pkg.vhd`):
+    `rtl/common/votrax/votrax_sc01.vhd`, PinMAMEs SC-01-Modell. $3000 = SC-01-Takt, $7000 = Mute,
+    Mischer auf 10-Bit-DAC. Details: `docs/Votrax_SC01_Implementierung.md`.
+- Hintergrundmusik bei System 1 über `background_sound`.
 
 ## Was ändern → wo
 
@@ -28,6 +31,9 @@ Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
 | Megafunction neu erzeugen | in **jedem** `rtl/cyclone_*`-Ordner, gleiche Entity-Namen; Cyclone II mit 13.0sp1 |
 | Version | `scripts/version.psd1` (`SwMinor`), Board-ID in `variant.psd1` |
 | Timing | `rtl/common/GOSOF80.sdc` (gemeinsam, nennt nur Hierarchienamen) |
+| Konstante je Platine (z. B. `HAS_VOTRAX`) | `variants/<n>/variant_pkg.vhd` |
+| Votrax-Rechenweg / Formate | **zuerst** `sim/votrax/model/vmodel.c` (die Spezifikation), dann VHDL, dann `sim/votrax/run_sim.ps1` – VHDL muss bitgleich zum Modell bleiben |
+| Votrax-Tabellen | `sim/votrax/tools/gen_votrax_tables.py` ausführen, nie `votrax_tables_pkg.vhd` von Hand ändern |
 
 Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synthesezahlen
 (comb/reg/mem) aus `map.rpt` gegen `scripts/baseline.csv`, **nicht** die LE-Zahl des Fitters.
@@ -47,6 +53,10 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
   `[System.IO.File]::WriteAllText` und `UTF8Encoding($false)` nehmen.
 - `.cof` mit relativen Pfaden. Gegenprobe ist die `.jic`-Größe: EP4CE6 2.097.375 B, 10CL006Y 2.097.377 B.
 - `VARIANTEN.md` hält fest, was auf Hardware getestet ist. Ein sauberer Build beweist das nicht.
+- GHDL liegt portabel in `C:\Users\bonta\tools\ghdl` (6.0.0, mcode). `numeric_std`-Multiplikationen
+  rechnet es bitweise: im VHDL nur dann multiplizieren, wenn das Ergebnis gebraucht wird, sonst wird
+  die Simulation 100-mal langsamer.
+- PowerShell: `R` und `Rp` sind Aliase (`Invoke-History`, `Remove-ItemProperty`), nicht als Funktionsnamen nehmen.
 
 ## Offene Punkte
 
@@ -56,3 +66,5 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 - HW 3.x, HW 4.x, GOSOF80B liegen noch in `..\FPGA_source_alt` und sollen als weitere Varianten
   hierher (dafür erst angleichen: HW 4.x hat CRC-Check, Testmodus, eigenes SD_Card, PLL).
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
+- Votrax: Hardwaretest, Lautstärkeverhältnis Sprache/Ton, Inflection-Verdrahtung (I1/I2 an D6/D7?)
+  gegen den MA-216-Schaltplan prüfen.

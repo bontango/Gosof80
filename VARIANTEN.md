@@ -1,23 +1,27 @@
 # Varianten – Ressourcen, Eigenheiten, Hardware-Teststand
 
-Stand 14.10.2026, erster Bau des gemeinsamen Baums. Zahlen aus `scripts\check.ps1 -Fit`.
+Stand 14.10.2026. Zahlen aus `scripts\check.ps1 -Fit`.
 
 ## Hardware-Teststand
 
-| Variante | Release im Feld | Neuer Baum auf Hardware getestet? |
+| Variante | x.97 | x.98 (Votrax) |
 |---|---|---|
-| `hw2x_cyclone_II` | v0.97 (aus altem Baum) | **nein** |
-| `hw2x_cyclone_IV_v3` | v2.97 (aus altem Baum) | **nein** |
-| `hw2x_cyclone_IV_v4` | v3.97 (aus altem Baum) | **nein** |
-| `hw2x_cyclone_10` | v4.97 (aus altem Baum) | **nein** |
+| `hw2x_cyclone_II` | **ok** (Ralf, 14.10.2026) | **nicht getestet** (ohne Votrax) |
+| `hw2x_cyclone_IV_v3` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
+| `hw2x_cyclone_IV_v4` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
+| `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
 
-Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums
-(md5 geprüft 14.10.2026), also der tatsächlich ausgelieferte Stand.
-Was der neue Baum erzeugt, ist bisher nur gebaut. **Zuerst testen:** Sound und Sprache
-an einem MA-216-Spiel (Black Hole, Mars), SD-Laden, Attract-Sprache, DIP-Optionen.
-Bei den 22.1-Varianten unterscheidet sich die Netzliste leicht vom Release (siehe unten).
+x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
+14.10.2026). Ralf meldet für die x.97-Varianten Funktion auf der Hardware.
 
-## Ressourcen
+x.98 ist nur gebaut und simuliert (Votrax bitgleich zum C-Modell, siehe
+`docs/Votrax_SC01_Implementierung.md`). **Zuerst testen:**
+1. DIP 2 OFF: alles wie x.97 (MP3-Sprache, Attract-MP3), Lautstärke unverändert.
+2. DIP 2 ON an einem MA-216-Spiel (Black Hole, Mars, Volcano): Sprache aus der Emulation, kein MP3,
+   TILT-Verlangsamung, Attract-Sprache (Sound-DIPs S3/S4), Lautstärkeverhältnis Sprache/Ton.
+3. Cyclone II: wie x.97 (der Mischer ist neu, sonst nichts).
+
+## Ressourcen x.97
 
 | Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | Setup-Slack | Hold-Slack |
 |---|---|---|---|---|---|---|
@@ -25,6 +29,18 @@ Bei den 22.1-Varianten unterscheidet sich die Netzliste leicht vom Release (sieh
 | `hw2x_cyclone_IV_v3` | 2188 | 793 | 33792 | 2310 / 6272 | 4,348 ns | 0,452 ns |
 | `hw2x_cyclone_IV_v4` | 2188 | 793 | 33792 | 2315 / 6272 | 5,323 ns | 0,452 ns |
 | `hw2x_cyclone_10` | 2188 | 793 | 33792 | 2313 / 6272 | 5,051 ns | 0,452 ns |
+
+## Ressourcen x.98
+
+| Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | 9-Bit-Mult. | Setup-Slack | Hold-Slack |
+|---|---|---|---|---|---|---|---|
+| `hw2x_cyclone_II` (ohne Votrax) | 2156 | 799 | 33792 | 2271 / 4608 | 0 | 3,887 ns | 0,499 ns |
+| `hw2x_cyclone_IV_v3` | 4538 | 2239 | 153600 | 4772 / 6272 (76 %) | 14 / 30 | 2,309 ns | 0,438 ns |
+| `hw2x_cyclone_IV_v4` | 4538 | 2239 | 153600 | 4782 / 6272 (76 %) | 14 / 30 | 2,321 ns | 0,434 ns |
+| `hw2x_cyclone_10` | 4537 | 2239 | 153600 | 4798 / 6272 (76 %) | 14 / 30 | 2,563 ns | 0,452 ns |
+
+Die Votrax-Emulation kostet ~2.350 LE, ~1.450 Register und 120 kbit ROM. Danach sind auf
+Cyclone IV/10 noch ~1.500 LE frei – für HW 4.x (CRC, Testmodus) reicht das, für viel mehr nicht.
 
 Alle Varianten belegen dieselben 34 Ports, `VIRTUAL_PIN` wird nicht gebraucht.
 

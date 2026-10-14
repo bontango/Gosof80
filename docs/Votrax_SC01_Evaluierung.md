@@ -1,5 +1,9 @@
 # Votrax SC-01 im FPGA – Evaluierung
 
+> **Stand:** umgesetzt in x.98, siehe `Votrax_SC01_Implementierung.md`. Abweichend von hier:
+> Die Filter erwiesen sich als Biquads (5 statt 7 Koeffizienten), Cyclone II ist ausgenommen
+> (Entscheidung 14.10.2026), Schalter ist DIP 2 statt `option(1)` (alle `option`-DIPs sind auf HW 2.x belegt).
+
 Stand 14.10.2026. Frage: Lässt sich der Votrax SC-01 auf Grundlage der PinMAME-Emulation
 (`src/sound/votrax.c`, Kern von Olivier Galibert) als VHDL-Modul nachbilden, sodass GOSOF80
 die Sprache selbst erzeugt statt sie als MP3 abzuspielen?

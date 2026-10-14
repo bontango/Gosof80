@@ -101,6 +101,9 @@ set_location_assignment PIN_32 -to SD_MOSI
 set_location_assignment PIN_144 -to reset_sw
 
 # --- sources ---------------------------------------------------------------
+set_global_assignment -name VHDL_FILE variant_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/votrax_tables_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/votrax_sc01.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/attract.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/Votrax-SC01.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/uart_clk_gen.vhd

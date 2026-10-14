@@ -37,3 +37,7 @@ desktop.ini
 
 # NOTE: rtl/cyclone_*/*.cmp are tracked - the .qip lists them as MISC_FILE.
 # NOTE: bin/ is tracked - it holds the released .jic/.pof, as in AtariFA.
+
+# Votrax verification: reference/model binaries, GHDL library, WAV/f32/txt results
+# (sim/votrax/run_sim.ps1 rebuilds everything)
+sim/votrax/build/
