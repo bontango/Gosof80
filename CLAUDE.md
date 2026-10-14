@@ -50,7 +50,8 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 
 ## Offene Punkte
 
-- Hold-Verletzung Cyclone II auf `cpu_clk_out`/`uart_clk_out` (registergeteilte Takte).
+- Registergeteilte Takte `cpu_clk_out`/`uart_clk_out`: Hold auf Cyclone II nur per Fitter-Einstellung erfüllt
+  (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
 - Board-ID 4 kollidiert mit der HW-4.x-Nummerierung. Das vor der Aufnahme von HW 4.x klären.
 - HW 3.x, HW 4.x, GOSOF80B liegen noch in `..\FPGA_source_alt` und sollen als weitere Varianten
   hierher (dafür erst angleichen: HW 4.x hat CRC-Check, Testmodus, eigenes SD_Card, PLL).
