@@ -27,7 +27,7 @@ Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
   - Versionsansage (`rtl/common/votrax/vtx_announce.vhd`): Testschalter bei Options-DIP 3 OFF,
     Phonemtabellen aus `sim/votrax/tools/gen_announce.py`, Version aus den Generics `BOARD_ID`/`SW_MINOR`
     (`gen_qsf.ps1` schreibt sie als `set_parameter`). Prüfung: `sim/votrax/run_announce_tb.ps1`.
-- Hintergrundmusik bei System 1 (HW 2.x auch MA-55) über `background_sound`.
+- Hintergrundmusik bei System 1 und MA-55 (alle Platinen) über `background_sound`.
 - HW 4.x zusätzlich: Soundtest (`soundtest`, Schalter Gosof_Test), CRC-LED.
 
 ## Was ändern → wo
@@ -75,7 +75,6 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 - Registergeteilte Takte (Cyclone II: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
 - HW 3.x und GOSOF80B liegen noch in `..\FPGA_source_alt` und sollen als weitere Varianten hierher.
-- `rtl/common/cpu_clk_gen.vhd` wird nicht mehr benutzt (löschen nach Freigabe).
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
 - Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
   gegen den MA-216-Schaltplan prüfen.

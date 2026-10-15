@@ -553,8 +553,8 @@ port map(
 
 -- prepare date for MP3 Player	      	  
 -- Folder selection wav files
--- background music: System 1, and MA-55 on HW 2.x (HW 4.x v4.01 dropped MA-55), not in the test mode
-bg_on <= '1' when (SB_type = is_SYS1 or (SB_type = is_MA55 and not IS_HW4)) and opt_test = '0' else '0';
+-- background music: System 1 and MA-55 (all boards as HW 2.x; HW 4.x v4.01 had dropped MA-55), not in the test mode
+bg_on <= '1' when (SB_type = is_SYS1 or SB_type = is_MA55) and opt_test = '0' else '0';
 
 DFcmd_cmd <= bg_DFcmd_cmd when bg_on = '1' else X"0F"; -- cmd for folder to playback
 

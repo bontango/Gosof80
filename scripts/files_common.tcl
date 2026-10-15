@@ -5,8 +5,8 @@
 #
 # What differs between the board families (board shell, SD card reader) is in
 # files_hw2x.tcl / files_hw4x.tcl, chosen through Options in variant.psd1. The core
-# top\GOSOF80.vhd and GOSOF80.sdc are shared. cpu_clk_gen.vhd is no longer used (the CPU
-# clock comes from Gosof_PLL in rtl\cyclone_*\).
+# top\GOSOF80.vhd and GOSOF80.sdc are shared. The CPU clock comes from Gosof_PLL in
+# rtl\cyclone_*\ (cpu_clk_gen.vhd was removed 15.10.2026).
 # variant_pkg.vhd lives in variants\<name>\ (the project directory) and comes first:
 # the top level reads its constants (HAS_VOTRAX).
 set_global_assignment -name VHDL_FILE variant_pkg.vhd
