@@ -7,9 +7,10 @@
   scripts\version.psd1 (SwMinor), the board id in variants\<name>\variant.psd1, and
   the artefact is named the way the releases have always been named:
 
-      bin\<BinFolder>\GOSOF80_HW2.x_v<BoardId>.<SwMinor>.<jic|pof>
+      bin\<BinFolder>\GOSOF80_<HwName>_v<BoardId>.<SwMinor>.<jic|pof>
 
-  e.g. bin\Cyclone_10\GOSOF80_HW2.x_v4.97.jic. The design itself carries no version,
+  e.g. bin\Cyclone_10\GOSOF80_HW2.x_v4.97.jic. HwName comes from variant.psd1 (default
+  HW2.x; hw4x_cyclone_10 has HW4.x). The design itself carries no version,
   so the file name is the only place it shows up.
 
   Nothing is overwritten silently: an existing file of the same name aborts the run
@@ -65,7 +66,8 @@ foreach ($dir in $folders) {
     $ver    = "$($meta.BoardId).$minor"
     $ext    = $meta.ReleaseArtifact                     # 'jic' or 'pof'
     $outDir = Join-Path $BinRoot $meta.BinFolder
-    $dst    = Join-Path $outDir "$($project)_HW2.x_v$ver.$ext"
+    $hw     = if ($meta.HwName) { $meta.HwName } else { 'HW2.x' }
+    $dst    = Join-Path $outDir "$($project)_$($hw)_v$ver.$ext"
 
     if ($DryRun) {
         $state = if (Test-Path $dst) { 'exists' } else { 'new' }

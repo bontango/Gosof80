@@ -22,3 +22,11 @@
 --   hw2x_cyclone_II      v0.98   GOSOF80_HW2.x_v0.98.pof  sha256:F375DED7059F7BC1
 --   hw2x_cyclone_IV_v3   v2.98   GOSOF80_HW2.x_v2.98.jic  sha256:339EB9866012E6F4
 --   hw2x_cyclone_IV_v4   v3.98   GOSOF80_HW2.x_v3.98.jic  sha256:AFD8022338924BBB
+
+-- 2026-10-15 11:40  version .98
+--   x.98 core: HW 4.x joins as board 5 (v5.98); CPU clock from Gosof_PLL; option DIPs as HW 4.x (DIP1 892/1020 kHz, DIP2 ON MP3 / OFF Votrax, DIP3 ON test switch / OFF version announcement, DIP4 test mode); speech x2, tones x3/4 with emulation; MA-55 background music on all boards. Tested on hardware: hw2x_cyclone_IV_v4 only (Ralf, 15.10.2026). Replaces the untested x.98 files of 14.10.2026.
+--   hw2x_cyclone_10      v4.98   GOSOF80_HW2.x_v4.98.jic  sha256:5BE9D09E5764F6B1
+--   hw2x_cyclone_II      v0.98   GOSOF80_HW2.x_v0.98.pof  sha256:D1AB1D474BC12013
+--   hw2x_cyclone_IV_v3   v2.98   GOSOF80_HW2.x_v2.98.jic  sha256:E1F94B28CDA3E917
+--   hw2x_cyclone_IV_v4   v3.98   GOSOF80_HW2.x_v3.98.jic  sha256:76876D169160F225
+--   hw4x_cyclone_10      v5.98   GOSOF80_HW4.x_v5.98.jic  sha256:C92FF87ACE309FD5

@@ -5,6 +5,7 @@
     RtlFamily   = 'cyclone_10'
     Options     = @('hw4x')
     BinFolder   = 'HW4x_Cyclone_10'
+    HwName      = 'HW4.x'
     ReleaseArtifact = 'jic'
     Dormant     = $false
     VirtualPins = @()
