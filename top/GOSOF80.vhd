@@ -35,53 +35,69 @@
 --                MA-216 games, selected with DIP 2 ON. DIP 2 OFF = speech from MP3 as
 --                before. Not on Cyclone II (variant_pkg HAS_VOTRAX = false).
 --                Audio DAC now 10 bit: sound DAC + speech mixed with saturation.
+--                Speech 1.0 = 512, tones x3 instead of x4 while the emulation runs.
+--                HW 4.x (v4.01: CRC check, sound test, PLL) joins this tree as board 5.
+--                Clock and option DIPs of HW 2.x as on HW 4.x, option DIPs (ON = '0'):
+--                  DIP1 ON  CPU 1020 kHz, OFF 892 kHz (Gosof_PLL; was a 7 step divider)
+--                  DIP2 ON  speech from the MP3 player, OFF Votrax emulation (MA-216)
+--                  DIP3 ON  test switch = test switch of the original board,
+--                       OFF test switch says "This is Gosof version x.98 from lisy dot dev"
+--                  DIP4 ON  test mode: every sound as number from MP3 folder 64
+--                           (was game_sel 000000 on HW 2.x; DIP4 "ROM from sector 660" is gone)
 --
--- Shared top level of all HW 2.x board variants (Cyclone II, Cyclone IV v3/v4,
--- Cyclone 10). The board decides only chip, pins and megafunction family - see
--- variants\<name>\ and VARIANTEN.md. Releases are named <BoardId>.<SwMinor>,
--- e.g. 0.97 / 2.97 / 3.97 / 4.97 - board id in variant.psd1, SwMinor in
--- scripts\version.psd1.
+-- Shared core of all board variants (HW 2.x: Cyclone II, Cyclone IV v3/v4, Cyclone 10;
+-- HW 4.x: Cyclone 10). The board shells top\board_hw2x.vhd / top\board_hw4x.vhd
+-- (entity gosof80) map their pins onto it; the SD card reader comes per board family
+-- as entity sd_reader. Releases are named <BoardId>.<SwMinor>, e.g. 3.98 - board id in
+-- variant.psd1, SwMinor in scripts\version.psd1, both reach the VHDL as generics
+-- (set_parameter in the generated .qsf).
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.variant_pkg.all;
 
-entity gosof80 is
+entity gosof80_core is
+	generic(
+		BOARD_ID : natural := 0;
+		SW_MINOR : natural := 0
+	);
 	port(
 		clk_50	: in std_logic;
 		reset_sw	: in std_logic;
-		test		: in std_logic := '1';
+		test_sw	: in std_logic;  -- test switch (Gottlieb test), '0' = pressed
+		gosof_test	: in std_logic;  -- sound test switch (HW 4.x only), '0' = pressed
 		Audio_O	: buffer std_logic;
-		
+
 		-- Sound input S1,S2,S4,S8,S16
 		-- initial low due to 2803A on input of Gosof80
 		Sound :	in 	std_logic_vector(4 downto 0);
-		
+
 		--Soudnboard Options S1 DIPs 1..6
 		SB_Opt :	in 	std_logic_vector(1 to 6);
-		
-		--switches	:	
-	   LED_0 	: out STD_LOGIC;						
-		LED_1 	: out STD_LOGIC;
-		LED_2 	: out STD_LOGIC;
-		game_sel	:	in 	std_logic_vector(5 downto 0);  -- game selection S2		
-		option   :	in 	std_logic_vector(3 downto 0);  -- GOSOF options
-		
-		-- DFPlayer
-		DFP_Busy	   : in STD_LOGIC;
-		DFP_tx	   : out STD_LOGIC;
-		
-		-- SDcard
-		SD_CS : buffer 	std_logic;		
-		SD_MISO : in 	std_logic;		
-		SD_MOSI : buffer 	std_logic;		
-		SD_CLK : buffer 	std_logic		
-		
-		);
-end gosof80;
 
-architecture rtl of gosof80 is 
+		game_sel	:	in 	std_logic_vector(5 downto 0);  -- game selection S2
+		option   :	in 	std_logic_vector(3 downto 0);  -- GOSOF options
+
+		-- signals for the board LEDs
+		trigger_o	: out std_logic;  -- one of S1..S8 active
+		pa7_o			: out std_logic;  -- RIOT PA7 (sound strobe as the CPU sees it)
+		sd_error_o	: out std_logic;
+		crc_error_o	: out std_logic;  -- '0' = CRC error (HW 4.x), '1' on HW 2.x
+
+		-- DFPlayer
+		DFP_txd	   : out STD_LOGIC;
+
+		-- SDcard
+		SD_CS : buffer 	std_logic;
+		SD_MISO : in 	std_logic;
+		SD_MOSI : buffer 	std_logic;
+		SD_CLK : buffer 	std_logic
+
+		);
+end gosof80_core;
+
+architecture rtl of gosof80_core is
 
 	-- multi SD, type according to game select
 	constant is_MA216 : std_logic_vector(2 downto 0):="000";
@@ -94,12 +110,22 @@ architecture rtl of gosof80 is
 	signal SB_type : 	std_logic_vector(2 downto 0);
 	
 	signal cpu_clk	   : std_logic; -- 892 KHz clock
+	signal clk_892	   : std_logic; -- 892 KHz clock (Gosof_PLL c0)
+	signal clk_1042	   : std_logic; -- 1020 KHz clock (Gosof_PLL c1, called 1042 since HW 4.x)
 	signal phi2			: 	std_logic; -- CPU clock phase 2
 	signal uart_clk	: std_logic; -- 9600 baud clock for uart
 	signal reset_l		: 	std_logic; -- Ccontroled by SD card reader
-	signal cpu_reset_l		: 	std_logic; -- for testmode
+
+	-- option DIPs (ON = '0' on the pin)
+	signal opt_fast		: std_logic; -- DIP1 ON: CPU 1020 kHz
+	signal opt_test		: std_logic; -- DIP4 ON: test mode, sounds as numbers (MP3 folder 64)
+	signal test_game		: std_logic; -- test switch as the game sees it
 
 	signal Sound_meta : 	std_logic_vector(4 downto 0);
+	signal Sound_in : 	std_logic_vector(4 downto 0);   -- Sound_meta or the sound test
+	signal trigger_sound	: std_logic;
+	signal test_activ		: std_logic;
+	signal test_sound		: std_logic_vector(4 downto 0);
 	signal cpu_addr	:	std_logic_vector(15 downto 0);
 	signal cpu_din		: 	std_logic_vector(7 downto 0);
 	signal cpu_dout	:  std_logic_vector(7 downto 0);
@@ -145,11 +171,13 @@ architecture rtl of gosof80 is
 	signal sc01_cs			:  std_logic;
 	signal sc01_AR_timing	:  std_logic; -- A/R of the old timing-only SC01 (MP3 speech)
 
-	-- Votrax SC-01 emulation (MA-216, DIP 2 ON)
+	-- Votrax SC-01 emulation (MA-216, option DIP 2 OFF) and the version announcement
 	signal votrax_on		:  std_logic;
 	signal vtx_ar			:  std_logic;
 	signal vtx_audio		:  signed(15 downto 0);
 	signal audio_mix		:  std_logic_vector(9 downto 0);
+	signal ann_enable		:  std_logic; -- option DIP 3 OFF: test switch says the version
+	signal ann_busy		:  std_logic;
 
 	signal send_flag	:  std_logic:='0';
 	signal DFcmd_cmd	:  std_logic_vector(7 downto 0);
@@ -165,10 +193,10 @@ architecture rtl of gosof80 is
 	signal speech_ctrl :  std_logic_vector(31 downto 0);
 	
 	-- SD card
-	signal address_sd_card	:  std_logic_vector(13 downto 0);
+	signal address_sd_card	:  std_logic_vector(15 downto 0);
 	signal data_sd_card	:  std_logic_vector(7 downto 0);
 	signal wr_rom			:  std_logic;
-	signal SD_game_sel	:	std_logic_vector(7 downto 0);  
+	signal bg_on			:  std_logic; -- background music via the MP3 player
 			
 	-- MA490 only	
 	signal ma490_irq_n			: std_logic;
@@ -181,13 +209,16 @@ architecture rtl of gosof80 is
 		
 begin
 
--- do some signaling 
--- LED_0 <= '1'; --Off is SD_Error
-LED_1 <= not audio_O; --signal audio for 093
-LED_2 <= riot_pa_i(7);
+-- do some signaling (the board shell drives its LEDs from these)
+trigger_o <= trigger_sound;
+pa7_o <= riot_pa_i(7);
+
+-- option DIPs, see the header
+opt_fast <= not option(0);
+opt_test <= not option(3);
 
 -- what type of soundboard do we emulate?
-	SB_type <=  is_MA216 when game_sel( 5 downto 3) = "111" or game_sel = "000000" else
+	SB_type <=  is_MA216 when game_sel( 5 downto 3) = "111" else
 					is_MA309 when game_sel( 5 downto 4) = "11" else
 					is_MA55 when game_sel( 5 downto 4) = "10" else
 					is_MA490 when game_sel( 5 downto 4) = "01" else
@@ -203,15 +234,33 @@ port map(
 	--i_Fast_Clk => clk_50
 	);
 
-DFP_send: entity work.DFPlayer_Mini_CMD 
-port map(   
+-- sound test (HW 4.x, switch Gosof_Test): plays sound 1..31, 5 s each
+Sound_in <= Sound_meta when test_activ = '0' else test_sound;
+
+gen_soundtest: if IS_HW4 generate
+	STEST: entity work.soundtest
+	port map(
+		i_Rst_L	=> reset_l,
+		clk_in	=> uart_clk,
+		start 	=> gosof_test,
+		test_activ => test_activ,
+		sound => test_sound
+		);
+end generate;
+gen_no_soundtest: if not IS_HW4 generate
+	test_activ <= '0';
+	test_sound <= (others => '0');
+end generate;
+
+DFP_send: entity work.DFPlayer_Mini_CMD
+port map(
 			DFcmd_cmd => DFcmd_cmd,
 			DFcmd_par1 => DFcmd_par1,
 			DFcmd_par2 => DFcmd_par2,
          send_flag => send_flag,
          clk => uart_clk,
          rst => reset_l,
-         txd => DFP_tx			
+         txd => DFP_txd
 );
 
 -- timing only SC-01 (A/R), used while the speech comes from the MP3 player
@@ -224,15 +273,62 @@ port map(
          rst => reset_l
 );
 
--- Votrax SC-01 emulation: MA-216 games with DIP 2 ON (SB_Opt(2), unused by the
--- MA-216 itself - J1 on the original board). Then MP3 speech and attract MP3 are off.
-votrax_on <= '1' when HAS_VOTRAX and SB_type = is_MA216 and SB_Opt(2) = '0' else '0';
-sc01_AR <= vtx_ar when votrax_on = '1' else sc01_AR_timing;
+-- Votrax SC-01 emulation: MA-216 games with option DIP 2 OFF (not in the test mode,
+-- which plays numbers from MP3). Then MP3 speech and attract MP3 are off.
+votrax_on <= '1' when HAS_VOTRAX and SB_type = is_MA216 and option(1) = '1' and opt_test = '0' else '0';
+-- while the version announcement runs, the CPU sees a ready SC-01 (no NMIs from A/R)
+sc01_AR <= sc01_AR_timing when votrax_on = '0' else
+           '1' when ann_busy = '1' else
+           vtx_ar;
+
+-- Test switch: with option DIP 3 OFF (and the emulation built in) it says the version,
+-- the game sees it open. With DIP 3 ON it is the test switch of the original board.
+ann_enable <= '1' when HAS_VOTRAX and option(2) = '1' else '0';
+test_game <= '1' when ann_enable = '1' else test_sw;
 
 gen_votrax: if HAS_VOTRAX generate
 	signal speech_clk_latch	:  std_logic_vector(7 downto 0); -- $3000, SC-01 clock
 	signal vtx_mute_stb		:  std_logic;
+	signal vtx_stb			:  std_logic;
+	signal vtx_data		:  std_logic_vector(7 downto 0);
+	signal vtx_clk_ctrl	:  std_logic_vector(7 downto 0);
+	signal ann_start		:  std_logic;
+	signal ann_stb			:  std_logic;
+	signal ann_data		:  std_logic_vector(7 downto 0);
+	signal test_s			:  std_logic_vector(2 downto 0) := "111";
+	signal deb_cnt			:  unsigned(19 downto 0) := (others => '0'); -- 21 ms at 50 MHz
+	signal test_deb		:  std_logic := '1';
 begin
+	-- debounce the test switch: a level counts once it held for 2^20 clocks (21 ms)
+	Test_Debounce: process(clk_50) is
+	begin
+		if rising_edge(clk_50) then
+			test_s <= test_s(1 downto 0) & test_sw;
+			ann_start <= '0';
+			if test_s(2) = test_deb then
+				deb_cnt <= (others => '0');
+			else
+				deb_cnt <= deb_cnt + 1;
+				if deb_cnt = (deb_cnt'range => '1') then
+					test_deb <= test_s(2);
+					ann_start <= ann_enable and not test_s(2);  -- pressed
+				end if;
+			end if;
+		end if;
+	end process;
+
+	ANNOUNCE: entity work.vtx_announce
+	generic map (BOARD_ID => BOARD_ID, SW_MINOR => SW_MINOR)
+	port map(
+		clk   => clk_50,
+		rst_n => reset_l,
+		start => ann_start,
+		ar    => vtx_ar,
+		busy  => ann_busy,
+		stb   => ann_stb,
+		data  => ann_data
+	);
+
 	-- $3000: D/A converter for the SC-01 clock (0x7E = 720 kHz, games lower it for TILT)
 	Speech_Clock_Latch: process(clk_50) is
 	begin
@@ -247,17 +343,23 @@ begin
 
 	-- PinMAME gts80s.c: a write to $7000-$7FFF (the ROM area, the program writes there
 	-- as a delay) mutes the speech until the next phoneme write to $2000
-	vtx_mute_stb <= '1' when cpu_addr(14 downto 12) = "111" and cpu_wr_n = '0' and cpu_clk = '0' else '0';
+	vtx_mute_stb <= '1' when cpu_addr(14 downto 12) = "111" and cpu_wr_n = '0' and cpu_clk = '0'
+	                         and votrax_on = '1' and ann_busy = '0' else '0';
+
+	-- the bus of the SC-01: the announcement while it runs, else the MA-216 CPU
+	vtx_stb      <= ann_stb when ann_busy = '1' else sc01_strobe and votrax_on;
+	vtx_data     <= ann_data when ann_busy = '1' else cpu_dout;
+	vtx_clk_ctrl <= x"7E" when ann_busy = '1' else speech_clk_latch;
 
 	VOTRAX: entity work.votrax_sc01
 	generic map (G_TICK_DIV => 0)
 	port map(
 		clk       => clk_50,
 		rst_n     => reset_l,
-		stb       => sc01_strobe,
-		data      => cpu_dout,
+		stb       => vtx_stb,
+		data      => vtx_data,
 		mute_stb  => vtx_mute_stb,
-		clk_ctrl  => speech_clk_latch,
+		clk_ctrl  => vtx_clk_ctrl,
 		ar        => vtx_ar,
 		audio     => vtx_audio,
 		audio_stb => open,
@@ -267,6 +369,7 @@ end generate;
 gen_no_votrax: if not HAS_VOTRAX generate
 	vtx_ar    <= '1';
 	vtx_audio <= (others => '0');
+	ann_busy  <= '0';
 end generate;
 
 
@@ -325,14 +428,14 @@ sc01_strobe 	<= SC01_cs and not cpu_clk;
 -- else map to address room
 
 -- content of sound rom 1 is read from first 2K of SD
-wr_soundrom1 <= '1' when ((wr_rom='1') and (address_sd_card(13 downto 11) ="000" )) else '0';
+wr_soundrom1 <= '1' when ((wr_rom='1') and (address_sd_card(15 downto 11) ="00000" )) else '0';
 soundrom1_addr <=  --2K
 	address_sd_card(10 downto 0) when wr_soundrom1 = '1' else
 	'0' & cpu_addr(9 downto 0) when (SB_type = is_MA55 or SB_type = is_SYS1) else -- MA55 and SYS1 have only 1K rom
 	cpu_addr(10 downto 0);
 
 -- content of sound rom 2 is read from second 2K of SD
-wr_soundrom2 <= '1' when ((wr_rom='1') and (address_sd_card(13 downto 11) ="001" )) else '0';
+wr_soundrom2 <= '1' when ((wr_rom='1') and (address_sd_card(15 downto 11) ="00001" )) else '0';
 soundrom2_addr <=  --2K
 	address_sd_card(10 downto 0) when wr_soundrom2 = '1' else
 	'0' & cpu_addr(9 downto 0) when (SB_type = is_MA55 or SB_type = is_SYS1) else -- MA55 and SYS1 have only 1K rom
@@ -352,6 +455,7 @@ cpu_din <=
 -- starting with sound #31 down to sound #0
 
 speech_ctrl <=
+"00000000000000000000000000000001" when opt_test = '1' else  --folder 64 , numbers as wav
 "11111111111111111111111111111101" when game_sel = "100111" else  --Pink Panther
 																		 
 "00000100000000010111100111100111" when game_sel = "111111" else  --Mars
@@ -362,7 +466,6 @@ speech_ctrl <=
 "00000111111110110111111111110111" when game_sel = "111010" else  --Striker
 "11111111111111110000111101110101" when game_sel = "111001" else  --Q*Bert's Quest
 "00000111111110111111111111111011" when game_sel = "111000" else  --Caveman
-"00000000000000000000000000000001" when game_sel = "000000" else  --folder 64 , numbers as wav
 "11111111111111111111111111111111"; -- no speech
 
 -- RIOT_PA
@@ -370,16 +473,17 @@ speech_ctrl <=
 -- MA55 use PA_out for 1408 DAC
 --Sound board inputs through RIOT port A via GOSOF 
 -- use not sound for benchtest with 2803A
-riot_pa_i(0) <= Sound_meta(0);
-riot_pa_i(1) <= Sound_meta(1);
-riot_pa_i(2) <= Sound_meta(2);
-riot_pa_i(3) <= Sound_meta(3);
-riot_pa_i(4) <= Sound_meta(4);
+riot_pa_i(0) <= Sound_in(0);
+riot_pa_i(1) <= Sound_in(1);
+riot_pa_i(2) <= Sound_in(2);
+riot_pa_i(3) <= Sound_in(3);
+riot_pa_i(4) <= Sound_in(4);
 riot_pa_i(5) <= '0'; -- wired, but not used
 riot_pa_i(6) <= '0'; -- not wired, not used
 -- Strobe signal generates IRQ when one of the inputs S1-S8 go low
 -- we do this also for speech as the SB may want to stop current sound
-riot_pa_i(7) <= ( Sound_meta(0) or Sound_meta(1) or Sound_meta(2) or Sound_meta(3));
+trigger_sound <= ( Sound_in(0) or Sound_in(1) or Sound_in(2) or Sound_in(3));
+riot_pa_i(7) <= trigger_sound and not opt_test; -- no trigger in sound as numbers testmode
 
 -- RIOT PB
 ---
@@ -390,28 +494,28 @@ riot_pa_i(7) <= ( Sound_meta(0) or Sound_meta(1) or Sound_meta(2) or Sound_meta(
 --
 --Test attract mode and speech off for Mars
 -- Manual: Switch ON -> 0, Switch OFF -> 1
-riot_pb_i(0) <= Sound_meta(0) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
+riot_pb_i(0) <= Sound_in(0) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
 				    '1'; -- DIP7 not wired on Gosof PCB
-riot_pb_i(1) <= Sound_meta(1) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
+riot_pb_i(1) <= Sound_in(1) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
 					 SB_Opt(6); --DIP6
-riot_pb_i(2) <= Sound_meta(2) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
+riot_pb_i(2) <= Sound_in(2) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
 					 SB_Opt(5); --DIP5
-riot_pb_i(3) <= Sound_meta(3) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
+riot_pb_i(3) <= Sound_in(3) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else
 					 SB_Opt(1); --DIP1
 riot_pb_i(4) <= SB_Opt(4) when (SB_type = is_MA216 or SB_type = is_MA309) else --DIP4
 					 SB_Opt(2); --MA55 and MA490 -- Attract mode sounds enable (S2 on board)
 riot_pb_i(5) <= cpu_addr(10) when ( SB_type = is_MA55 or SB_type = is_SYS1 ) else --CS2 (needed?)
 					 SB_Opt(3); --DIP3
 riot_pb_i(6) <= '0' when ( SB_type = is_MA55 or SB_type = is_MA490 ) else  -- S16 Spare not used by games with MA-55 and MA490
-					  Sound_meta(4) when ( SB_type = is_SYS1 ) else -- 5 inputs with System1 'Multisound'
-					  test; -- connected to Testswitch against ground with MA216 & MA390
+					  Sound_in(4) when ( SB_type = is_SYS1 ) else -- 5 inputs with System1 'Multisound'
+					  test_game; -- connected to Testswitch against ground with MA216 & MA390
 --for MA216 we have also a wire to A/R of SC01 ( is pB7 a input or a output IO?)
 -- jumpered to Vcc in most games, can be strapped to riot PB7 out;
 riot_pb_i(7) <= not sc01_AR when SB_type = is_MA216 else
 					 SB_Opt(1) when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else --Sound or tones mode (DIP1), many games lack tone support and require this to be high (OFF)
 					'1'; -- '1' for MA309 and games with no speech
 n_cpu_nmi <=  not sc01_AR when SB_type = is_MA216 else 
-				  test when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else 
+				  test_game when ( SB_type = is_MA55 or SB_type = is_MA490 or SB_type = is_SYS1 ) else 
 				  '1'; -- '1' for MA309 and games with no speech
 -- DIP8 not wired on Gosof PCB
 
@@ -420,7 +524,7 @@ DFP_bg: entity work.background_sound
 port map(   
          clk => uart_clk,
          rst => reset_l,
-			game_over => Sound_meta(4),
+			game_over => Sound_in(4),
 			folder => x"09",
 			DFcmd_cmd => bg_DFcmd_cmd,
 			DFcmd_par1 => bg_DFcmd_par1,
@@ -449,9 +553,13 @@ port map(
 
 -- prepare date for MP3 Player	      	  
 -- Folder selection wav files
-DFcmd_cmd <= bg_DFcmd_cmd when ( SB_type = is_MA55 or SB_type = is_SYS1 ) else X"0F"; -- cmd for folder to playback
+-- background music: System 1, and MA-55 on HW 2.x (HW 4.x v4.01 dropped MA-55), not in the test mode
+bg_on <= '1' when (SB_type = is_SYS1 or (SB_type = is_MA55 and not IS_HW4)) and opt_test = '0' else '0';
+
+DFcmd_cmd <= bg_DFcmd_cmd when bg_on = '1' else X"0F"; -- cmd for folder to playback
 
 DFcmd_par1 <=
+X"40" when opt_test = '1' else  -- folder 64 - Test (numbers as wav)
 X"0A" when game_sel = "111111" else  -- folder 10 Mars
 X"0C" when game_sel = "111110" else -- folder 12 Volcano
 X"0E" when game_sel = "111101" else  -- folder 14 Black Hole						
@@ -460,17 +568,16 @@ X"14" when game_sel = "111011" else  -- folder 20 - Rocky
 X"17" when game_sel = "111010" else  -- folder 23 - Striker
 X"19" when game_sel = "111001" else  -- folder 25 - Q*Bert's Quest
 X"3F" when game_sel = "111000" else  -- folder 63 - Caveman
-X"40" when game_sel = "000000" else  -- folder 64 - Test (numbers as wav)
 X"00"; --default 0 (e.g. for SYS1)
 --
 
-DFcmd_par2 <=  bg_DFcmd_par2 when ( SB_type = is_MA55 or SB_type = is_SYS1 )
+DFcmd_par2 <=  bg_DFcmd_par2 when bg_on = '1'
 					  else attract_sound when attract_send_flag = '1'
-					  else "000" & Sound_meta;
+					  else "000" & Sound_in;
 
-send_flag <= bg_send_flag when ( SB_type = is_MA55 or SB_type = is_SYS1 ) else
+send_flag <= bg_send_flag when bg_on = '1' else
 				  '0' when votrax_on = '1' else -- speech (also in attract mode) from the SC-01 emulation
-				  riot_pa_i(7) when speech_ctrl(to_integer(unsigned(Sound_meta))) = '0' else
+				  trigger_sound when speech_ctrl(to_integer(unsigned(Sound_in))) = '0' else
 				  attract_send_flag;
 				
 	
@@ -497,21 +604,23 @@ port map(
 	uart_clk_out	=> uart_clk
 );
 
--- cpu clock 892Khz
-clock_gen: entity work.cpu_clk_gen 
-port map(   
-	clk_in => clk_50,
-	cpu_clk_out	=> cpu_clk,
-	clk_adj => option(2 downto 0)
-);
+-- cpu clock 892 kHz or 1020 kHz (option DIP 1 ON), as on HW 4.x. Gosof_PLL is the ALTPLL on
+-- Cyclone IV/10 and a plain divider on Cyclone II (rtl\cyclone_*\Gosof_PLL.vhd).
+PLL: entity work.Gosof_PLL
+port map(
+	inclk0 => clk_50,
+	c0 => clk_892,
+	c1 => clk_1042
+	);
 
-cpu_reset_l <= '0' when game_sel = "000000" else reset_l; --no cpu in testmode
+cpu_clk <= clk_1042 when opt_fast = '1' else clk_892;
+
 -- 6502 CPU
 CPU : entity work.T65
 port map(
 	Enable => '1',
 	Mode => "00",
-	Res_n => cpu_reset_l,
+	Res_n => reset_l,
 	Clk => cpu_clk,
 	Rdy => '1',
 	Abort_n => '1',
@@ -573,6 +682,7 @@ audio_dat <= audio_dat_latch when ( SB_type = is_MA216 or SB_type = is_MA309) el
 -- samples hit the limit; the sum saturates.
 -- With the emulation on, the sound DAC is scaled x3 instead of x4 (-2.5 dB): with speech
 -- x2 the tones were still a bit louder than the speech. MP3 mode keeps the old level.
+-- The version announcement is mixed in whenever it runs, on top of the tone level in use.
 Audio_Mixer: process(clk_50) is
 	variable d : integer range -128 to 127;
 	variable s : integer range -4096 to 4095;
@@ -580,9 +690,12 @@ begin
 	if rising_edge(clk_50) then
 		d := to_integer(unsigned(audio_dat)) - 128;
 		if votrax_on = '1' then
-			s := d * 2 + d + to_integer(shift_right(vtx_audio, 4));
+			s := d * 2 + d;
 		else
 			s := d * 4;
+		end if;
+		if votrax_on = '1' or ann_busy = '1' then
+			s := s + to_integer(shift_right(vtx_audio, 4));
 		end if;
 		if s > 511 then s := 511; elsif s < -512 then s := -512; end if;
 		audio_mix <= std_logic_vector(to_unsigned(s + 512, 10));
@@ -604,31 +717,24 @@ port  map(
 -- SD card stuff
 ----------------------
 
-SD_game_sel <= "00000000" when option(3) = '0' else -- with DIP4 ON read gamne #0 (sector #660 )
-					"00" & not game_sel(5 downto 0);
-
-SD_CARD: entity work.SD_Card
-port map(	
-	--
-	i_clk		=> clk_50,	
-	-- Control/Data Signals,
-   i_Rst_L  => reset_sw,    
-	-- PMOD SPI Interface
-   o_SPI_Clk  => SD_CLK,
-   i_SPI_MISO => SD_MISO,
-   o_SPI_MOSI => SD_MOSI,
-   o_SPI_CS_n => SD_CS,	
-	-- selection	
-	selection => SD_game_sel,
-	-- data
+-- sd_reader is the SD card reader of the board family (rtl\common\sd_reader_hw2x.vhd:
+-- 4 KB per game; rtl\hw4x\sd_reader_hw4x.vhd: 64 KB per game with CRC check)
+SD_CARD: entity work.sd_reader
+port map(
+	clk		=> clk_50,
+   rst_l  => reset_sw,
+   spi_clk  => SD_CLK,
+   spi_miso => SD_MISO,
+   spi_mosi => SD_MOSI,
+   spi_cs_n => SD_CS,
+	selection => "00" & not game_sel(5 downto 0),
 	address_sd_card => address_sd_card,
 	data_sd_card => data_sd_card,
 	wr_rom => wr_rom,
-	-- control CPU
 	cpu_reset_l => reset_l,
-	-- feedback
-	SDcard_error => LED_0
-	);	
+	sd_error => sd_error_o,
+	crc_error => crc_error_o
+	);
 	
 -- soundrom1 for MA219/MA309
 -- soundrom for MA55 and others	

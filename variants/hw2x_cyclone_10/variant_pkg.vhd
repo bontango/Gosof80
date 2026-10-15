@@ -7,6 +7,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package variant_pkg is
-	-- Votrax SC-01 emulation available (selected per game with DIP 2 on MA-216 boards).
+	-- Votrax SC-01 emulation available (MA-216 games with option DIP 2 OFF; version announcement with DIP 3 OFF).
 	constant HAS_VOTRAX : boolean := true;
+	-- HW 4.x board: sound test (Gosof_Test); no MA-55 background music (as v4.01).
+	constant IS_HW4 : boolean := false;
 end package variant_pkg;

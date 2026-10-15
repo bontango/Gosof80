@@ -14,6 +14,8 @@
 
 # --- board -----------------------------------------------------------------
 set_global_assignment -name TOP_LEVEL_ENTITY GOSOF80
+set_parameter -name BOARD_ID 5
+set_parameter -name SW_MINOR 98
 set_global_assignment -name FAMILY "Cyclone 10 LP"
 set_global_assignment -name DEVICE 10CL006YE144C8G
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
@@ -147,13 +149,15 @@ set_location_assignment PIN_70 -to Gottlieb_Test
 set_global_assignment -name VHDL_FILE variant_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/votrax_tables_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/votrax_sc01.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/vtx_announce_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/vtx_announce.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/attract.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/Votrax-SC01.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/uart_clk_gen.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/slow_to_fast_clock_bus.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/DFPlayer_Mini_CMD.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/dac.vhd
-set_global_assignment -name VHDL_FILE ../../rtl/common/cpu_clk_gen.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/soundtest.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/background_sound.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65_Pack.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65_MCode.vhd
@@ -161,12 +165,13 @@ set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65_ALU.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/RIOT/R6532.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/RIOT/R6530.vhd
+set_global_assignment -name SDC_FILE ../../rtl/common/GOSOF80.sdc
+set_global_assignment -name VHDL_FILE ../../top/GOSOF80.vhd
 set_global_assignment -name QIP_FILE ../../rtl/cyclone_10/SB_ROM.qip
 set_global_assignment -name QIP_FILE ../../rtl/cyclone_10/RAM.qip
-set_global_assignment -name VHDL_FILE ../../rtl/hw4x/soundtest.vhd
+set_global_assignment -name QIP_FILE ../../rtl/cyclone_10/Gosof_PLL.qip
 set_global_assignment -name VHDL_FILE ../../rtl/hw4x/crc16_ccitt.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/hw4x/SPI_Master.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/hw4x/SD_Card.vhd
-set_global_assignment -name SDC_FILE ../../rtl/hw4x/GOSOF80.sdc
-set_global_assignment -name VHDL_FILE ../../top/GOSOF80_hw4x.vhd
-set_global_assignment -name QIP_FILE ../../rtl/cyclone_10/Gosof_PLL.qip
+set_global_assignment -name VHDL_FILE ../../rtl/hw4x/sd_reader_hw4x.vhd
+set_global_assignment -name VHDL_FILE ../../top/board_hw4x.vhd

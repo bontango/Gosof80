@@ -12,9 +12,14 @@ abzuspielen.
 - **Varianten:** `hw2x_cyclone_IV_v3`, `hw2x_cyclone_IV_v4`, `hw2x_cyclone_10` (`HAS_VOTRAX = true`
   in `variant_pkg.vhd`). **Nicht** `hw2x_cyclone_II`, dort bleibt alles wie in x.97 (Ausnahme: der
   10-Bit-Mischer, siehe unten).
-- **Einschalten:** bei MA-216-Spielen **DIP 2 (SB_Opt 2) = ON**. DIP 2 OFF bedeutet MP3-Sprache wie
-  bisher. Auf dem MA-216 ist DIP 2 die J1-Position und wird vom Spielprogramm nicht gelesen. Bei MA-55
-  und MA-490 behält DIP 2 seine bisherige Bedeutung.
+- **Einschalten:** bei MA-216-Spielen **Options-DIP 2 = OFF** (seit 15.10.2026, vorher Sound-DIP 2 ON).
+  Options-DIP 2 ON bedeutet MP3-Sprache wie bisher. Im Testmodus (Options-DIP 4 ON) ist die Emulation aus.
+- **Versionsansage:** Options-DIP 3 OFF, Testschalter drücken (21 ms entprellt): `vtx_announce.vhd` übernimmt
+  den Bus des SC-01 (Takt fest 0x7E, CPU-Schreibzugriffe und Mute ignoriert, CPU sieht A/R = bereit) und
+  spricht „This is Gosof version <Board-ID> dot <Minor-Zehner> <Minor-Einer> from lisy dot dev“. Geht bei
+  jedem Spiel und auch mit MP3-Sprache; der Mischer nimmt die Sprache dazu, solange die Ansage läuft.
+  Phonemfolge: `sim/votrax/tools/gen_announce.py` (erzeugt `vtx_announce_pkg.vhd` und den Stimulus
+  `t6_version.txt`), Probehören und Sequencer-Test: `sim/votrax/run_announce_tb.ps1` → `build/ref_t6_version.wav`.
 - Mit eingeschalteter Emulation sind die MP3-Sprache **und** die Attract-MP3 aus. Die Attract-Sprache
   erzeugt dann das Spielprogramm selbst (Sound-DIPs S3/S4 wie beim Original).
 

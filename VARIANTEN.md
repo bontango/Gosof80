@@ -1,30 +1,49 @@
 # Varianten – Ressourcen, Eigenheiten, Hardware-Teststand
 
-Stand 14.10.2026. Zahlen aus `scripts\check.ps1 -Fit`.
+Stand 15.10.2026. Zahlen aus `scripts\check.ps1` (Synthese) bzw. `-Fit`.
+
+## Options-DIPs (ab x.98-Kern, alle Platinen gleich; ON = Schalter zu = '0')
+
+| DIP | ON | OFF |
+|---|---|---|
+| 1 | CPU 1020 kHz | CPU 892 kHz |
+| 2 | Sprache vom MP3-Player | Votrax-Emulation (MA-216; Cyclone II immer MP3) |
+| 3 | Testschalter = Testschalter der Originalplatine | Testschalter sagt „This is Gosof version x.98 from lisy dot dev“ (nicht Cyclone II) |
+| 4 | Testmodus: jeder Sound als Zahl aus MP3-Ordner 64 | normal |
+
+Gegenüber HW 2.x x.97 entfallen: Taktverstellung in 7 Stufen über DIP 1–3 (Grundtakt jetzt
+892,9 statt 877 kHz), DIP 4 „ROM aus Sektor 660“, Testmodus über Spielauswahl `000000`
+(000000 ist wieder ein normales System-1-Spiel), Votrax-Wahl über Sound-DIP 2 (SB_Opt 2).
+Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den Soundtest.
 
 ## Hardware-Teststand
 
-| Variante | x.97 | x.98 (Votrax) |
-|---|---|---|
-| `hw2x_cyclone_II` | **ok** (Ralf, 14.10.2026) | **nicht getestet** (ohne Votrax) |
-| `hw2x_cyclone_IV_v3` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
-| `hw2x_cyclone_IV_v4` | **ok** (Ralf, 14.10.2026) | Sprache/TILT/Attract **ok**, Sprache zu leise (Ralf, 15.10.2026); ×3 lauter, aber kratziger; ×2 besser, Töne etwas lauter; Sprache ×2 + Töne ×3/4 **nicht getestet** |
-| `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
+| Variante | x.97 bzw. v4.01 | x.98 Mischer | x.98-Kern (DIPs, PLL, Ansage) |
+|---|---|---|---|
+| `hw2x_cyclone_II` | **ok** (Ralf, 14.10.2026) | nicht getestet (ohne Votrax) | nicht getestet, nur synthetisiert |
+| `hw2x_cyclone_IV_v3` | **ok** (Ralf, 14.10.2026) | nicht getestet | nicht getestet, nur synthetisiert |
+| `hw2x_cyclone_IV_v4` | **ok** (Ralf, 14.10.2026) | **ok** (Ralf, 15.10.2026): Sprache/TILT/Attract, Sprache ×2 + Töne ×3/4 | **nicht getestet** – `.jic` gebaut 15.10.2026 |
+| `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | nicht getestet, nur synthetisiert |
+| `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | nicht getestet, nur synthetisiert |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
 14.10.2026). Ralf meldet für die x.97-Varianten Funktion auf der Hardware.
 
-x.98, erster Hardwaretest 15.10.2026 (Ralf, `hw2x_cyclone_IV_v4`): Votrax-Sprache, TILT-Sound und
-Attract-Sprache ok, die Sprache war aber viel leiser als die Töne. Danach Sprachverstärkung ×3: Lautstärke besser, aber kratziger (Ralf). Jetzt ×2
-(Mischer in `top/GOSOF80.vhd`), Hörtest steht aus.
+x.98 Mischer, Hardwaretest 15.10.2026 (Ralf, `hw2x_cyclone_IV_v4`): Votrax-Sprache, TILT-Sound und
+Attract-Sprache ok. Sprache mit 1,0 = 256 viel zu leise, ×3 laut genug aber kratziger, Sprache ×2 und
+Töne ×3/4 (nur bei Emulation) „hört sich gut an“.
 
-x.98 war bis dahin nur gebaut und simuliert (Votrax bitgleich zum C-Modell, siehe
-`docs/Votrax_SC01_Implementierung.md`). **Zuerst testen:**
-1. DIP 2 OFF: alles wie x.97 (MP3-Sprache, Attract-MP3), Lautstärke unverändert.
-2. DIP 2 ON an einem MA-216-Spiel (Black Hole, Mars, Volcano): Sprache aus der Emulation, kein MP3,
-   TILT-Verlangsamung, Attract-Sprache (Sound-DIPs S3/S4), Lautstärkeverhältnis Sprache/Ton.
-3. Cyclone II: wie x.97 (der Mischer ist neu, sonst nichts).
+HW 4.x (`hw4x_cyclone_10`, Board-ID 5) kam am 15.10.2026 aus `..\FPGA_source_alt\HW 4.x GOSOF80 - Multi SD`
+in diesen Baum. Erst unverändert (Synthese 2234/854/33792 = Altprojekt v4.01), dann in den gemeinsamen
+Kern. Sie bekommt dadurch die Votrax-Emulation und die Ansage, behält SD-Format mit CRC, Soundtest
+und LEDs. Hintergrundmusik nur bei System 1 (wie v4.01), HW 2.x zusätzlich bei MA-55.
 
+**Zuerst testen (x.98-Kern, `hw2x_cyclone_IV_v4`):**
+1. DIP 1 ON/OFF: Spiele laufen mit beiden Takten.
+2. MA-216-Spiel, DIP 2 OFF: Sprache aus der Emulation wie beim Mischer-Test; DIP 2 ON: Sprache vom MP3.
+3. DIP 3 OFF + Testschalter: Ansage „…version three dot nine eight from lisy dot dev“, auch bei
+   Nicht-MA-216-Spielen und mit DIP 2 ON. DIP 3 ON: Testschalter wirkt wie auf der Originalplatine.
+4. DIP 4 ON: Testmodus mit Zahlen vom MP3-Player.
 ## Ressourcen x.97
 
 | Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | Setup-Slack | Hold-Slack |
@@ -34,6 +53,19 @@ x.98 war bis dahin nur gebaut und simuliert (Votrax bitgleich zum C-Modell, sieh
 | `hw2x_cyclone_IV_v4` | 2188 | 793 | 33792 | 2315 / 6272 | 5,323 ns | 0,452 ns |
 | `hw2x_cyclone_10` | 2188 | 793 | 33792 | 2313 / 6272 | 5,051 ns | 0,452 ns |
 
+## Ressourcen x.98-Kern (15.10.2026)
+
+| Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | Setup-Slack | Hold-Slack |
+|---|---|---|---|---|---|---|
+| `hw2x_cyclone_II` (ohne Votrax) | 2131 | 805 | 33792 | – | – | – |
+| `hw2x_cyclone_IV_v3` | 4633 | 2287 | 153600 | – | – | – |
+| `hw2x_cyclone_IV_v4` | 4636 | 2287 | 153600 | 4864 / 6272 (78 %) | 1,811 ns (clk_50) | 0,426 ns |
+| `hw2x_cyclone_10` | 4635 | 2287 | 153600 | – | – | – |
+| `hw4x_cyclone_10` | 4766 | 2357 | 153600 | – | – | – |
+
+Nur `hw2x_cyclone_IV_v4` ist gefittet (Testbuild); die anderen nur synthetisiert. Ansage plus
+Entprellung kosten ~62 comb / 47 reg. Die beiden CPU-Takte sind in `GOSOF80.sdc` logisch exklusiv
+(Takt-Mux), sonst meldet TimeQuest Scheinpfade 1020 kHz → 892 kHz (Hold −0,009 ns, Fast-Modell).
 ## Ressourcen x.98
 
 | Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | 9-Bit-Mult. | Setup-Slack | Hold-Slack |

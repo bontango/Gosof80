@@ -1,47 +1,31 @@
-    # 
-	# https://forums.intel.com/s/question/0D50P00003yyTEnSAM/getting-timing-requirements-not-met-as-critical-warning?language=de
-	#
-    #  Design Timing Constraints Definitions
-    # 
-    set_time_format -unit ns -decimal_places 3
-    # #############################################################################
-    #  Create Input reference clocks
-    create_clock -name {clk_50} -period 20.000 -waveform { 0.000 10.000 } [get_ports {clk_50}]
-    # #############################################################################
-	#Here I create a clock called "clkin_50" (you can name it whatever you like), 
-	#specify that it is 50MHz (20ns period), specify it is 50% duty cycle
-	#(rising edge at 0ns, falling edge at 10ns), and instruct that the port 
-	#that the clock is located at (e.g. FPGA pin) is called "clkin_50" via the "[get_ports ]" command. 
-	#The clock name doesn't have to match the port name, but I find it useful to do so.
-	#
-	# generated clocks
-	# 14.3 MHz needed?
-	# create_clock -name {clk_143} -period 69.930 -waveform { 0.000 34.965 } 
-	# 3.58 MHz
-	#create_clock -name {clk_358} -period 279.720 -waveform { 0.000 139.860 } [get_registers {clk_358}]
-	# 895 KHz
-	#create_clock -name {cpu_clk} -period 1118.880 -waveform { 0.000 559.440 } [get_registers {cpu_clk}]
-    #  Now that we have created the custom clocks which will be base clocks,
-    #  derive_pll_clock is used to calculate all remaining clocks for PLLs
-    derive_pll_clocks -create_base_clocks
-    derive_clock_uncertainty
-	#
-	# example second clock
-	#create_clock -name {clk} -period 400.000 -waveform { 0.000 200.000 } [get_registers {clk}]
-	#
-	# if output clock pins exist
-	#
-	# Create a generated clock: -name = name of new clock, -divide_by = output frequency is input divided by this, 
-	# -source = original clock, then end of line is the target signal where output clock is.
-	#
-	# Node: cpu_clk_gen:clock_gen|clk_out was determined to be a clock but was found without an associated clock assignment.
+# GOSOF80 timing constraints - shared by every variant (scripts\files_common.tcl).
+# Names only clk_50 and hierarchy paths behind wildcards, which are the same on every
+# board (the board shell top\board_*.vhd puts the core in instance "core").
+set_time_format -unit ns -decimal_places 3
 
-   # create_generated_clock -name clk_out -divide_by 94 -source clk_50 cpu_clk_gen:clock_gen|clk_out
-	create_generated_clock -name cpu_clk_out -divide_by 56 -source clk_50 cpu_clk_gen:clock_gen|cpu_clk_out	
-	create_generated_clock -name uart_clk_out -divide_by 5208 -source clk_50 uart_clk_gen:uart_gen|uart_clk_out
-   # create_generated_clock -name clk_rom_out -divide_by 24 -source clk_50 clk_rom:rom_Clock_gen|signal_level
-	# shifted negated clock same frequency	
-	# create_generated_clock -name clk_out_s -divide_by 100 -source clk_50 clk_divider_s:Clock_gen_s|signal_level
-	#
-	#Warning (332060): Node: clk_divider:Clock_gen|signal_level was determined to be a clock but was found 
-	#without an associated clock assignment.
+create_clock -name {clk_50} -period 20.000 -waveform { 0.000 10.000 } [get_ports {clk_50}]
+
+# CPU clock 892 / 1020 kHz: on Cyclone IV/10 the outputs of the ALTPLL Gosof_PLL
+derive_pll_clocks -create_base_clocks
+derive_clock_uncertainty
+
+# ... on Cyclone II Gosof_PLL is a divider (rtl\cyclone_II\Gosof_PLL.vhd), its two
+# outputs are registers. Only there do these registers exist.
+set gosof_div0 [get_registers -nowarn {*PLL|c0_r}]
+if {[get_collection_size $gosof_div0] > 0} {
+	create_generated_clock -name cpu_clk_892 -divide_by 56 -source [get_ports {clk_50}] $gosof_div0
+}
+set gosof_div1 [get_registers -nowarn {*PLL|c1_r}]
+if {[get_collection_size $gosof_div1] > 0} {
+	create_generated_clock -name cpu_clk_1020 -divide_by 49 -source [get_ports {clk_50}] $gosof_div1
+}
+
+# The CPU runs on ONE of the two clocks (cpu_clk <= clk_1042 when DIP1 ON else clk_892, a
+# clock mux in the core). Paths launched by one and latched by the other do not exist -
+# without this TimeQuest reports them (hold -0.009 ns fast model, 15.10.2026).
+set_clock_groups -logically_exclusive \
+	-group [get_clocks -nowarn {*pll1|clk\[0\] cpu_clk_892}] \
+	-group [get_clocks -nowarn {*pll1|clk\[1\] cpu_clk_1020}]
+
+# 9600 baud clock of the DFPlayer UART, a divider register as well
+create_generated_clock -name uart_clk_out -divide_by 5208 -source [get_ports {clk_50}] [get_registers {*uart_gen|uart_clk_out}]

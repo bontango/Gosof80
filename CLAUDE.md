@@ -1,24 +1,34 @@
 # GOSOF80 – Kontext für Claude
 
 FPGA-Ersatz des Gottlieb-System-80-Soundboards, gemeinsamer Sourcebaum für die
-HW-2.x-Platinen. Aufbau nach Skill `fpga-varianten-sourcebaum` (Vorlage AtariFA).
+HW-2.x-Platinen und HW 4.x (seit 15.10.2026, Board-ID 5). Aufbau nach Skill `fpga-varianten-sourcebaum` (Vorlage AtariFA).
 Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
 
-## Architektur (top/GOSOF80.vhd)
+## Architektur (top/GOSOF80.vhd = Kern `gosof80_core`)
 
-- T65 (6502) mit 892 kHz bzw. 1042 kHz (`cpu_clk_gen`), RIOT R6532, 128 B RAM, zwei 2-KB-ROMs
+- Platinenhüllen `top/board_hw2x.vhd` / `top/board_hw4x.vhd` (Entity `gosof80`, Pinnamen der Platine)
+  instanziieren den Kern als `core`. SD-Leser je Platinenfamilie als Entity `sd_reader`:
+  `rtl/common/sd_reader_hw2x.vhd` (4 KB/Spiel) bzw. `rtl/hw4x/sd_reader_hw4x.vhd` (64 KB/Spiel, CRC).
+  Welche Dateien, entscheidet `Options` in `variant.psd1` (`files_hw2x.tcl` / `files_hw4x.tcl`).
+- Options-DIPs (ON = '0'): DIP1 CPU-Takt 1020/892 kHz, DIP2 ON = MP3-Sprache / OFF = Votrax,
+  DIP3 ON = Testschalter wie Original / OFF = Versionsansage, DIP4 ON = Testmodus (Zahlen, MP3-Ordner 64).
+- T65 (6502) mit 892 kHz bzw. 1020 kHz (`Gosof_PLL`: ALTPLL auf Cyclone IV/10, Teiler auf Cyclone II), RIOT R6532, 128 B RAM, zwei 2-KB-ROMs
   (`SB_ROM`), die `SD_Card` beim Start von der SD-Karte füllt (Spielauswahl über `game_sel`).
 - Soundboard-Typ aus `game_sel(5 downto 3)`: MA-216, MA-309, MA-55, MA-490, System 1, special.
   Adressdekodierung und RIOT-Belegung hängen davon ab.
 - Ton: 8-Bit-Latch (MA-216/309) bzw. RIOT PA (andere) → `dac` (Delta-Sigma) → `Audio_O`.
 - Sprache, zwei Wege:
-  - MP3 (DIP 2 OFF, und immer auf Cyclone II): `Votrax-SC01.vhd` bildet nur A/R-Timing nach, der
+  - MP3 (Options-DIP 2 ON, und immer auf Cyclone II): `Votrax-SC01.vhd` bildet nur A/R-Timing nach, der
     DFPlayer spielt die Sprache (`speech_ctrl`-Tabelle je Spiel, Ordner in `DFcmd_par1`),
     Attract-Sprache über `attract`.
-  - Emulation (ab x.98, MA-216 mit DIP 2 ON, `HAS_VOTRAX` in `variant_pkg.vhd`):
+  - Emulation (ab x.98, MA-216 mit Options-DIP 2 OFF, `HAS_VOTRAX` in `variant_pkg.vhd`):
     `rtl/common/votrax/votrax_sc01.vhd`, PinMAMEs SC-01-Modell. $3000 = SC-01-Takt, $7000 = Mute,
     Mischer auf 10-Bit-DAC. Details: `docs/Votrax_SC01_Implementierung.md`.
-- Hintergrundmusik bei System 1 über `background_sound`.
+  - Versionsansage (`rtl/common/votrax/vtx_announce.vhd`): Testschalter bei Options-DIP 3 OFF,
+    Phonemtabellen aus `sim/votrax/tools/gen_announce.py`, Version aus den Generics `BOARD_ID`/`SW_MINOR`
+    (`gen_qsf.ps1` schreibt sie als `set_parameter`). Prüfung: `sim/votrax/run_announce_tb.ps1`.
+- Hintergrundmusik bei System 1 (HW 2.x auch MA-55) über `background_sound`.
+- HW 4.x zusätzlich: Soundtest (`soundtest`, Schalter Gosof_Test), CRC-LED.
 
 ## Was ändern → wo
 
@@ -33,6 +43,8 @@ Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
 | Timing | `rtl/common/GOSOF80.sdc` (gemeinsam, nennt nur Hierarchienamen) |
 | Konstante je Platine (z. B. `HAS_VOTRAX`) | `variants/<n>/variant_pkg.vhd` |
 | Votrax-Rechenweg / Formate | **zuerst** `sim/votrax/model/vmodel.c` (die Spezifikation), dann VHDL, dann `sim/votrax/run_sim.ps1` – VHDL muss bitgleich zum Modell bleiben |
+| Text der Versionsansage | `sim/votrax/tools/gen_announce.py`, dann `run_announce_tb.ps1` (rendert WAV) |
+| Pins/Unterschiede einer Platinenfamilie | `top/board_*.vhd`, `scripts/files_hw2x.tcl` / `files_hw4x.tcl` |
 | Votrax-Tabellen | `sim/votrax/tools/gen_votrax_tables.py` ausführen, nie `votrax_tables_pkg.vhd` von Hand ändern |
 
 Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synthesezahlen
@@ -60,11 +72,10 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 
 ## Offene Punkte
 
-- Registergeteilte Takte `cpu_clk_out`/`uart_clk_out`: Hold auf Cyclone II nur per Fitter-Einstellung erfüllt
-  (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
-- Board-ID 4 kollidiert mit der HW-4.x-Nummerierung. Das vor der Aufnahme von HW 4.x klären.
-- HW 3.x, HW 4.x, GOSOF80B liegen noch in `..\FPGA_source_alt` und sollen als weitere Varianten
-  hierher (dafür erst angleichen: HW 4.x hat CRC-Check, Testmodus, eigenes SD_Card, PLL).
+- Registergeteilte Takte (Cyclone II: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
+  nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
+- HW 3.x und GOSOF80B liegen noch in `..\FPGA_source_alt` und sollen als weitere Varianten hierher.
+- `rtl/common/cpu_clk_gen.vhd` wird nicht mehr benutzt (löschen nach Freigabe).
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
 - Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
   gegen den MA-216-Schaltplan prüfen.

@@ -68,6 +68,7 @@ $folders = $folders | Where-Object {
 if (-not $folders) { throw "no generated variants found below $VarRoot" }
 
 $common = Read-Fragment (Join-Path $ScriptDir 'common_header.tcl')
+$swMinor = [int](Import-PowerShellDataFile (Join-Path $ScriptDir 'version.psd1')).SwMinor
 $fail   = $false
 
 foreach ($dir in $folders) {
@@ -95,6 +96,10 @@ foreach ($dir in $folders) {
     $topEntity = 'GOSOF80'
     if ($meta.TopEntity) { $topEntity = $meta.TopEntity }
     $out.Add("set_global_assignment -name TOP_LEVEL_ENTITY $topEntity")
+    # Version of the design as generics of the top level (board shell): the version
+    # announcement says it. One source: BoardId in variant.psd1, SwMinor in version.psd1.
+    $out.Add("set_parameter -name BOARD_ID $($meta.BoardId)")
+    $out.Add("set_parameter -name SW_MINOR $($swMinor)")
     Read-Fragment (Join-Path $dir.FullName 'device.tcl') | ForEach-Object { $out.Add($_) }
     $out.Add('')
     $out.Add('# --- shared globals --------------------------------------------------------')

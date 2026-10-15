@@ -9,4 +9,6 @@ use ieee.std_logic_1164.all;
 package variant_pkg is
 	-- No Votrax on Cyclone II: the EP2C5 lacks the memory for the coefficient ROMs (decided 10.2026).
 	constant HAS_VOTRAX : boolean := false;
+	-- HW 4.x board: sound test (Gosof_Test); no MA-55 background music (as v4.01).
+	constant IS_HW4 : boolean := false;
 end package variant_pkg;
