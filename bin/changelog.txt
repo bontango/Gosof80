@@ -30,3 +30,7 @@
 --   hw2x_cyclone_IV_v3   v2.98   GOSOF80_HW2.x_v2.98.jic  sha256:E1F94B28CDA3E917
 --   hw2x_cyclone_IV_v4   v3.98   GOSOF80_HW2.x_v3.98.jic  sha256:76876D169160F225
 --   hw4x_cyclone_10      v5.98   GOSOF80_HW4.x_v5.98.jic  sha256:C92FF87ACE309FD5
+
+-- 2026-10-15 11:52  version .98
+--   x.98 core for HW 3.x (board 6, was HW3.x v4.97): same core and option DIPs as all other boards. NOT tested on hardware.
+--   hw3x_cyclone_IV      v6.98   GOSOF80_HW3.x_v6.98.jic  sha256:2F3DFC194C4ABDEE
