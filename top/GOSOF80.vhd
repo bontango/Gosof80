@@ -567,15 +567,22 @@ audio_dat <= audio_dat_latch when ( SB_type = is_MA216 or SB_type = is_MA309) el
 				 
 -- Mixer: sound DAC (8 bit, 0x80 = silence) + SC-01 speech, 10 bit for the DAC.
 -- Without speech the 10 bit value is audio_dat & "00", i.e. exactly the old level.
--- Speech: 1.0 (= 8192, PinMAME's output scale) -> 256 = half the sound DAC's full
--- scale; the sum saturates.
+-- Speech: 1.0 (= 8192, PinMAME's output scale) -> 512 = the sound DAC's full scale.
+-- x.98 had 256 (far too quiet on hardware), 768 was loud enough but audibly harsher.
+-- Speech peaks at ~1.1 but its RMS is only ~0.14, so only ~0.06 % of the speech
+-- samples hit the limit; the sum saturates.
+-- With the emulation on, the sound DAC is scaled x3 instead of x4 (-2.5 dB): with speech
+-- x2 the tones were still a bit louder than the speech. MP3 mode keeps the old level.
 Audio_Mixer: process(clk_50) is
-	variable s : integer range -2048 to 2047;
+	variable d : integer range -128 to 127;
+	variable s : integer range -4096 to 4095;
 begin
 	if rising_edge(clk_50) then
-		s := (to_integer(unsigned(audio_dat)) - 128) * 4;
+		d := to_integer(unsigned(audio_dat)) - 128;
 		if votrax_on = '1' then
-			s := s + to_integer(shift_right(vtx_audio, 5));
+			s := d * 2 + d + to_integer(shift_right(vtx_audio, 4));
+		else
+			s := d * 4;
 		end if;
 		if s > 511 then s := 511; elsif s < -512 then s := -512; end if;
 		audio_mix <= std_logic_vector(to_unsigned(s + 512, 10));

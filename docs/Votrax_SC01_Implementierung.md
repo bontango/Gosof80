@@ -29,8 +29,11 @@ abzuspielen.
 
 **Mischer:** Sound-DAC (8 Bit) und Sprache werden zu 10 Bit addiert und gesättigt, `dac` läuft mit
 `msbi_g => 9`. Ohne Sprache ist der 10-Bit-Wert genau `audio_dat & "00"`, das Ausgangsniveau ist also
-dasselbe wie mit dem alten 8-Bit-DAC. Sprachpegel: PinMAMEs 1,0 entspricht 256, das ist halber Vollausschlag
-des Sound-DACs. Ob das Verhältnis zum Original passt, zeigt erst der Hörtest.
+dasselbe wie mit dem alten 8-Bit-DAC. Sprachpegel: PinMAMEs 1,0 entspricht 512, das ist der
+Vollausschlag des Sound-DACs (`>> 4`). Zuerst war es 256; der Hardwaretest am 15.10.2026 ergab,
+dass die Sprache damit viel leiser war als die Töne. Mit 768 (Faktor 3) war sie laut genug, klang aber hörbar kratziger, daher Faktor 2: Die Sprache hat Spitzen von
+~1,1, aber nur ~0,14 RMS (gemessen an `sim/votrax/build/ref_t1_allphones.f32`). Bei 512 werden 0,06 % der
+Sprach-Samples begrenzt, bei 768 waren es 0,65 %, bei 1024 wären es 1,7 %.
 
 ## Aufbau des Moduls
 
@@ -110,7 +113,8 @@ Cyclone IV v3/v4 liegen gleichauf (4.772 / 4.782 LE, Slack 2,3 ns).
 ## Offen
 
 - **Hardwaretest:** Black Hole, Mars, Volcano (Sprache, TILT-Verlangsamung, Attract-Sprache mit S3/S4).
-- **Lautstärke** Sprache gegen Ton.
+  15.10.2026 (Ralf): Sprache, TILT-Sound und Attract-Sprache ok, Sprache aber viel leiser als die Töne.
+- **Lautstärke** Sprache gegen Ton: 256 zu leise, 768 laut genug aber kratziger (Hörtest 15.10.2026), 512 besser, Töne aber noch etwas lauter. Jetzt Sprache 512 und Töne ×3 statt ×4 (−2,5 dB, nur bei aktiver Emulation), Hörtest steht aus.
 - **Inflection:** Ob I1/I2 auf dem MA-216 wirklich an D6/D7 hängen, ist nicht gegen den Schaltplan geprüft
   (PinMAME nimmt es an).
 - **Alte Attrappe `Votrax-SC01.vhd`** (für den MP3-Betrieb): Sie indiziert ihre Dauertabelle mit

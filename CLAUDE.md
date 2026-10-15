@@ -66,5 +66,5 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 - HW 3.x, HW 4.x, GOSOF80B liegen noch in `..\FPGA_source_alt` und sollen als weitere Varianten
   hierher (dafür erst angleichen: HW 4.x hat CRC-Check, Testmodus, eigenes SD_Card, PLL).
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
-- Votrax: Hardwaretest, Lautstärkeverhältnis Sprache/Ton, Inflection-Verdrahtung (I1/I2 an D6/D7?)
+- Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
   gegen den MA-216-Schaltplan prüfen.

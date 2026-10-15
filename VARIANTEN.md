@@ -8,13 +8,17 @@ Stand 14.10.2026. Zahlen aus `scripts\check.ps1 -Fit`.
 |---|---|---|
 | `hw2x_cyclone_II` | **ok** (Ralf, 14.10.2026) | **nicht getestet** (ohne Votrax) |
 | `hw2x_cyclone_IV_v3` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
-| `hw2x_cyclone_IV_v4` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
+| `hw2x_cyclone_IV_v4` | **ok** (Ralf, 14.10.2026) | Sprache/TILT/Attract **ok**, Sprache zu leise (Ralf, 15.10.2026); ×3 lauter, aber kratziger; ×2 besser, Töne etwas lauter; Sprache ×2 + Töne ×3/4 **nicht getestet** |
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | **nicht getestet** |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
 14.10.2026). Ralf meldet für die x.97-Varianten Funktion auf der Hardware.
 
-x.98 ist nur gebaut und simuliert (Votrax bitgleich zum C-Modell, siehe
+x.98, erster Hardwaretest 15.10.2026 (Ralf, `hw2x_cyclone_IV_v4`): Votrax-Sprache, TILT-Sound und
+Attract-Sprache ok, die Sprache war aber viel leiser als die Töne. Danach Sprachverstärkung ×3: Lautstärke besser, aber kratziger (Ralf). Jetzt ×2
+(Mischer in `top/GOSOF80.vhd`), Hörtest steht aus.
+
+x.98 war bis dahin nur gebaut und simuliert (Votrax bitgleich zum C-Modell, siehe
 `docs/Votrax_SC01_Implementierung.md`). **Zuerst testen:**
 1. DIP 2 OFF: alles wie x.97 (MP3-Sprache, Attract-MP3), Lautstärke unverändert.
 2. DIP 2 ON an einem MA-216-Spiel (Black Hole, Mars, Volcano): Sprache aus der Emulation, kein MP3,
