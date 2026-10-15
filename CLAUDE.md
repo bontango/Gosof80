@@ -1,15 +1,15 @@
 # GOSOF80 – Kontext für Claude
 
 FPGA-Ersatz des Gottlieb-System-80-Soundboards, gemeinsamer Sourcebaum für die
-HW-2.x-Platinen und HW 4.x (seit 15.10.2026, Board-ID 5). Aufbau nach Skill `fpga-varianten-sourcebaum` (Vorlage AtariFA).
+HW-2.x-Platinen, HW 3.x (Board-ID 6) und HW 4.x (Board-ID 5), beide seit 15.10.2026. Aufbau nach Skill `fpga-varianten-sourcebaum` (Vorlage AtariFA).
 Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
 
 ## Architektur (top/GOSOF80.vhd = Kern `gosof80_core`)
 
-- Platinenhüllen `top/board_hw2x.vhd` / `top/board_hw4x.vhd` (Entity `gosof80`, Pinnamen der Platine)
+- Platinenhüllen `top/board_hw2x.vhd` / `board_hw3x.vhd` / `board_hw4x.vhd` (Entity `gosof80`, Pinnamen der Platine)
   instanziieren den Kern als `core`. SD-Leser je Platinenfamilie als Entity `sd_reader`:
   `rtl/common/sd_reader_hw2x.vhd` (4 KB/Spiel) bzw. `rtl/hw4x/sd_reader_hw4x.vhd` (64 KB/Spiel, CRC).
-  Welche Dateien, entscheidet `Options` in `variant.psd1` (`files_hw2x.tcl` / `files_hw4x.tcl`).
+  Welche Dateien, entscheidet `Options` in `variant.psd1` (`files_hw2x.tcl` / `files_hw3x.tcl` / `files_hw4x.tcl`).
 - Options-DIPs (ON = '0'): DIP1 CPU-Takt 1020/892 kHz, DIP2 ON = MP3-Sprache / OFF = Votrax,
   DIP3 ON = Testschalter wie Original / OFF = Versionsansage, DIP4 ON = Testmodus (Zahlen, MP3-Ordner 64).
 - T65 (6502) mit 892 kHz bzw. 1020 kHz (`Gosof_PLL`: ALTPLL auf Cyclone IV/10, Teiler auf Cyclone II), RIOT R6532, 128 B RAM, zwei 2-KB-ROMs
@@ -74,7 +74,7 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 
 - Registergeteilte Takte (Cyclone II: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
-- HW 3.x und GOSOF80B liegen noch in `..\FPGA_source_alt` und sollen als weitere Varianten hierher.
+- GOSOF80B liegt noch in `..\FPGA_source_alt` und soll als weitere Variante hierher.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
 - Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
   gegen den MA-216-Schaltplan prüfen.

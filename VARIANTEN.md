@@ -24,6 +24,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_IV_v3` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw2x_cyclone_IV_v4` | **ok** (Ralf, 14.10.2026) | **ok** (Ralf, 15.10.2026): Sprache/TILT/Attract, Sprache ×2 + Töne ×3/4 | **ok** (Ralf, 15.10.2026: „funktioniert“) |
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
+| `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
@@ -62,6 +63,7 @@ Die übrigen Varianten sind am 15.10.2026 voll gebaut, aber nicht auf Hardware g
 | `hw2x_cyclone_IV_v3` | 4633 | 2287 | 153600 | 4849 / 6272 (77 %) | 1,636 ns | ≥ 0 |
 | `hw2x_cyclone_IV_v4` | 4636 | 2287 | 153600 | 4864 / 6272 (78 %) | 1,811 ns (clk_50) | 0,426 ns |
 | `hw2x_cyclone_10` | 4635 | 2287 | 153600 | 4861 / 6272 (78 %) | 1,721 ns | ≥ 0 |
+| `hw3x_cyclone_IV` | 4633 | 2287 | 153600 | 4864 / 6272 (78 %) | 1,546 ns | ≥ 0 |
 | `hw4x_cyclone_10` | 4738 | 2357 | 153600 | 4980 / 6272 (79 %) | 1,392 ns | ≥ 0 |
 
 Alle Varianten am 15.10.2026 voll gebaut (`.jic`/`.pof`), keine negative Slack, keine Critical Warning. Ansage plus
