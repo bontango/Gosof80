@@ -1,0 +1,172 @@
+# ---------------------------------------------------------------------------
+# GENERATED FILE - do not edit.
+#
+# Variant : hw4x_cyclone_10 - GOSOF80 HW 4.x with integrated Cyclone 10 LP (10CL006YE144C8G)
+# Made by : scripts\gen_qsf.ps1
+# Sources : scripts\common_header.tcl, device.tcl, pins.tcl,
+#           scripts\files_common.tcl + files_<family>.tcl + files_<option>.tcl
+#
+# Change device.tcl / pins.tcl / variant.psd1 or the file lists, then rerun
+# gen_qsf.ps1. Editing this file directly is lost on the next run - and Quartus
+# itself writes into it when the project is open in the IDE, which is why
+# check.ps1 and build.ps1 regenerate before they build.
+# ---------------------------------------------------------------------------
+
+# --- board -----------------------------------------------------------------
+set_global_assignment -name TOP_LEVEL_ENTITY GOSOF80
+set_global_assignment -name FAMILY "Cyclone 10 LP"
+set_global_assignment -name DEVICE 10CL006YE144C8G
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "10:36:54  MARCH 29, 2020"
+set_global_assignment -name LAST_QUARTUS_VERSION "22.1std.2 Lite Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name EDA_SIMULATION_TOOL "<None>"
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT NONE -section_id eda_simulation
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[5]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[6]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[5]
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED WITH WEAK PULL-UP"
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[0]
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to reset_sw
+set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_timing
+set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_symbol
+set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_signal_integrity
+set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_boundary_scan
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Gosof_Test
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Gottlieb_Test
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+
+# --- shared globals --------------------------------------------------------
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "10:36:54  MARCH 29, 2020"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name USE_CONFIGURATION_DEVICE ON
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to test
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Sound[0]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[5]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SB_Opt[6]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[4]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to game_sel[5]
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED WITH WEAK PULL-UP"
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[2]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[1]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to option[0]
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to reset_sw
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+
+# --- pins ------------------------------------------------------------------
+set_location_assignment PIN_23 -to clk_50
+set_location_assignment PIN_38 -to DFP_rx
+set_location_assignment PIN_39 -to DFP_tx
+set_location_assignment PIN_86 -to Sound[4]
+set_location_assignment PIN_83 -to Sound[0]
+set_location_assignment PIN_80 -to Sound[1]
+set_location_assignment PIN_77 -to Sound[2]
+set_location_assignment PIN_76 -to Sound[3]
+set_location_assignment PIN_72 -to Audio_O
+set_location_assignment PIN_101 -to SD_MISO
+set_location_assignment PIN_103 -to SD_CLK
+set_location_assignment PIN_105 -to SD_MOSI
+set_location_assignment PIN_106 -to SD_CS
+set_location_assignment PIN_67 -to SB_Opt[6]
+set_location_assignment PIN_53 -to option[1]
+set_location_assignment PIN_52 -to option[0]
+set_location_assignment PIN_54 -to option[2]
+set_location_assignment PIN_55 -to option[3]
+set_location_assignment PIN_58 -to SB_Opt[1]
+set_location_assignment PIN_59 -to SB_Opt[2]
+set_location_assignment PIN_60 -to SB_Opt[3]
+set_location_assignment PIN_65 -to SB_Opt[4]
+set_location_assignment PIN_66 -to SB_Opt[5]
+set_location_assignment PIN_68 -to SB_Opt[7]
+set_location_assignment PIN_69 -to SB_Opt[8]
+set_location_assignment PIN_43 -to game_sel[0]
+set_location_assignment PIN_44 -to game_sel[1]
+set_location_assignment PIN_46 -to game_sel[2]
+set_location_assignment PIN_49 -to game_sel[3]
+set_location_assignment PIN_50 -to game_sel[4]
+set_location_assignment PIN_51 -to game_sel[5]
+set_location_assignment PIN_144 -to reset_sw
+set_location_assignment PIN_87 -to LED_CRC_Error
+set_location_assignment PIN_98 -to LED_SD_Error
+set_location_assignment PIN_99 -to LED_sound
+set_location_assignment PIN_100 -to LED_trigger
+set_location_assignment PIN_71 -to Gosof_Test
+set_location_assignment PIN_70 -to Gottlieb_Test
+
+# --- sources ---------------------------------------------------------------
+set_global_assignment -name VHDL_FILE variant_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/votrax_tables_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/votrax/votrax_sc01.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/attract.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/Votrax-SC01.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/uart_clk_gen.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/slow_to_fast_clock_bus.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/DFPlayer_Mini_CMD.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/dac.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/cpu_clk_gen.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/background_sound.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65_Pack.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65_MCode.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65_ALU.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/T65/T65.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/RIOT/R6532.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/common/RIOT/R6530.vhd
+set_global_assignment -name QIP_FILE ../../rtl/cyclone_10/SB_ROM.qip
+set_global_assignment -name QIP_FILE ../../rtl/cyclone_10/RAM.qip
+set_global_assignment -name VHDL_FILE ../../rtl/hw4x/soundtest.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/hw4x/crc16_ccitt.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/hw4x/SPI_Master.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/hw4x/SD_Card.vhd
+set_global_assignment -name SDC_FILE ../../rtl/hw4x/GOSOF80.sdc
+set_global_assignment -name VHDL_FILE ../../top/GOSOF80_hw4x.vhd
+set_global_assignment -name QIP_FILE ../../rtl/cyclone_10/Gosof_PLL.qip

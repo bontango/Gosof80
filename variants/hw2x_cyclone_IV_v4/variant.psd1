@@ -3,7 +3,7 @@
     Title       = "GOSOF80 HW 2.x with Cyclone IV E board v4 (EP4CE6E22C8)"
     BoardId     = 3
     RtlFamily   = 'cyclone_IV'
-    Options     = @()
+    Options     = @('hw2x')
     BinFolder   = 'Cyclone_IV_v4'
     ReleaseArtifact = 'jic'
     Dormant     = $false
