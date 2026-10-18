@@ -29,7 +29,18 @@ architecture rtl of sd_reader is
 	signal addr : std_logic_vector(15 downto 0);
 	signal data : std_logic_vector(7 downto 0);
 	signal wr   : std_logic;
+	-- reset button (PIN_88) synchronised to clk: it is the synchronous reset of the whole
+	-- loader, a release between two clock edges must reach all its registers in the same cycle
+	signal rst_meta, rst_sync : std_logic := '1';
 begin
+	process(clk)
+	begin
+		if rising_edge(clk) then
+			rst_meta <= rst_l;
+			rst_sync <= rst_meta;
+		end if;
+	end process;
+
 	address_sd_card <= addr;
 	data_sd_card <= data;
 	wr_rom <= wr;
@@ -43,7 +54,7 @@ begin
 	)
 	port map(
 		i_Clk		=> clk,
-		i_Rst_L	=> rst_l,
+		i_Rst_L	=> rst_sync,
 		o_Flash_Clk  => spi_clk,
 		o_Flash_CS_n => spi_cs_n,
 		o_Flash_MOSI => spi_mosi,

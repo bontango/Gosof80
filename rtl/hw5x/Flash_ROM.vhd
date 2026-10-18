@@ -22,6 +22,13 @@
 -- core does not see a difference.
 --
 -- SPI mode 0, READ (03h) with a 24 bit address, then one continuous stream.
+--
+-- v02 18.10.2026: idle phase with CS high before the READ (state idle). Without it the
+--     loader failed after power on (hardware test: error LED blinks) and worked after the
+--     reset button: right after configuration the registers power up as '0', so CS went
+--     low with no high phase after the configuration read. The flash never saw a new
+--     command and kept streaming the erased area behind the bitstream - 4096 x FF, i.e.
+--     "empty slot". CS now powers up '1' and stays high for Idle_Cycles before every READ.
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -36,7 +43,10 @@ use IEEE.numeric_std.all;
 			Slot_Bytes : integer := 4096;
 			-- SPI clock half period in i_Clk cycles. 2 at 50 MHz = 12.5 MHz, the
 			-- EPCS4 allows 20 MHz for READ (03h).
-			Half_Period : integer := 2
+			Half_Period : integer := 2;
+			-- CS high (deselect) before the READ, in i_Clk cycles. 50 us at 50 MHz; the
+			-- EPCS needs 100 ns, the rest is margin for the end of the configuration.
+			Idle_Cycles : integer := 2500
 		);
 		port(
 		i_Clk		: in std_logic;
@@ -60,9 +70,11 @@ use IEEE.numeric_std.all;
     end Flash_ROM;
 
    architecture Behavioral of Flash_ROM is
-		type STATE_T is ( start, bit_low, bit_high, write_byte, inc_addr, check_empty,
+		type STATE_T is ( idle, start, bit_low, bit_high, write_byte, inc_addr, check_empty,
 								all_done, error );
-		signal state : STATE_T;
+		-- power-up values: after configuration the loader starts without a reset pulse
+		signal state : STATE_T := idle;
+		signal cs_n  : std_logic := '1';
 
 		signal tx_sr    : std_logic_vector(31 downto 0); -- command and address
 		signal rx_sr    : std_logic_vector(7 downto 0);
@@ -70,16 +82,17 @@ use IEEE.numeric_std.all;
 		signal in_cmd   : std_logic;                     -- '1' while the 32 command bits go out
 		signal div      : integer range 0 to 255;
 		signal not_empty : std_logic;                    -- a byte of the slot was not FF
-		signal counter  : integer range 0 to 25000000;
+		signal counter  : integer range 0 to 25000000 := 0;
 		signal blink    : std_logic;
 	begin
+		o_Flash_CS_n <= cs_n;
 
 		Flash: process (i_Clk)
 		begin
 		if rising_edge(i_Clk) then
 			if i_Rst_L = '0' then
 				o_Flash_Clk <= '0';
-				o_Flash_CS_n <= '1';
+				cs_n <= '1';
 				o_Flash_MOSI <= '0';
 				cpu_reset_l <= '0';
 				wr_rom <= '0';
@@ -92,14 +105,37 @@ use IEEE.numeric_std.all;
 				in_cmd <= '0';
 				counter <= 0;
 				blink <= '0';
-				state <= start;
+				state <= idle;
 			else
 				case state is
+				when idle =>
+					-- deselected, clock low, then the READ. Sets everything the reset sets:
+					-- after configuration the loader starts here without any reset pulse.
+					cs_n <= '1';
+					o_Flash_Clk <= '0';
+					o_Flash_MOSI <= '0';
+					cpu_reset_l <= '0';
+					wr_rom <= '0';
+					address_rom <= (others => '0');
+					data_rom <= x"FF";
+					Flash_error <= '1'; -- active low
+					not_empty <= '0';
+					div <= 0;
+					bit_cnt <= 0;
+					in_cmd <= '0';
+					blink <= '0';
+					if counter < Idle_Cycles then
+						counter <= counter + 1;
+					else
+						counter <= 0;
+						state <= start;
+					end if;
+
 				when start =>
 					-- READ (03h) plus 24 bit address of the slot
 					tx_sr <= x"03" & std_logic_vector( to_unsigned(Base_Addr, 24)
 							 + unsigned(selection) * to_unsigned(Slot_Bytes, 16) );
-					o_Flash_CS_n <= '0';
+					cs_n <= '0';
 					bit_cnt <= 31;
 					in_cmd <= '1';
 					div <= 0;
@@ -154,7 +190,7 @@ use IEEE.numeric_std.all;
 				when inc_addr =>
 					wr_rom <= '0';
 					if unsigned(address_rom) = to_unsigned(Read_Bytes - 1, address_rom'length) then
-						o_Flash_CS_n <= '1';
+						cs_n <= '1';
 						state <= check_empty;
 					else
 						address_rom <= std_logic_vector(unsigned(address_rom) + 1);
@@ -173,6 +209,7 @@ use IEEE.numeric_std.all;
 
 				when all_done =>
 					-- wait a bit, then start cpu - same 500 ms as SD_Card
+					Flash_error <= '1';
 					if ( counter < 25000000 ) then
 						counter <= counter + 1;
 					else

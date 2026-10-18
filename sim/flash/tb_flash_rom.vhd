@@ -1,7 +1,10 @@
 -- tb_flash_rom.vhd - checks rtl/hw5x/Flash_ROM.vhd against a behavioural SPI flash
 -- (READ 03h, mode 0, MSB first). Content of the model: byte at address a =
 -- (a(7:0) xor a(15:8) xor a(23:16)) - except the slot of game 5, which is erased (FF).
--- Runs: game 0, game 53 (highest slot in use), game 5 (empty -> Flash_error).
+-- Runs: game 0 straight after "configuration" WITHOUT a reset pulse (the model keeps
+-- streaming FF until CS has been high once, as the EPCS does after the FPGA read its
+-- bitstream - the power-on failure of v01), game 53 (highest slot in use), game 5
+-- (empty -> Flash_error).
 -- Started by sim/flash/run_sim.ps1.
 
 library ieee;
@@ -16,7 +19,7 @@ architecture sim of tb_flash_rom is
 	constant SLOT : integer := 4096;
 
 	signal clk     : std_logic := '0';
-	signal rst_l   : std_logic := '0';
+	signal rst_l   : std_logic := '1';   -- run 0 starts without a reset pulse
 	signal f_clk, f_cs_n, f_mosi, f_miso : std_logic;
 	signal sel     : std_logic_vector(7 downto 0) := (others => '0');
 	signal addr    : std_logic_vector(15 downto 0);
@@ -51,8 +54,18 @@ begin
 		variable cmd   : std_logic_vector(31 downto 0);
 		variable a     : natural;
 		variable byte  : std_logic_vector(7 downto 0);
+		variable first : boolean := true;
 	begin
 		f_miso <= 'Z';
+		if first then
+			-- end of configuration: still selected, the stream of the bitstream read goes
+			-- on into the erased area until CS goes high
+			first := false;
+			while f_cs_n /= '1' loop
+				wait until falling_edge(f_clk) or f_cs_n'event;
+				f_miso <= '1';
+			end loop;
+		end if;
 		wait until f_cs_n = '0';
 		for i in 31 downto 0 loop
 			wait until rising_edge(f_clk) or f_cs_n = '1';
@@ -83,10 +96,12 @@ begin
 		for run in 0 to 2 loop
 			if run = 0 then game := 0; elsif run = 1 then game := 53; else game := 5; end if;
 			sel <= std_logic_vector(to_unsigned(game, 8));
-			rst_l <= '0';
-			wait for 100 ns;
-			wait until rising_edge(clk);
-			rst_l <= '1';
+			if run > 0 then
+				rst_l <= '0';
+				wait for 100 ns;
+				wait until rising_edge(clk);
+				rst_l <= '1';
+			end if;
 			n := 0;
 			while n < SLOT loop
 				wait until rising_edge(clk);

@@ -130,7 +130,20 @@ S1 (8-pol.) = `SB_Opt`, wie auf HW 4.x. Takt PIN_24, Reset = Taster des Core-Boa
 internen Pull-up, CLK7), Audio PIN_111, DFPlayer RX/TX 144/143, D1 Trigger 135, D2 Sound 137
 (aktiv-high), Core-LED1 (PIN_1) Flash-Fehler. Flash: DCLK 12, DATA0 13, nCSO 8, ASDO 6.
 
+**Hardwaretest 1 (Ralf, 18.10.2026, Core-Board allein auf dem Schreibtisch, v01):** Verify der
+ROM-`.jic` ok. Nach dem Einschalten blinkt LED1 (Slot leer), nach dem Reset-Taster leuchtet sie
+dauerhaft. Ursache: Nach der Konfiguration starteten die Register mit '0', CS ging ohne High-Phase
+auf Low, und der EPCS4 lieferte weiter den gelöschten Bereich hinter dem Bitstream (4096 × FF). Mit
+dem Reset-Taster ging CS vorher auf High, und das Lesen klappte. **Folgerung: LED1 des Core-Boards ist
+offenbar aktiv-high**, denn „dauerhaft an“ nach erfolgreichem Laden heißt `Flash_error` = '1'. Das ist
+noch zu bestätigen.
+Behoben in `Flash_ROM.vhd` v02: Ruhephase mit CS=high vor jedem READ, der Zustand `idle` setzt alle
+Startwerte, Reset-Taster synchronisiert. Die Testbench prüft jetzt den Einschaltfall ohne Reset (v01
+scheitert dort, v02 besteht).
+
 **Prüfliste HW 5.x (Hardware, offen)**
+0. v02 auf dem Core-Board allein: Nach dem Einschalten muss dasselbe Bild kommen wie bisher nach dem
+   Reset-Taster. Spielauswahl 0 hat ROMs.
 1. Core-Board-Jumper VIOB/VIOC auf 3,3 V.
 2. Nur `GOSOF80.jic` (Release, ohne ROMs) brennen: Core-LED1 blinkt, kein Ton.
 3. `gosof80_roms.jic` brennen (Programmer „Verify“ ohne Fehler). Mindestens zwei Spielnummern,
