@@ -56,7 +56,9 @@ EPCS4    0x000000 - 0x028668          komprimierter Bitstream (Stand 18.10.2026)
 - **Die Release-`.jic` bleibt ROM-frei** (Urheberrecht). ROMs ins Flash, lokal:
   `scripts\make_flash_hex.ps1 -Image ..\..\Gosof_Image_v1.21.img` (oder `-SlotFiles`), dann in
   `variants\hw5x_cyclone_IV` `quartus_cpf -c gosof80_roms.cof` → `output_files\gosof80_roms.jic`. Beides
-  liegt unter `output_files\` (git-ignoriert), **nie nach `bin/`**.
+  liegt unter `output_files\` (git-ignoriert). Eine Kopie liegt lokal als
+  `bin\HW5x_Cyclone_IV\GOSOF80_HW5.x_v7.98_roms.jic`; `.gitignore` schließt `bin/*/*_roms.jic` aus, sie
+  wird **nie committet**.
 - `reset_sw` liegt auf PIN_88 (Takteingang CLK7, kein interner Pull-up möglich). `pins.tcl` schaltet den
   Pull-up aus `common_header.tcl` dort wieder ab.
 - LEDs: D1 = Trigger, D2 = Sound (aktiv-high, auf v4 invertiert), Core-LED1 = Flash-Fehler (aktiv-low).
