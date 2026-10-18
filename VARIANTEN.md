@@ -26,7 +26,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
-| `hw5x_cyclone_IV` | – (neu) | – | gebaut 18.10.2026, nicht getestet (Prüfliste HW 5.x unten) |
+| `hw5x_cyclone_IV` | – (neu) | – | Core-Board allein: lädt Spiel 0 aus dem Flash (Ralf, 18.10.2026); auf der Platine nicht getestet (Prüfliste HW 5.x unten) |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
 14.10.2026). Ralf meldet für die x.97-Varianten Funktion auf der Hardware.
@@ -134,16 +134,20 @@ internen Pull-up, CLK7), Audio PIN_111, DFPlayer RX/TX 144/143, D1 Trigger 135, 
 ROM-`.jic` ok. Nach dem Einschalten blinkt LED1 (Slot leer), nach dem Reset-Taster leuchtet sie
 dauerhaft. Ursache: Nach der Konfiguration starteten die Register mit '0', CS ging ohne High-Phase
 auf Low, und der EPCS4 lieferte weiter den gelöschten Bereich hinter dem Bitstream (4096 × FF). Mit
-dem Reset-Taster ging CS vorher auf High, und das Lesen klappte. **Folgerung: LED1 des Core-Boards ist
-offenbar aktiv-high**, denn „dauerhaft an“ nach erfolgreichem Laden heißt `Flash_error` = '1'. Das ist
-noch zu bestätigen.
+dem Reset-Taster ging CS vorher auf High. Das „dauerhaft an“ danach ist nicht geklärt. Eine erste
+Deutung (LED aktiv-high) war falsch, siehe Test 2. Wahrscheinlich ist der nicht synchronisierte
+Reset-Eingang die Ursache: Beim Loslassen verließen die Register den Reset nicht im selben Takt, und
+der Lader blieb in einem undefinierten Zustand hängen.
 Behoben in `Flash_ROM.vhd` v02: Ruhephase mit CS=high vor jedem READ, der Zustand `idle` setzt alle
 Startwerte, Reset-Taster synchronisiert. Die Testbench prüft jetzt den Einschaltfall ohne Reset (v01
 scheitert dort, v02 besteht).
 
+**Hardwaretest 2 (Ralf, 18.10.2026, Core-Board allein, v02):** LED1 bleibt beim Einschalten und nach
+dem Reset-Taster **dauerhaft aus**, also Spiel 0 geladen und CPU freigegeben. LED1 ist laut Schaltplan
+gegen GND geschaltet, also **aktiv-low**, wie im Design angenommen.
+
 **Prüfliste HW 5.x (Hardware, offen)**
-0. v02 auf dem Core-Board allein: Nach dem Einschalten muss dasselbe Bild kommen wie bisher nach dem
-   Reset-Taster. Spielauswahl 0 hat ROMs.
+0. ~~v02 auf dem Core-Board allein lädt Spiel 0 nach dem Einschalten und nach dem Reset~~ ok (Test 2).
 1. Core-Board-Jumper VIOB/VIOC auf 3,3 V.
 2. Nur `GOSOF80.jic` (Release, ohne ROMs) brennen: Core-LED1 blinkt, kein Ton.
 3. `gosof80_roms.jic` brennen (Programmer „Verify“ ohne Fehler). Mindestens zwei Spielnummern,
