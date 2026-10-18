@@ -41,3 +41,4 @@ desktop.ini
 # Votrax verification: reference/model binaries, GHDL library, WAV/f32/txt results
 # (sim/votrax/run_sim.ps1 rebuilds everything)
 sim/votrax/build/
+sim/flash/build/

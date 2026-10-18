@@ -26,6 +26,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
+| `hw5x_cyclone_IV` | – (neu) | – | gebaut 18.10.2026, nicht getestet (Prüfliste HW 5.x unten) |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
 14.10.2026). Ralf meldet für die x.97-Varianten Funktion auf der Hardware.
@@ -65,6 +66,7 @@ Die übrigen Varianten sind am 15.10.2026 voll gebaut, aber nicht auf Hardware g
 | `hw2x_cyclone_10` | 4635 | 2287 | 153600 | 4861 / 6272 (78 %) | 1,721 ns | ≥ 0 |
 | `hw3x_cyclone_IV` | 4633 | 2287 | 153600 | 4864 / 6272 (78 %) | 1,546 ns | ≥ 0 |
 | `hw4x_cyclone_10` | 4738 | 2357 | 153600 | 4980 / 6272 (79 %) | 1,392 ns | ≥ 0 |
+| `hw5x_cyclone_IV` (18.10.2026) | 4441 | 2080 | 153600 | 4617 / 6272 (74 %) | 2,098 ns (clk_50) | 0,337 ns |
 
 Alle Varianten am 15.10.2026 voll gebaut (`.jic`/`.pof`), keine negative Slack, keine Critical Warning. Ansage plus
 Entprellung kosten ~62 comb / 47 reg. Die beiden CPU-Takte sind in `GOSOF80.sdc` logisch exklusiv
@@ -110,6 +112,35 @@ Alle Varianten belegen dieselben 34 Ports, `VIRTUAL_PIN` wird nicht gebraucht.
    bleibt bestehen; die saubere Lösung wären Clock-Enables statt abgeleiteter Takte.
 6. **Board-ID 4 doppelt belegt:** HW2.x/Cyclone 10 = v4.97, das HW-4.x-Board zählt
    ebenfalls v4.xx (v4.98, v4.01). Das muss gelöst werden, bevor HW 4.x in diesen Baum kommt.
+
+## HW 5.x (`hw5x_cyclone_IV`, Board-ID 7, seit 18.10.2026)
+
+GOSOF 5.00 (`..\Target\GOSOF\v5.x`): Funktion wie HW 4.x (Gottlieb_Test, Gosof_Test mit Soundtest),
+aber EP4CE6E22C8N-Core-Board gesteckt und **keine SD-Karte**. Die 4 KB je Spiel kommen aus dem
+EPCS4 (Konfigurationsflash) ab `FLASH_BASE` = 0x40000. Der komprimierte Bitstream endet bei 0x28668
+(unkomprimiert 0x59D8A, das hätte nicht gepasst). Kern unverändert, andere Varianten bitgleich
+(`gen_qsf.ps1 -Check`). Gegenüber HW 4.x −297 comb / −277 reg (kein SD_Card/SPI_Master/CRC).
+
+Gegenprobe 18.10.2026: `sim/flash/run_sim.ps1` PASS (Spiel 0 und 53 byte-genau, leerer Slot → Fehler).
+`make_flash_hex.ps1 -Image Gosof_Image_v1.21.img` → Slots 0–54 (0x40000–0x76FFF). Slot 0/32/48/54
+sind byte-gleich mit den ROM-Dateien von `make_sd.bat`. `gosof80_roms.jic` ohne Überlappung.
+
+Pins (aus `pins_Gosof_v5.xlsx` + `GOSOF_5_00.NET`): S2 (6-pol.) = `game_sel`, S3 (4-pol.) = `option`,
+S1 (8-pol.) = `SB_Opt`, wie auf HW 4.x. Takt PIN_24, Reset = Taster des Core-Boards PIN_88 (ohne
+internen Pull-up, CLK7), Audio PIN_111, DFPlayer RX/TX 144/143, D1 Trigger 135, D2 Sound 137
+(aktiv-high), Core-LED1 (PIN_1) Flash-Fehler. Flash: DCLK 12, DATA0 13, nCSO 8, ASDO 6.
+
+**Prüfliste HW 5.x (Hardware, offen)**
+1. Core-Board-Jumper VIOB/VIOC auf 3,3 V.
+2. Nur `GOSOF80.jic` (Release, ohne ROMs) brennen: Core-LED1 blinkt, kein Ton.
+3. `gosof80_roms.jic` brennen (Programmer „Verify“ ohne Fehler). Mindestens zwei Spielnummern,
+   eine davon > 0 (z. B. ein MA-216- und ein System-1-Spiel), laufen mit Ton und Sprache.
+   Startet nichts, obwohl ROMs drin sind: Bit-Reihenfolge je Byte prüfen und in `Flash_ROM.vhd`
+   `data_rom` gespiegelt übernehmen (wie in WillFA7 VARIANTEN.md beschrieben).
+4. Spielauswahl > 54 (leerer Slot): Core-LED1 blinkt.
+5. Options-DIPs 1–4 wie bei den anderen Platinen; Gottlieb_Test, Gosof_Test (Soundtest), Reset-Taster.
+6. LEDs D1 (Trigger) / D2 (Sound) leuchten richtig herum.
+7. Der W25Q64 des Core-Boards bleibt unbenutzt (normale I/O-Pins, per `.jic` nicht beschreibbar).
 
 ## Pinunterschiede
 
