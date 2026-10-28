@@ -26,7 +26,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
-| `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00: Eingänge, Soundtest mit Ton (Ralf, 28.10.2026, Teiler-Diagnose bzw. Board 2 mit PLL); Prüfliste HW 5.x unten weitgehend offen |
+| `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00, Teiler statt PLL: Eingänge, Soundtest mit Ton, beide Core-Boards (Ralf, 28.10.2026); Prüfliste HW 5.x unten weitgehend offen |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
 14.10.2026). Ralf meldet für die x.97-Varianten Funktion auf der Hardware.
@@ -171,7 +171,8 @@ reagiert das Board nicht auf Eingänge. Geprüft:
   `scripts/files_cyclone_IV_div.tcl` = Cyclone-IV-Megafunctions + `rtl/cyclone_II/Gosof_PLL.vhd`). Gleiche
   Frequenzen (50 MHz / 56 bzw. / 49), läuft auf jedem Core-Board. +48 comb / +14 reg, Setup 1,624 ns, Hold
   0,090 ns (`uart_clk_out`) bzw. 0,185 ns (CPU-Takte), `OPTIMIZE_HOLD_TIMING "ALL PATHS"` in `device.tcl`.
-  Hardwaretest der fest eingebauten Teiler-Version steht aus (bitgleich zur Diagnose bis auf einen Kommentar).
+  Hardwaretest der fest eingebauten Teiler-Version (Ralf, 28.10.2026): **beide Core-Boards funktionieren**.
+  Neue Core-Boards vor dem Aufstecken mit `sim/plltest` prüfen (LED1 = PLL, LED2 = clk_50).
 
 **Prüfliste HW 5.x (Hardware, offen)**
 0. ~~v02 auf dem Core-Board allein lädt Spiel 0 nach dem Einschalten und nach dem Reset~~ ok (Test 2).

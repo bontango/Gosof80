@@ -72,6 +72,7 @@ EPCS4    0x000000 - 0x028668          komprimierter Bitstream (Stand 18.10.2026)
   (Cyclone-IV-Megafunctions, aber `Gosof_PLL` = Teiler aus `rtl/cyclone_II/`). Anlass: Die PLL eines
   Core-Boards war defekt, der Rest des Chips lief. Symptom: Lader und Soundtest laufen (auf `clk_50`/`uart_clk`),
   aber kein Ton und keine Reaktion auf Eingänge. Gleiche Frequenzen, Hold knapp (0,090 ns), `OPTIMIZE_HOLD_TIMING "ALL PATHS"`.
+  Eingangstest für neue Core-Boards: `sim/plltest` (`build.ps1`, `.sof` per JTAG, LED1 = PLL, LED2 = clk_50).
 
 ## Was ändern → wo
 
