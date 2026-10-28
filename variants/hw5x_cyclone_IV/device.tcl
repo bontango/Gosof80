@@ -59,3 +59,8 @@ set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO
 set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+# CPU clock from the divider (RtlFamily cyclone_IV_div, no PLL): its clocks are register outputs
+# behind clk_50, hold needs the fitter on all paths (as on hw2x_cyclone_II). 22.1 does this by default
+# for Cyclone IV E; stated here so it stays if the default changes. Hold 28.10.2026: +0.090 ns worst.
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"

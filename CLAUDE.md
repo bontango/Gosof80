@@ -14,7 +14,7 @@ Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
   Welche Dateien, entscheidet `Options` in `variant.psd1` (`files_hw2x.tcl` / `files_hw3x.tcl` / `files_hw4x.tcl` / `files_hw5x.tcl`).
 - Options-DIPs (ON = '0'): DIP1 CPU-Takt 1020/892 kHz, DIP2 ON = MP3-Sprache / OFF = Votrax,
   DIP3 ON = Testschalter wie Original / OFF = Versionsansage, DIP4 ON = Testmodus (Zahlen, MP3-Ordner 64).
-- T65 (6502) mit 892 kHz bzw. 1020 kHz (`Gosof_PLL`: ALTPLL auf Cyclone IV/10, Teiler auf Cyclone II), RIOT R6532, 128 B RAM, zwei 2-KB-ROMs
+- T65 (6502) mit 892 kHz bzw. 1020 kHz (`Gosof_PLL`: ALTPLL auf Cyclone IV/10, Teiler auf Cyclone II und HW 5.x), RIOT R6532, 128 B RAM, zwei 2-KB-ROMs
   (`SB_ROM`), die `SD_Card` beim Start von der SD-Karte füllt (Spielauswahl über `game_sel`).
 - Soundboard-Typ aus `game_sel(5 downto 3)`: MA-216, MA-309, MA-55, MA-490, System 1, special.
   Adressdekodierung und RIOT-Belegung hängen davon ab.
@@ -68,6 +68,10 @@ EPCS4    0x000000 - 0x028668          komprimierter Bitstream (Stand 18.10.2026)
   `pins_Gosof_v5.xlsx` und ist so richtig (gemessen 28.10.2026: Pad 3 = 3,3 V, nicht 2,5 V). Die Nummern
   der Netzliste also nie direkt mit dem Core-Schaltplan (J5/J6) verbinden.
 - Prüfung des Laders: `sim/flash/run_sim.ps1` (GHDL, SPI-Flash-Modell).
+- **CPU-Takt ohne PLL** (seit 28.10.2026): `RtlFamily = 'cyclone_IV_div'` → `scripts/files_cyclone_IV_div.tcl`
+  (Cyclone-IV-Megafunctions, aber `Gosof_PLL` = Teiler aus `rtl/cyclone_II/`). Anlass: Die PLL eines
+  Core-Boards war defekt, der Rest des Chips lief. Symptom: Lader und Soundtest laufen (auf `clk_50`/`uart_clk`),
+  aber kein Ton und keine Reaktion auf Eingänge. Gleiche Frequenzen, Hold knapp (0,090 ns), `OPTIMIZE_HOLD_TIMING "ALL PATHS"`.
 
 ## Was ändern → wo
 
@@ -112,7 +116,7 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 
 ## Offene Punkte
 
-- Registergeteilte Takte (Cyclone II: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
+- Registergeteilte Takte (Cyclone II und HW 5.x: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
 - GOSOF80B liegt noch in `..\FPGA_source_alt` und soll als weitere Variante hierher.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).

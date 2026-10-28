@@ -69,6 +69,7 @@ set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO
 set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 
 # --- shared globals --------------------------------------------------------
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
@@ -174,7 +175,7 @@ set_global_assignment -name SDC_FILE ../../rtl/common/GOSOF80.sdc
 set_global_assignment -name VHDL_FILE ../../top/GOSOF80.vhd
 set_global_assignment -name QIP_FILE ../../rtl/cyclone_IV/SB_ROM.qip
 set_global_assignment -name QIP_FILE ../../rtl/cyclone_IV/RAM.qip
-set_global_assignment -name QIP_FILE ../../rtl/cyclone_IV/Gosof_PLL.qip
+set_global_assignment -name QIP_FILE ../../rtl/cyclone_II/Gosof_PLL.qip
 set_global_assignment -name VHDL_FILE ../../rtl/hw5x/Flash_ROM.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/hw5x/sd_reader_hw5x.vhd
 set_global_assignment -name VHDL_FILE ../../top/board_hw5x.vhd

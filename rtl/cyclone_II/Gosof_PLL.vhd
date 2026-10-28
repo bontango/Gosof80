@@ -7,6 +7,8 @@
 -- register outputs of plain dividers, the same technique as the old cpu_clk_gen
 -- (GOSOF80.sdc declares them as generated clocks; hold timing on this family needs
 -- OPTIMIZE_HOLD_TIMING "ALL PATHS", see variants\hw2x_cyclone_II\device.tcl).
+-- Also used on Cyclone IV by hw5x_cyclone_IV (scripts\files_cyclone_IV_div.tcl, since
+-- 28.10.2026): the PLL of one EP4CE6 core board was dead, the divider runs on every board.
 
 library ieee;
 use ieee.std_logic_1164.all;

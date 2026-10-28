@@ -9,8 +9,8 @@ create_clock -name {clk_50} -period 20.000 -waveform { 0.000 10.000 } [get_ports
 derive_pll_clocks -create_base_clocks
 derive_clock_uncertainty
 
-# ... on Cyclone II Gosof_PLL is a divider (rtl\cyclone_II\Gosof_PLL.vhd), its two
-# outputs are registers. Only there do these registers exist.
+# ... on Cyclone II and hw5x_cyclone_IV (RtlFamily cyclone_IV_div) Gosof_PLL is a divider
+# (rtl\cyclone_II\Gosof_PLL.vhd), its two outputs are registers. Only there do these registers exist.
 set gosof_div0 [get_registers -nowarn {*PLL|c0_r}]
 if {[get_collection_size $gosof_div0] > 0} {
 	create_generated_clock -name cpu_clk_892 -divide_by 56 -source [get_ports {clk_50}] $gosof_div0

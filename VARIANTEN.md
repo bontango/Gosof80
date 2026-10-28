@@ -26,7 +26,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
-| `hw5x_cyclone_IV` | – (neu) | – | Core-Board allein: lädt Spiel 0 aus dem Flash (Ralf, 18.10.2026); auf der Platine nicht getestet (Prüfliste HW 5.x unten) |
+| `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00: Eingänge, Soundtest mit Ton (Ralf, 28.10.2026, Teiler-Diagnose bzw. Board 2 mit PLL); Prüfliste HW 5.x unten weitgehend offen |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
 14.10.2026). Ralf meldet für die x.97-Varianten Funktion auf der Hardware.
@@ -68,6 +68,7 @@ Die übrigen Varianten sind am 15.10.2026 voll gebaut, aber nicht auf Hardware g
 | `hw4x_cyclone_10` | 4738 | 2357 | 153600 | 4980 / 6272 (79 %) | 1,392 ns | ≥ 0 |
 | `hw5x_cyclone_IV` (18.10.2026) | 4441 | 2080 | 153600 | 4617 / 6272 (74 %) | 2,098 ns (clk_50) | 0,337 ns |
 | `hw5x_cyclone_IV` (28.10.2026, Flash_ROM v02, D1 = Flash-Fehler) | 4461 | 2083 | 153600 | 4631 / 6272 (74 %) | 2,075 ns | – |
+| `hw5x_cyclone_IV` (28.10.2026, Teiler statt PLL) | 4509 | 2097 | 153600 | 4678 / 6272 (75 %) | 1,624 ns | 0,090 ns |
 
 Alle Varianten am 15.10.2026 voll gebaut (`.jic`/`.pof`), keine negative Slack, keine Critical Warning. Ansage plus
 Entprellung kosten ~62 comb / 47 reg. Die beiden CPU-Takte sind in `GOSOF80.sdc` logisch exklusiv
@@ -155,10 +156,22 @@ reagiert das Board nicht auf Eingänge. Geprüft:
   Damit stimmt `pins.tcl` (nach `pins_Gosof_v5.xlsx`). S16 liegt richtig auf 72, mit der Netzlisten-Nummer wäre es NC.
   Versorgung und GND sind reihensymmetrisch, deshalb ist der Tausch für die Hardware unkritisch.
 - Taster-Footprints, ULN2803-Belegung (In 1–5 → Out 18–14) und `board_hw5x.vhd` ohne Befund.
-- Vermutung: Die CPU bleibt im Reset, weil der Lader einen leeren Slot meldet (Spielauswahl S2 > 54?). Das
-  kurze Blinken kommt von den Weak-Pull-ups während der Konfiguration. Core-LED1 sitzt kopfüber unsichtbar
-  unter dem Board. Seit 28.10.2026 blinkt D1 deshalb bei einem Flash-Fehler mit
-  (`LED_trigger <= trigger or not flash_err_n`). Der Hardwaretest mit dieser Version steht aus.
+- Core-LED1 sitzt kopfüber unsichtbar unter dem Board. Seit 28.10.2026 blinkt D1 deshalb bei einem
+  Flash-Fehler mit (`LED_trigger <= trigger or not flash_err_n`). Geprüft: S2 alle ON (Spiel 63, leer) → D1
+  blinkt, S2 alle OFF → D1 aus. Der Lader arbeitet also, Reset und `clk_50` sind in Ordnung.
+- Eingangskette S5 → K2 → ULN2803 → FPGA-Pin 70 gemessen: Pin 70 wechselt 0,6 V ↔ 3,3 V. Trotzdem blieb D1
+  aus, und der Soundtest (S4) ließ D1 nur im 1,7-s-Takt aufblitzen, ohne Ton. Der Soundtest läuft auf
+  `uart_clk`, der Eingangssynchronisierer auf `cpu_clk`.
+- **Ursache: Die PLL dieses Core-Boards liefert keinen Takt.** Diagnose-Build mit D2 am PLL-Ausgang: dunkel.
+  Build mit Teiler statt PLL: S5 → D1 leuchtet, Soundtest spielt. VCCA 2,5 V (Pad 4) und 1,2 V (Pad 87)
+  gemessen, beide da. Testdesign `plltest` (Core-Board allein, LED1 = PLL, LED2 = clk_50): Board 1 nur
+  LED2, Board 2 beide. Board 2 auf der Platine mit der PLL-Version: funktioniert. Die Platine ist also
+  nicht schuld, die PLL von Board 1 ist defekt (oder Pin 35–37 schlecht gelötet).
+- **Folge (28.10.2026):** `hw5x_cyclone_IV` nimmt den Teiler statt der ALTPLL (`RtlFamily = 'cyclone_IV_div'`,
+  `scripts/files_cyclone_IV_div.tcl` = Cyclone-IV-Megafunctions + `rtl/cyclone_II/Gosof_PLL.vhd`). Gleiche
+  Frequenzen (50 MHz / 56 bzw. / 49), läuft auf jedem Core-Board. +48 comb / +14 reg, Setup 1,624 ns, Hold
+  0,090 ns (`uart_clk_out`) bzw. 0,185 ns (CPU-Takte), `OPTIMIZE_HOLD_TIMING "ALL PATHS"` in `device.tcl`.
+  Hardwaretest der fest eingebauten Teiler-Version steht aus (bitgleich zur Diagnose bis auf einen Kommentar).
 
 **Prüfliste HW 5.x (Hardware, offen)**
 0. ~~v02 auf dem Core-Board allein lädt Spiel 0 nach dem Einschalten und nach dem Reset~~ ok (Test 2).
