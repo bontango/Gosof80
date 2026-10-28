@@ -62,6 +62,11 @@ EPCS4    0x000000 - 0x028668          komprimierter Bitstream (Stand 18.10.2026)
 - `reset_sw` liegt auf PIN_88 (Takteingang CLK7, kein interner Pull-up möglich). `pins.tcl` schaltet den
   Pull-up aus `common_header.tcl` dort wieder ab.
 - LEDs: D1 = Trigger, D2 = Sound (aktiv-high, auf v4 invertiert), Core-LED1 = Flash-Fehler (aktiv-low).
+  Das Core-Board steckt **kopfüber** auf der Platine, LED1 ist dann nicht zu sehen. Deshalb blinkt D1 bei einem
+  Flash-Fehler mit (seit 28.10.2026, `board_hw5x.vhd`).
+- Kopfüber gesteckt tauschen die beiden Stiftreihen: FPGA1-Pad n der Netzliste trifft Core-Pin n±1. `pins.tcl` folgt
+  `pins_Gosof_v5.xlsx` und ist so richtig (gemessen 28.10.2026: Pad 3 = 3,3 V, nicht 2,5 V). Die Nummern
+  der Netzliste also nie direkt mit dem Core-Schaltplan (J5/J6) verbinden.
 - Prüfung des Laders: `sim/flash/run_sim.ps1` (GHDL, SPI-Flash-Modell).
 
 ## Was ändern → wo

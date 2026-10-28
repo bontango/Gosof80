@@ -67,6 +67,7 @@ Die übrigen Varianten sind am 15.10.2026 voll gebaut, aber nicht auf Hardware g
 | `hw3x_cyclone_IV` | 4633 | 2287 | 153600 | 4864 / 6272 (78 %) | 1,546 ns | ≥ 0 |
 | `hw4x_cyclone_10` | 4738 | 2357 | 153600 | 4980 / 6272 (79 %) | 1,392 ns | ≥ 0 |
 | `hw5x_cyclone_IV` (18.10.2026) | 4441 | 2080 | 153600 | 4617 / 6272 (74 %) | 2,098 ns (clk_50) | 0,337 ns |
+| `hw5x_cyclone_IV` (28.10.2026, Flash_ROM v02, D1 = Flash-Fehler) | 4461 | 2083 | 153600 | 4631 / 6272 (74 %) | 2,075 ns | – |
 
 Alle Varianten am 15.10.2026 voll gebaut (`.jic`/`.pof`), keine negative Slack, keine Critical Warning. Ansage plus
 Entprellung kosten ~62 comb / 47 reg. Die beiden CPU-Takte sind in `GOSOF80.sdc` logisch exklusiv
@@ -146,6 +147,19 @@ scheitert dort, v02 besteht).
 dem Reset-Taster **dauerhaft aus**, also Spiel 0 geladen und CPU freigegeben. LED1 ist laut Schaltplan
 gegen GND geschaltet, also **aktiv-low**, wie im Design angenommen.
 
+**Hardwaretest 3 (Ralf, 28.10.2026, Platine GOSOF 5.00 bestückt, Core-Board kopfüber gesteckt):**
+`gosof80_roms.jic` lässt sich über den Programmierstecker brennen. Beim Einschalten blinken D1/D2 kurz, danach
+reagiert das Board nicht auf Eingänge. Geprüft:
+- Pinbelegung: Laut Core-Schaltplan ist J6-9 = 143 und J6-10 = 144, und die Netzliste nummeriert FPGA1 genauso.
+  Kopfüber gesteckt tauschen aber die Stiftreihen. Messung: Pad 3 = 3,3 V (VIOC, J6-4), nicht 2,5 V (J6-3).
+  Damit stimmt `pins.tcl` (nach `pins_Gosof_v5.xlsx`). S16 liegt richtig auf 72, mit der Netzlisten-Nummer wäre es NC.
+  Versorgung und GND sind reihensymmetrisch, deshalb ist der Tausch für die Hardware unkritisch.
+- Taster-Footprints, ULN2803-Belegung (In 1–5 → Out 18–14) und `board_hw5x.vhd` ohne Befund.
+- Vermutung: Die CPU bleibt im Reset, weil der Lader einen leeren Slot meldet (Spielauswahl S2 > 54?). Das
+  kurze Blinken kommt von den Weak-Pull-ups während der Konfiguration. Core-LED1 sitzt kopfüber unsichtbar
+  unter dem Board. Seit 28.10.2026 blinkt D1 deshalb bei einem Flash-Fehler mit
+  (`LED_trigger <= trigger or not flash_err_n`). Der Hardwaretest mit dieser Version steht aus.
+
 **Prüfliste HW 5.x (Hardware, offen)**
 0. ~~v02 auf dem Core-Board allein lädt Spiel 0 nach dem Einschalten und nach dem Reset~~ ok (Test 2).
 1. Core-Board-Jumper VIOB/VIOC auf 3,3 V.
@@ -154,7 +168,7 @@ gegen GND geschaltet, also **aktiv-low**, wie im Design angenommen.
    eine davon > 0 (z. B. ein MA-216- und ein System-1-Spiel), laufen mit Ton und Sprache.
    Startet nichts, obwohl ROMs drin sind: Bit-Reihenfolge je Byte prüfen und in `Flash_ROM.vhd`
    `data_rom` gespiegelt übernehmen (wie in WillFA7 VARIANTEN.md beschrieben).
-4. Spielauswahl > 54 (leerer Slot): Core-LED1 blinkt.
+4. Spielauswahl > 54 (leerer Slot): Core-LED1 und D1 blinken.
 5. Options-DIPs 1–4 wie bei den anderen Platinen; Gottlieb_Test, Gosof_Test (Soundtest), Reset-Taster.
 6. LEDs D1 (Trigger) / D2 (Sound) leuchten richtig herum.
 7. Der W25Q64 des Core-Boards bleibt unbenutzt (normale I/O-Pins, per `.jic` nicht beschreibbar).

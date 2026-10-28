@@ -20,7 +20,7 @@ entity gosof80 is
 		Gosof_Test		: in std_logic := '1';     -- GOSOF sound test
 		Sound :	in 	std_logic_vector(4 downto 0);
 		SB_Opt :	in 	std_logic_vector(1 to 8);  -- DIP 7/8 not wired to the CPU
-		LED_trigger 	: out STD_LOGIC;     -- D1, active high
+		LED_trigger 	: out STD_LOGIC;     -- D1, active high; also blinks with LED1 (core board is mounted upside down, LED1 hidden)
 		LED_sound 	: out STD_LOGIC;        -- D2, active high
 		LED_Flash_Error	: out STD_LOGIC;  -- LED1 of the core board, active low, blinks = empty slot
 		game_sel	:	in 	std_logic_vector(5 downto 0);
@@ -37,8 +37,10 @@ end gosof80;
 
 architecture rtl of gosof80 is
 	signal trigger : std_logic;
+	signal flash_err_n : std_logic;  -- '0' = LED1 on
 begin
-	LED_trigger <= trigger;
+	LED_trigger <= trigger or not flash_err_n;
+	LED_Flash_Error <= flash_err_n;
 	LED_sound <= Audio_O;
 
 	core: entity work.gosof80_core
@@ -48,7 +50,7 @@ begin
 		test_sw => Gottlieb_Test, gosof_test => Gosof_Test,
 		Audio_O => Audio_O,
 		Sound => Sound, SB_Opt => SB_Opt(1 to 6), game_sel => game_sel, option => option,
-		trigger_o => trigger, pa7_o => open, sd_error_o => LED_Flash_Error, crc_error_o => open,
+		trigger_o => trigger, pa7_o => open, sd_error_o => flash_err_n, crc_error_o => open,
 		DFP_txd => DFP_rx,
 		SD_CS => FLASH_NCS, SD_MISO => FLASH_DATA0, SD_MOSI => FLASH_ASDO, SD_CLK => FLASH_DCLK
 	);
