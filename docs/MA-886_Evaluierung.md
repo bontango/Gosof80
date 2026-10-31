@@ -73,13 +73,13 @@ Gegen den Schaltplan und PinMAME geprüft, im ROM-Scan bestätigt:
 | CPU | R6502-13, 1 MHz | 6502A, 2 MHz (JP5 2 MHz / JP6 1 MHz) |
 | ROM je CPU | 8 KB + 8 KB, `$C000`/`$E000` | 32 KB, `$8000`–`$FFFF` (27256, JP1–JP4) |
 | RAM | 2 KB je CPU | **unverändert 2 KB je CPU** (6116 H2, H3) |
-| Y-Eingänge | `$6000` | Gen 2: `$4000`, Gen 3: keine |
+| Y-Eingänge | `$6000` | keine (nur Victory liest `$4000`) |
 | Sound-Latch lesen | Y `$A800`, D `$8000` | Y `$6800`, D `$4000` |
 | NMI der D-CPU | `$B000` | `$7000` |
 | NMI-Rate | `$A000` | `$6000` (gleiche Zähler N5/T5, H5/K5, S5) |
 | DAC | D `$4000`/`$4001` | D `$8000`/`$8001` (AD7528 wie gehabt) |
 | Steuerregister | `$4000` (LS374 G3) | `$A000` (LS377 G3) |
-| Klangerzeuger | 2 × AY + SP0250 | Gen 2: 2 × AY (AY-Latch `$8000`). Gen 3: YM2151 auf `$4000`, A0 aus `$A000` Bit 7 |
+| Klangerzeuger | 2 × AY + SP0250 | Gen 2: 2 × AY (AY-Latch `$8000`) + Filter MF-4 (`$2000`). Gen 3: YM2151 auf `$4000`, A0 aus `$A000` Bit 7 |
 | Ausgang | DAC direkt in den Summierer | DAC über JP9 durch ein aktives Tiefpassfilter (A5), Eckfrequenz grob 1,5–3 kHz |
 
 Die Spalte „bigger ram needed?“ in `GOSOF80B_games.xlsx` lässt sich damit beantworten: **Die CPUs brauchen nicht mehr RAM, das
@@ -110,6 +110,59 @@ Was daraus folgt:
   gegenüber dem DAC bleibt beim Hörtest einzustellen; PinMAME setzt YM2151 75 zu DAC 50.
 - **Kein zusätzlicher Speicher**, die Tabelle oben bleibt gültig.
 
+### MA-1294: dieselbe Schaltung, anderer Analogteil
+
+`MA-1294.jpg` trägt dieselbe Zeichnungsnummer E-26145 (Platine 25690-1, © 1989, Kabel 26778). **Digitalteil und S4-Belegung sind identisch** (alle S4-Signale, YM2151, YM3014 nur an `SH2`, /RD fest High). Im FPGA
+ist die Anbindung also dieselbe, das gilt auch für den rechten Kanal.
+
+| Bauteil | A20 (MA-1033) | MA-1294 | Wirkung |
+|---|---|---|---|
+| U3 | LM324 | MC3403P | anderer Op-Amp |
+| R2 / R3 | 22 kΩ / 2,2 kΩ | 10 kΩ (1 %) / 1 kΩ | Verstärkung gleich, −10 |
+| C7 | 390 pF | 1500 pF | Tiefpass **18,5 → 10,6 kHz** |
+| C8 + R3 | 1 µF + 2,2 kΩ | 4,7 µF + 1 kΩ | Hochpass 72 → 34 Hz |
+| C9 | 1 µF | 4,7 µF | mit R58 Hochpass 16 → 3,4 Hz |
+| R4 | 12 kΩ | 1,8 kΩ | Offset-Abgleich, kein Klangeinfluss |
+| R5 | 10 kΩ nach −12 V | entfällt | vermutlich Vorstrom gegen die Übernahmeverzerrung des LM324 |
+| C12 | – | 1000 pF nach −12 V | kein Einfluss im Hörbereich |
+| C10 | 3300 pF am Ausgang | optional | |
+| C11 | – | 3300 pF am YM3014-Ausgang | Tiefpass mit dem Ausgangswiderstand des YM3014, Grenzfrequenz unbekannt |
+| C2, C3 | 10 µF | 0,1 µF | Abblockung |
+
+Für den Klang bleibt ein etwas stärkerer Höhenabfall und mehr Bass als bei der A20. Beides lässt sich bei Bedarf als Filter im Mischer nachbilden, der Datenweg ändert sich nicht.
+
+## Gen 2 gegen Gen 3 (Pläne aus dem Diamond-Lady-Handbuch)
+
+`MA-886-Gen2-Part1..3.jpg`, Baugruppe MA-886, Zeichnung E-25549. **Es ist dieselbe Grundplatine.** Prozessorteil, ROM, RAM, S1, A2/A3/A4, T4/S2, NMI-Zähler, AD7528 und das DAC-Filter
+A5 sind gleich, S4 bleibt als „optional circuitry“ drauf. Gen 3 lässt den Klangteil weg und steckt dafür die Zusatzplatine auf S4.
+
+**Nur auf Gen 2 bestückt:**
+
+| Bauteil | Funktion |
+|---|---|
+| H4, K4 AY-3-8913 | 2 MHz (S1 QA), BDIR/BC1/Auswahl aus G3, wie beim MA-766 |
+| N4 LS377 | AY-Latch `$8000` |
+| E3 74HC592 | 8-Bit-Zähler mit Eingangsregister, zählt 4 MHz (S1-Eingang) |
+| E4 LS74 | Nachladen des Zählers, Teiler /2 |
+| Q1 2N4264 | Pegelwandler auf 12 V für den Filtertakt |
+| E5 MF-4CN-50 | geschaltetes Tiefpassfilter 4. Ordnung, Eckfrequenz = Takt / 50 |
+| H1 LM324 | Mischstufen der AYs |
+
+**Nicht auf Gen 2:** SW1, 4-fach-DIP und LS244. Ein Eingangsregister gibt es auf diesem Plan nicht, und Diamond Lady, TX-Sector, Robo-War und Excalibur lesen `$4000` auch nicht. Victory liest es einmal; dort beim
+Bau auf 1 gelegte Bits liefern, wie eine offene Leitung.
+
+### Das Filter ist kein Detail
+
+Die ROMs schreiben `$2000` in **allen 5 Gen-2-Spielen in derselben Routine**, mit einem laufenden Wert (`LDA $2F / CLC / ADC $37 / STA $2F / STA $2000`). Das Filter wird also im laufenden Sound verstellt. PinMAME behandelt
+`$2000` als „NOP“ und bildet das nicht nach, **das Original klingt hier also anders als PinMAME**, PinMAME eignet sich dafür nicht als Referenz.
+
+- **Eckfrequenz** (aus dem Plan hergeleitet, ±1 im Zähler ungeprüft): fc ≈ 4 MHz / (256 − N) / 2 / 50 = **40 kHz / (256 − N)**, also von 157 Hz (N = 0) bis 10 kHz (N = 252) und höher.
+- **Adresse:** T4 Y1 führt nach `$2000`; den Draht zu E3-RCK kann ich im Scan nicht ganz verfolgen. Dafür spricht, dass `$2000` sonst auf nichts wirkt und E3 ein Register braucht.
+- **Signalweg:** Sicher zu lesen ist K4 → H1 → C7 → R37/H1 → C29 → MF-4. H4 geht ungefiltert über R14 in den Summierer. Wahrscheinlich läuft K4 zusätzlich ungefiltert über R13, und der Filterausgang kommt über B1 und R15 (18 kΩ); so nennt es auch PinWiki. Das ist aus dem Scan nicht sicher, siehe Offene Punkte.
+- **Im FPGA:** vier Tiefpass-Stufen als digitale Biquads auf dem K4-Signal, Koeffizienten nach N aus einer Tabelle. Geschätzt 400–600 LE, 1 Multiplikator, 1 M9K. Am Bedarf an externem Speicher ändert das nichts.
+
+**Die Gen-2-Fassung ist damit: MA-766-Kern mit neuer Memory Map, ohne SP0250, mit MF-4.** Das ist weiterhin der kleinste Schritt, der Aufwand liegt nur im Filter.
+
 ## Spiele
 
 | Gen | Spiele | ROM | Klang |
@@ -123,11 +176,9 @@ wie die anderen.
 
 ## Offene Punkte und Risiken
 
-1. **Die Schaltpläne decken nur Gen 3 ab:** Grundplatine MA-886-717/-718 (E-26146) und Zusatzplatine A20, MA-1033 (`MA-886-Auxboard-A20.jpg`, E-26145).
-   Dort sind keine AY-Chips. **Für Gen 2 fehlt weiter ein Schaltplan.** PinWiki nennt dort AY auf H4/K4 und ein programmierbares Filter MF-4 auf E5.
-   Bone Busters nutzt laut PinWiki eine andere Zusatzplatine (MA-1294), auch dafür fehlt der Plan.
-2. **MF-4:** PinMAME bildet es nicht nach („Not Emulated“). Das Original klingt also möglicherweise anders als PinMAME. Ohne Schaltplan bleibt offen, wie es
-   angesteuert wird. Eine erste Fassung ginge ohne das Filter.
+1. **Bone Busters:** Die Zusatzplatine MA-1294 ist geklärt (siehe oben), **die 3. CPU mit dem 2. DAC aber nicht**: Sie sitzt nicht auf der Zusatzplatine,
+   dafür fehlt der Plan der Grundplatine MA-886-719A.
+2. **MF-4-Pegel:** Der Scan des Gen-2-Plans ist zu grob, um den Audioweg hinter dem Filter sicher zu lesen (siehe Gen-2-Abschnitt). Das Verhältnis gefiltert zu ungefiltert entscheidet der Hörtest, einen Vergleich mit PinMAME gibt es dafür nicht.
 3. **YM2151-Treue:** jt51 ist praxiserprobt, auf der GOSOF aber nicht getestet. Die Spiele nutzen es für die Musik, das muss der Hörtest zeigen.
 4. **Tiefpass am DAC:** Für den Originalklang gehört ein digitales Filter in den Mischer. Die Eckfrequenz habe ich nur grob aus dem Schaltplan abgeschätzt.
 5. **Die M9K-Zahl von jt51 ist eine Schätzung** (5.599 bit aus gut 7 Speicherblöcken). Beim empfohlenen Weg spielt das keine Rolle.
@@ -138,5 +189,5 @@ wie die anderen.
 
 1. GOSOF80B (MA-766) auf der vorhandenen Hardware testen.
 2. Platine festlegen und mit `pins`/Netzliste entwerfen: Core-Board E10 + EPCS16 + AS6C1008. Der Sockel des EP4CE6-Core-Boards bleibt nutzbar, wenn die Pinbelegung des E10-Boards passt.
-3. Gen 2 zuerst, weil am wenigsten neu ist: Kern um Generation-Generic erweitern, SRAM-Zeitschlitz statt M9K-ROM, ROM-Packer für 64 KB, Simulation wie `sim/gosof80b` mit den echten ROMs.
+3. Gen 2 zuerst, weil am wenigsten neu ist: Kern um Generation-Generic erweitern, SRAM-Zeitschlitz statt M9K-ROM, ROM-Packer für 64 KB, Simulation wie `sim/gosof80b` mit den echten ROMs. Das MF-4 als Letztes in diesem Schritt, die Spiele laufen auch ohne.
 4. Dann Gen 3 mit jt51 und Tiefpass, zuletzt Bone Busters.

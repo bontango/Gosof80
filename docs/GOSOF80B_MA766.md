@@ -117,7 +117,7 @@ Die Simulation ersetzt den echten Lader durch `sim_models.vhd` und vergleicht ni
 | +12 V | 14 | 1 |
 | Audio | 18 | 7 |
 
-4. **Audiopegel:** Das Original gibt an Pin 18 Line-Pegel an die Aux-Endstufe, die GOSOF den Ausgang ihrer TDA7267. Vor dem Anschluss an die Aux-Platine prüfen, sonst droht Übersteuerung.
+4. **Audiopegel:** Das Original gibt an Pin 18 Line-Pegel an die Aux-Endstufe, die GOSOF den Ausgang ihrer TDA7267. Die Endstufe A5 (E-24715, Plan in `MA-1294.jpg`) teilt den Eingang mit 2,7 kΩ/100 Ω herunter und verstärkt etwa 100-fach mit dem LM2002, zusammen etwa 3,6-fach. Die Eingangsstufe ist also nicht gefährdet, zu viel Pegel übersteuert aber die Endstufe. Am Poti der GOSOF niedrig anfangen.
 5. **MPU-Reset** (A6P1-9) ist auf der GOSOF nicht angeschlossen, die Karte startet selbstständig.
 
 **Hardwareprüfung:** Rock (2 ROMs) und ein 3-ROM-Spiel, zuerst `Gottlieb_Test` und D2 (blinkt?), dann `Gosof_Test` und zuletzt am Automaten.
