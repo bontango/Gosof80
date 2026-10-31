@@ -12,11 +12,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity tb_flash_rom is
+	generic(SLOT : integer := 4096);  -- bytes per game: 4 KB GOSOF80, 24 KB GOSOF80B
 end tb_flash_rom;
 
 architecture sim of tb_flash_rom is
 	constant BASE : integer := 16#040000#;
-	constant SLOT : integer := 4096;
 
 	signal clk     : std_logic := '0';
 	signal rst_l   : std_logic := '1';   -- run 0 starts without a reset pulse

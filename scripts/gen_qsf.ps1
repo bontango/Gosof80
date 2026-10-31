@@ -121,7 +121,10 @@ foreach ($dir in $folders) {
 
     $out.Add('')
     $out.Add('# --- sources ---------------------------------------------------------------')
-    Read-Fragment (Join-Path $ScriptDir 'files_common.tcl') | ForEach-Object { $out.Add($_) }
+    # A board with another core (GOSOF80B) names its own list instead of files_common.tcl.
+    $commonFiles = 'files_common'
+    if ($meta.CommonFiles) { $commonFiles = $meta.CommonFiles }
+    Read-Fragment (Join-Path $ScriptDir "$commonFiles.tcl") | ForEach-Object { $out.Add($_) }
     Read-Fragment (Join-Path $ScriptDir "files_$($meta.RtlFamily).tcl") | ForEach-Object { $out.Add($_) }
     foreach ($opt in @($meta.Options)) {
         if (-not $opt) { continue }

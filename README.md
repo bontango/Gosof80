@@ -50,6 +50,6 @@ IDE in die `.qsf`; `check.ps1` und `build.ps1` erzeugen sie deshalb vor jedem La
 ## Herkunft
 
 Bis 10.2026 lag jede Variante als eigener Quartus-Ordner `GOSOF80_HW2x_*` neben den
-Bibliotheken `lib_common`, `lib_cyclone_*` (jetzt `FPGA_source_alt`). HW 3.x, HW 4.x und
-GOSOF80B werden dort noch gepflegt und kommen später als weitere Varianten dazu.
+Bibliotheken `lib_common`, `lib_cyclone_*` (jetzt `FPGA_source_alt`). Die weiteren Platinen kamen später als Varianten dazu.
+GOSOF80B (MA-766, System 80B): Variante `hw5x_80b_cyclone_IV`, siehe `docs/GOSOF80B_MA766.md`. MA-886: `docs/MA-886_Evaluierung.md`.
 Lizenz: GPL v3 (siehe Kopf von `top/GOSOF80.vhd`); T65 und dac.vhd stehen unter ihren eigenen Lizenzen.

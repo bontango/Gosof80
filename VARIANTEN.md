@@ -26,6 +26,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
+| `hw5x_80b_cyclone_IV` | – (neu, MA-766) | – | gebaut 31.10.2026, simuliert, nicht getestet |
 | `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00, Teiler statt PLL: Eingänge, Soundtest mit Ton, beide Core-Boards (Ralf, 28.10.2026); Prüfliste HW 5.x unten weitgehend offen |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
@@ -186,6 +187,17 @@ reagiert das Board nicht auf Eingänge. Geprüft:
 5. Options-DIPs 1–4 wie bei den anderen Platinen; Gottlieb_Test, Gosof_Test (Soundtest), Reset-Taster.
 6. LEDs D1 (Trigger) / D2 (Sound) leuchten richtig herum.
 7. Der W25Q64 des Core-Boards bleibt unbenutzt (normale I/O-Pins, per `.jic` nicht beschreibbar).
+
+## GOSOF80B MA-766 (`hw5x_80b_cyclone_IV`, Board-ID 8, seit 31.10.2026)
+
+Gottlieb System 80B Generation 1 auf der Platine GOSOF 5.00, eigener Kern, 24 KB je Spiel im EPCS4. Alles Weitere:
+`docs/GOSOF80B_MA766.md`. **Gebaut und simuliert (9 Spiele, ROMs echt), nicht auf Hardware getestet und noch nicht abgehört.**
+
+| Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | M9K | Setup-Slack | Hold-Slack |
+|---|---|---|---|---|---|---|---|
+| `hw5x_80b_cyclone_IV` (31.10.2026) | 3976 | 1739 | 229376 | 4360 / 6272 (70 %) | 28 / 30 | 5,041 ns (clk_50) | 0,452 ns (Slow-Modell) |
+
+Keine negative Slack, kein Critical Warning. Komprimierter Bitstream bis 0x2390F, ROMs 0x40000-0x75FFF, EPCS4 reicht.
 
 ## Pinunterschiede
 

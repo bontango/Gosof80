@@ -9,6 +9,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.variant_pkg.all;
 entity sd_reader is
+	generic(
+		-- bytes per game; 4 KB for GOSOF80, 24 KB for GOSOF80B (MA-766)
+		Read_Bytes : integer := 4096;
+		Slot_Bytes : integer := 4096
+	);
 	port(
 		clk		: in  std_logic;
 		rst_l		: in  std_logic;
@@ -48,9 +53,9 @@ begin
 
 	FLASH: entity work.Flash_ROM
 	generic map(
-		Read_Bytes => 4096,
+		Read_Bytes => Read_Bytes,
 		Base_Addr  => FLASH_BASE,
-		Slot_Bytes => 4096
+		Slot_Bytes => Slot_Bytes
 	)
 	port map(
 		i_Clk		=> clk,
