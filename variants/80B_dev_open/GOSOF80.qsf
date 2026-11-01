@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # GENERATED FILE - do not edit.
 #
-# Variant : hw5x_80b_cyclone_IV - GOSOF80B (Gottlieb System 80B sound board MA-766) on HW 5.x with EP4CE6E22C8N core board, ROMs from the EPCS4
+# Variant : 80B_dev_open - GOSOF80B (Gottlieb System 80B sound board MA-766) on the Gosof80B PCB with the 'dev_open' Cyclone IV board (EP4CE6E22C8), ROMs from the EPCS16
 # Made by : scripts\gen_qsf.ps1
 # Sources : scripts\common_header.tcl, device.tcl, pins.tcl,
 #           scripts\files_common.tcl + files_<family>.tcl + files_<option>.tcl
@@ -52,10 +52,7 @@ set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_symbol
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_signal_integrity
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_boundary_scan
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Gosof_Test
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Gottlieb_Test
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION ON
 set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
@@ -103,29 +100,29 @@ set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to reset_sw
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 # --- pins ------------------------------------------------------------------
-set_location_assignment PIN_24 -to clk_50
+set_location_assignment PIN_91 -to clk_50
 set_location_assignment PIN_88 -to reset_sw
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to reset_sw
-set_location_assignment PIN_70 -to Sound[0]
-set_location_assignment PIN_68 -to Sound[1]
-set_location_assignment PIN_66 -to Sound[2]
-set_location_assignment PIN_64 -to Sound[3]
-set_location_assignment PIN_72 -to Sound[4]
-set_location_assignment PIN_111 -to Audio_O
-set_location_assignment PIN_129 -to SB_Opt[1]
-set_location_assignment PIN_127 -to SB_Opt[2]
-set_location_assignment PIN_125 -to SB_Opt[3]
-set_location_assignment PIN_115 -to game_sel[0]
-set_location_assignment PIN_120 -to game_sel[1]
-set_location_assignment PIN_124 -to game_sel[2]
-set_location_assignment PIN_126 -to game_sel[3]
-set_location_assignment PIN_128 -to game_sel[4]
-set_location_assignment PIN_132 -to game_sel[5]
-set_location_assignment PIN_59 -to Gottlieb_Test
-set_location_assignment PIN_55 -to Gosof_Test
-set_location_assignment PIN_135 -to LED_trigger
-set_location_assignment PIN_137 -to LED_sound
-set_location_assignment PIN_1 -to LED_Flash_Error
+set_location_assignment PIN_89 -to Gottlieb_Test
+set_location_assignment PIN_90 -to Gosof_Test
+set_location_assignment PIN_76 -to Sound[0]
+set_location_assignment PIN_72 -to Sound[1]
+set_location_assignment PIN_70 -to Sound[2]
+set_location_assignment PIN_68 -to Sound[3]
+set_location_assignment PIN_86 -to Sound[4]
+set_location_assignment PIN_87 -to Audio_O
+set_location_assignment PIN_54 -to SB_Opt[1]
+set_location_assignment PIN_58 -to SB_Opt[2]
+set_location_assignment PIN_60 -to SB_Opt[3]
+set_location_assignment PIN_30 -to game_sel[0]
+set_location_assignment PIN_32 -to game_sel[1]
+set_location_assignment PIN_34 -to game_sel[2]
+set_location_assignment PIN_39 -to game_sel[3]
+set_location_assignment PIN_43 -to game_sel[4]
+set_location_assignment PIN_46 -to game_sel[5]
+set_location_assignment PIN_101 -to LED_trigger
+set_location_assignment PIN_100 -to LED_sound
+set_location_assignment PIN_99 -to LED_Flash_Error
 set_location_assignment PIN_12 -to FLASH_DCLK
 set_location_assignment PIN_8 -to FLASH_NCS
 set_location_assignment PIN_6 -to FLASH_ASDO
@@ -149,4 +146,4 @@ set_global_assignment -name VHDL_FILE ../../rtl/hw5x/Flash_ROM.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/hw5x/sd_reader_hw5x.vhd
 set_global_assignment -name SDC_FILE ../../rtl/hw5x_80b/GOSOF80B.sdc
 set_global_assignment -name VHDL_FILE ../../top/GOSOF80B.vhd
-set_global_assignment -name VHDL_FILE ../../top/board_hw5x_80b.vhd
+set_global_assignment -name VHDL_FILE ../../top/board_80b_dev_open.vhd

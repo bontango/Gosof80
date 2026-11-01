@@ -1,14 +1,14 @@
 # GOSOF80B: Gottlieb System 80B Soundboard MA-766 (Generation 1)
 
-FPGA-Fassung auf der Platine GOSOF 5.00 (EP4CE6-Core-Board, ROMs aus dem EPCS4), Variante
-`hw5x_80b_cyclone_IV`, Board-ID 8. Quellen: Schaltplan `..\Gosof80B\schematics\MA-766-schematic.jpg`
+FPGA-Fassung auf der Platine Gosof80B (`..\Gosof80B\target\Gosof80B_01.*`) mit dev_open-Board DEV190806036 (EP4CE6E22C8, ROMs aus dem EPCS16), Variante
+`80B_dev_open`, Board-ID 8. Bis 31.10.2026 hieß sie `hw5x_80b_cyclone_IV` und war für GOSOF 5.00 gedacht. Quellen: Schaltplan `..\Gosof80B\schematics\MA-766-schematic.jpg`
 (E-24711), PinMAME `src\wpc\gts80s.c` und `src\sound\sp0250.c`, ROM-Analyse und Simulation.
 
-**Stand 31.10.2026: gebaut und simuliert, nicht auf Hardware getestet und noch nicht abgehört.**
+**Stand 01.11.2026: gebaut, Kern simuliert, nicht auf Hardware getestet und noch nicht abgehört. Platine noch ohne Routing, offene Schaltplanbefunde siehe unten.**
 
 ## Aufbau (`top/GOSOF80B.vhd`)
 
-Eigener Kern `gosof80b_core`, Platinenhülle `top/board_hw5x_80b.vhd`. Gemeinsam mit GOSOF80 sind T65, `dac`, `soundtest`
+Eigener Kern `gosof80b_core`, Platinenhülle `top/board_80b_dev_open.vhd`. Gemeinsam mit GOSOF80 sind T65, `dac`, `soundtest`
 und der Flash-Lader.
 
 | Teil | Original | Hier |
@@ -43,16 +43,20 @@ Dekodiert wie auf der Platine über Adressbereiche (T4 A15..A13, S2 A12/A11), al
 
 | Element | Funktion |
 |---|---|
-| S2 (6-pol.) | Spiel: binär, ON = 1 |
-| S1 DIP 1, 2 | DIP-Positionen 1, 2 des Originals (`$6000` D5, D4). Original: aus |
-| S1 DIP 3 | ON: S16 löst auch einen Sound aus (SW3 des Originals). Original: aus |
-| S1 DIP 4–8, S3 | ohne Funktion |
-| `Gottlieb_Test` | SW1 des Originals |
-| `Gosof_Test` | Soundtest: spielt 1..31, je 5 s. Sound 16 bleibt stumm, solange S16 nicht auslöst |
-| D1 | Soundleitung aktiv, blinkt bei leerem Flash-Slot |
-| D2 | LED des Originals, von der Y-CPU gesteuert |
+| S1 „game select“ (6-pol.) | Spiel: binär, ON = 1 |
+| S2 „options“ DIP 1, 2 | DIP-Positionen 1, 2 des Originals (`$6000` D5, D4). Original: aus |
+| S2 „options“ DIP 3 | ON: S16 löst auch einen Sound aus (SW3 des Originals). Original: aus |
+| S2 „options“ DIP 4–6 | ohne Funktion |
+| SW1 des dev_open-Boards | Reset, lädt das Spiel neu |
+| SW2 (`Gottlieb_Test`) | SW1 des Originals |
+| SW3 (`Gosof_Test`) | Soundtest: spielt 1..31, je 5 s. Sound 16 bleibt stumm, solange S16 nicht auslöst |
+| LED1 | Soundleitung aktiv |
+| LED2 | LED des Originals, von der Y-CPU gesteuert |
+| LED3 | blinkt bei leerem Flash-Slot |
 
-| S2 binär | Spiel | S2 binär | Spiel |
+Die Platine hat zusätzlich S5 mit K2 („Sound Test“): Drücken zieht die per Jumper gewählten Soundleitungen auf GND.
+
+| S1 binär | Spiel | S1 binär | Spiel |
 |---|---|---|---|
 | 0 | Rock | 5 | Gold Wings |
 | 1 | Raven | 6 | Monte Carlo |
@@ -62,12 +66,12 @@ Dekodiert wie auf der Platine über Adressbereiche (T4 A15..A13, S2 A12/A11), al
 
 ## ROMs ins Flash
 
-24 KB je Spiel ab `FLASH_BASE` = 0x40000: `+0000` yrom1, `+2000` yrom2 (FF, wenn das Spiel keins hat), `+4000` drom. Es passen 10 Slots, 9 sind belegt.
+24 KB je Spiel im EPCS16 ab `FLASH_BASE` = 0x80000: `+0000` yrom1, `+2000` yrom2 (FF, wenn das Spiel keins hat), `+4000` drom. Es passen alle 64 Spielnummern (bis 0x200000), 9 sind belegt. Davor liegt der unkomprimierte Bitstream (bis 0x59D8A).
 
 ```powershell
-scripts\build.ps1 hw5x_80b_cyclone_IV        # output_files\GOSOF80.jic, ohne ROMs
+scripts\build.ps1 80B_dev_open               # output_files\GOSOF80.jic, ohne ROMs
 scripts\make_flash_hex_80b.ps1               # liest ..\Gosof80B\roms\*.zip
-cd variants\hw5x_80b_cyclone_IV ; quartus_cpf -c gosof80_roms.cof   # output_files\gosof80_roms.jic
+cd variants\80B_dev_open ; quartus_cpf -c gosof80_roms.cof   # output_files\gosof80_roms.jic
 ```
 
 Die Release-`.jic` bleibt ROM-frei, `gosof80_roms.jic` wird nicht committet.
@@ -105,21 +109,31 @@ Die Simulation ersetzt den echten Lader durch `sim_models.vhd` und vergleicht ni
 
 1. **Noch nicht abgehört.** Mischung DAC 50 : SP0250 50 : AY 25 + 25 aus PinMAME. Auf der Platine liegen andere Widerstände (AY 3 kΩ, SP0250 1,2 kΩ, DAC 10 kΩ, jeweils auf 10 kΩ), das kann eine andere Balance ergeben. Beim Hörtest in `Audio_Mixer` nachstellen.
 2. **Testschalter:** In der Simulation führte ein 200 ms langer Druck am Ende des Laufs zu keinem Ton. Laut Original gibt SW1 einen Blip. Möglicherweise wertet die Firmware ihn nur in bestimmten Zuständen aus, das ist nicht geklärt.
-3. **Adapter nötig:** Die GOSOF 5.00 passt nicht in den MA-766-Steckplatz. Belegung:
+3. **Audio:** Die Platine ersetzt nach Lesart des Plans A6 und A5. Ihre TDA7267 gibt auf A5P1-4 aus, dort sitzt im Original der Ausgang der A5-Endstufe (E-24715, Plan in `MA-1294.jpg`). K1-18 und K5-9 (Audio zur A5) bleiben offen. Am Poti niedrig anfangen.
+4. **MPU-Reset** (A6P1-9) ist am FPGA nicht angeschlossen, die Karte startet selbstständig.
 
-| Signal | MA-766 A6P1 | GOSOF P2 |
-|---|---|---|
-| S0 (= S1) / S1 (= S2) | 5 / 3 | 8 / 9 |
-| S2 (= S4) / S3 (= S8) | 2 / 1 | 11 / 12 |
-| S4 (= S16) | 8 | 2 |
-| +5 V | 15, 16 | 5 |
-| GND | 11, 12 | 6 |
-| +12 V | 14 | 1 |
-| Audio | 18 | 7 |
+**Hardwareprüfung:** Rock (2 ROMs) und ein 3-ROM-Spiel, zuerst SW2 (`Gottlieb_Test`) und LED2 (blinkt?), dann SW1 (Reset), SW3 (`Gosof_Test`) und zuletzt am Automaten.
 
-4. **Audiopegel:** Das Original gibt an Pin 18 Line-Pegel an die Aux-Endstufe, die GOSOF den Ausgang ihrer TDA7267. Die Endstufe A5 (E-24715, Plan in `MA-1294.jpg`) teilt den Eingang mit 2,7 kΩ/100 Ω herunter und verstärkt etwa 100-fach mit dem LM2002, zusammen etwa 3,6-fach. Die Eingangsstufe ist also nicht gefährdet, zu viel Pegel übersteuert aber die Endstufe. Am Poti der GOSOF niedrig anfangen.
-5. **MPU-Reset** (A6P1-9) ist auf der GOSOF nicht angeschlossen, die Karte startet selbstständig.
+## Pinbelegung und Prüfung der Platine Gosof80B_01 (01.11.2026)
 
-**Hardwareprüfung:** Rock (2 ROMs) und ein 3-ROM-Spiel, zuerst `Gottlieb_Test` und D2 (blinkt?), dann `Gosof_Test` und zuletzt am Automaten.
+Quelle der Pins: `pins_Gosof80B.xlsx` und `Gosof80B_01.NET`, geprüft gegen den Plan des dev_open-Boards. Belegung in `variants/80B_dev_open/pins.tcl`.
+
+Taster und LEDs des dev_open-Boards laut dessen Schaltplan: SW1 (Pin 88) aktiv-high mit 1 kΩ nach GND, SW2/SW3 (89/90) aktiv-low mit 1 kΩ nach 3,3 V, LED1..4 (101, 100, 99, 98) aktiv-low. Pin 88..91 sind Takteingänge ohne internen Pull-up. Die Hülle gleicht Reset und LEDs aus.
+
+**Fehler, vor dem Routing zu beheben:**
+
+1. S1-1..6 und S2-1..6 haben keine Verbindung zu GND. So lesen alle DIPs immer OFF: Spiel 0, keine Optionen.
+2. K7: GND liegt auf Pin 9. Beschriftung, K6-8 und A5P1 (E-24715: DC Ground = Pin 8) sagen Pin 8.
+
+**Noch zu klären:**
+
+1. `Analog_GND` (K1-17, K5-8) hat keine Verbindung zu GND, A5P1-3 ist nicht angeschlossen. Prüfen, ob die Lautsprecher-Rückleitung im Automaten darüber läuft, sonst fehlt dem Ausgang der Rückweg.
+2. K4 verbindet +5V und +12V. Gesteckt ist das ein Kurzschluss, sobald an K6/K7 Pin 1 die 12 V anliegen.
+3. Kein 100 nF an U1 und an IC2, dort nur C4 (100 µF).
+4. 12 V ungeregelt an der TDA7267: Spannung im Automaten messen, gegen das Datenblatt prüfen.
+5. USB am dev_open-Board führt über dessen Schalter auf dieselbe +5V-Schiene wie die Stiftleiste. USB nicht bei eingeschaltetem Automaten stecken.
+6. Dokumentation: In der Excel fehlen in G10..G12 A16/A14/A12 (Netzliste: Pin 7/2/144). K1 heißt „Display edge connector“, ist aber der A6P1/A6P2-Stecker.
+
+Nicht geprüft: Abmessungen des Footprints gegen `02_DXF` des Boards, Routing (noch keins). Das SRAM U1 und S32..S128 sind verdrahtet, vom MA-766-Kern aber nicht benutzt.
 
 MA-886 (Nachfolger): siehe `MA-886_Evaluierung.md`.

@@ -1,5 +1,7 @@
-# device.tcl - what is specific to THIS board (hw5x_80b_cyclone_IV), apart from the pin locations.
-# Taken over from hw5x_cyclone_IV\device.tcl. Merged into GOSOF80.qsf by scripts\gen_qsf.ps1. Hand maintained.
+# device.tcl - what is specific to THIS board (80B_dev_open), apart from the pin locations.
+# Merged into GOSOF80.qsf by scripts\gen_qsf.ps1. Hand maintained.
+# Bitstream not compressed: the EPCS16 has room, the game slots start at FLASH_BASE 080000h (variant_pkg.vhd).
+# No pull-ups for Gosof_Test, Gottlieb_Test: PIN_89/90 cannot have one, see pins.tcl.
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE6E22C8
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
@@ -36,13 +38,7 @@ set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_symbol
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_signal_integrity
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_boundary_scan
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Gosof_Test
-set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to Gottlieb_Test
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-
-# Compressed bitstream: uncompressed the EP4CE6 takes 368 KB of the 512 KB EPCS4, which
-# leaves no room for the 24 KB game slots from FLASH_BASE (variant_pkg.vhd) on.
-set_global_assignment -name ON_CHIP_BITSTREAM_DECOMPRESSION ON
 
 # The configuration flash is the source of the game ROMs (rtl/hw5x/Flash_ROM.vhd), so its
 # pins have to become ordinary I/O once the FPGA is configured. As in WillFA7 s_cyclone_iv_v4.
@@ -52,5 +48,5 @@ set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULA
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
 # CPU clock from a divider in the core, no PLL: a register output behind clk_50, hold needs the
-# fitter on all paths (as on hw5x_cyclone_IV).
+# fitter on all paths (as on hw5x_cyclone_IV). The PLLs of this board work, the core just needs none.
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"

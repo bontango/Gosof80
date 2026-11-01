@@ -26,7 +26,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
-| `hw5x_80b_cyclone_IV` | – (neu, MA-766) | – | gebaut 31.10.2026, simuliert, nicht getestet |
+| `80B_dev_open` | – (neu, MA-766) | – | gebaut 01.11.2026, Kern simuliert, nicht getestet (Platine Gosof80B_01 noch ohne Routing) |
 | `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00, Teiler statt PLL: Eingänge, Soundtest mit Ton, beide Core-Boards (Ralf, 28.10.2026); Prüfliste HW 5.x unten weitgehend offen |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
@@ -188,16 +188,17 @@ reagiert das Board nicht auf Eingänge. Geprüft:
 6. LEDs D1 (Trigger) / D2 (Sound) leuchten richtig herum.
 7. Der W25Q64 des Core-Boards bleibt unbenutzt (normale I/O-Pins, per `.jic` nicht beschreibbar).
 
-## GOSOF80B MA-766 (`hw5x_80b_cyclone_IV`, Board-ID 8, seit 31.10.2026)
+## GOSOF80B MA-766 (`80B_dev_open`, Board-ID 8, seit 01.11.2026)
 
-Gottlieb System 80B Generation 1 auf der Platine GOSOF 5.00, eigener Kern, 24 KB je Spiel im EPCS4. Alles Weitere:
-`docs/GOSOF80B_MA766.md`. **Gebaut und simuliert (9 Spiele, ROMs echt), nicht auf Hardware getestet und noch nicht abgehört.**
+Gottlieb System 80B Generation 1 auf der Platine Gosof80B mit dev_open-Board DEV190806036 (bis 31.10.2026 `hw5x_80b_cyclone_IV` für GOSOF 5.00), eigener Kern, 24 KB je Spiel im EPCS16. Alles Weitere:
+`docs/GOSOF80B_MA766.md`. **Gebaut, Kern simuliert (9 Spiele, ROMs echt), nicht auf Hardware getestet und noch nicht abgehört.** Die Simulation nutzt die Platinenhülle nicht: Reset- und LED-Polarität sowie die Pins prüft erst die Hardware.
 
 | Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | M9K | Setup-Slack | Hold-Slack |
 |---|---|---|---|---|---|---|---|
-| `hw5x_80b_cyclone_IV` (31.10.2026) | 3976 | 1739 | 229376 | 4360 / 6272 (70 %) | 28 / 30 | 5,041 ns (clk_50) | 0,452 ns (Slow-Modell) |
+| `hw5x_80b_cyclone_IV` (31.10.2026, GOSOF 5.00) | 3976 | 1739 | 229376 | 4360 / 6272 (70 %) | 28 / 30 | 5,041 ns (clk_50) | 0,452 ns (Slow-Modell) |
+| `80B_dev_open` (01.11.2026) | 3993 | 1739 | 229376 | 4382 / 6272 (70 %) | 28 / 30 | 4,992 ns (clk_50) | 0,169 ns (Fast-Modell) |
 
-Keine negative Slack, kein Critical Warning. Komprimierter Bitstream bis 0x2390F, ROMs 0x40000-0x75FFF, EPCS4 reicht.
+Keine negative Slack, kein Critical Warning. Unkomprimierter Bitstream bis 0x59D8A, ROMs 0x80000-0xB5FFF (64 Slots passen bis 0x200000), `.jic` 2.097.375 B.
 
 ## Pinunterschiede
 

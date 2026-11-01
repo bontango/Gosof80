@@ -1,5 +1,5 @@
-# GOSOF80B timing constraints (hw5x_80b_cyclone_IV, scripts\files_80b_common.tcl).
-# The board shell top\board_hw5x_80b.vhd puts the core in instance "core".
+# GOSOF80B timing constraints (80B_dev_open, scripts\files_80b_common.tcl).
+# The board shell top\board_80b_dev_open.vhd puts the core in instance "core".
 set_time_format -unit ns -decimal_places 3
 
 create_clock -name {clk_50} -period 20.000 -waveform { 0.000 10.000 } [get_ports {clk_50}]

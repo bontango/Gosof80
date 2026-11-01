@@ -19,4 +19,4 @@ set_global_assignment -name VHDL_FILE ../../rtl/hw5x/Flash_ROM.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/hw5x/sd_reader_hw5x.vhd
 set_global_assignment -name SDC_FILE ../../rtl/hw5x_80b/GOSOF80B.sdc
 set_global_assignment -name VHDL_FILE ../../top/GOSOF80B.vhd
-set_global_assignment -name VHDL_FILE ../../top/board_hw5x_80b.vhd
+set_global_assignment -name VHDL_FILE ../../top/board_80b_dev_open.vhd
