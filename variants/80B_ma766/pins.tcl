@@ -1,4 +1,4 @@
-# pins.tcl - pin locations of 80B_dev_open (Gosof80B PCB with the 'dev_open' board DEV190806036).
+# pins.tcl - pin locations of 80B_ma766 (Gosof80B PCB with the 'dev_open' board DEV190806036).
 # From Gosof80B\target\pins_Gosof80B.xlsx and Gosof80B_01.NET (DEV1 pad -> FPGA pin), checked against
 # the schematic of the board (N:\Projekte\FPGA\DEV190806036 Open\01_SCH).
 # DIP blocks as printed on the PCB: S1 "game select", S2 "options" (the other way round than GOSOF 5.00).

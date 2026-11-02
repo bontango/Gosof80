@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # GENERATED FILE - do not edit.
 #
-# Variant : 80B_dev_open - GOSOF80B (Gottlieb System 80B sound board MA-766) on the Gosof80B PCB with the 'dev_open' Cyclone IV board (EP4CE6E22C8), ROMs from the EPCS16
+# Variant : 80B_ma766 - GOSOF80B (Gottlieb System 80B sound board MA-766) on the Gosof80B PCB with the 'dev_open' Cyclone IV board (EP4CE6E22C8), ROMs from the EPCS16
 # Made by : scripts\gen_qsf.ps1
 # Sources : scripts\common_header.tcl, device.tcl, pins.tcl,
 #           scripts\files_common.tcl + files_<family>.tcl + files_<option>.tcl

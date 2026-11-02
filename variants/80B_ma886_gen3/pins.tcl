@@ -43,7 +43,7 @@ set_location_assignment PIN_8 -to FLASH_NCS
 set_location_assignment PIN_6 -to FLASH_ASDO
 set_location_assignment PIN_13 -to FLASH_DATA0
 
-# SRAM U1 AS6C1008-55 (3.3 V, E2 tied high on the PCB). Used here, unlike in 80B_dev_open.
+# SRAM U1 AS6C1008-55 (3.3 V, E2 tied high on the PCB). Used here, unlike in 80B_ma766.
 set_location_assignment PIN_121 -to SRAM_A[0]
 set_location_assignment PIN_125 -to SRAM_A[1]
 set_location_assignment PIN_127 -to SRAM_A[2]

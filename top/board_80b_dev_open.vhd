@@ -1,6 +1,6 @@
 -- Board shell of GOSOF80B on the Gosof80B PCB with the 'dev_open' board DEV190806036 (EP4CE6E22C8):
 -- pin names of the board, mapped onto the core gosof80b_core (top\GOSOF80B.vhd).
--- Not used: S32..S128, options S2 4..6, SRAM U1 (see variants\80B_dev_open\pins.tcl).
+-- Not used: S32..S128, options S2 4..6, SRAM U1 (see variants\80B_ma766\pins.tcl).
 -- BOARD_ID / SW_MINOR come from the generated .qsf (set_parameter), nothing reads them here.
 
 library ieee;

@@ -1,4 +1,4 @@
-# GOSOF80B timing constraints (80B_dev_open, scripts\files_80b_common.tcl).
+# GOSOF80B timing constraints (80B_ma766, scripts\files_80b_common.tcl).
 # The board shell top\board_80b_dev_open.vhd puts the core in instance "core".
 set_time_format -unit ns -decimal_places 3
 

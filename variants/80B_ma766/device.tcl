@@ -1,4 +1,4 @@
-# device.tcl - what is specific to THIS board (80B_dev_open), apart from the pin locations.
+# device.tcl - what is specific to THIS board (80B_ma766), apart from the pin locations.
 # Merged into GOSOF80.qsf by scripts\gen_qsf.ps1. Hand maintained.
 # Bitstream not compressed: the EPCS16 has room, the game slots start at FLASH_BASE 080000h (variant_pkg.vhd).
 # No pull-ups for Gosof_Test, Gottlieb_Test: PIN_89/90 cannot have one, see pins.tcl.

@@ -1,7 +1,7 @@
 # GOSOF80B: Gottlieb System 80B Soundboard MA-766 (Generation 1)
 
 FPGA-Fassung auf der Platine Gosof80B (`..\Gosof80B\target\Gosof80B_01.*`) mit dev_open-Board DEV190806036 (EP4CE6E22C8, ROMs aus dem EPCS16), Variante
-`80B_dev_open`, Board-ID 8. Bis 31.10.2026 hieß sie `hw5x_80b_cyclone_IV` und war für GOSOF 5.00 gedacht. Quellen: Schaltplan `..\Gosof80B\schematics\MA-766-schematic.jpg`
+`80B_ma766`, Board-ID 8. Bis 31.10.2026 hieß sie `hw5x_80b_cyclone_IV` und war für GOSOF 5.00 gedacht, bis 02.11.2026 `80B_dev_open`. Quellen: Schaltplan `..\Gosof80B\schematics\MA-766-schematic.jpg`
 (E-24711), PinMAME `src\wpc\gts80s.c` und `src\sound\sp0250.c`, ROM-Analyse und Simulation.
 
 **Stand 01.11.2026: gebaut, Kern simuliert, nicht auf Hardware getestet und noch nicht abgehört. Layout `Gosof80B_Final` und Gerber liegen vor (01.11.2026), die Pins stammen aber aus `Gosof80B_01.NET` und sind nicht gegen die Final-Fassung geprüft. Offene Schaltplanbefunde siehe unten.**
@@ -69,9 +69,9 @@ Die Platine hat zusätzlich S5 mit K2 („Sound Test“): Drücken zieht die per
 24 KB je Spiel im EPCS16 ab `FLASH_BASE` = 0x80000: `+0000` yrom1, `+2000` yrom2 (FF, wenn das Spiel keins hat), `+4000` drom. Es passen alle 64 Spielnummern (bis 0x200000), 9 sind belegt. Davor liegt der unkomprimierte Bitstream (bis 0x59D8A).
 
 ```powershell
-scripts\build.ps1 80B_dev_open               # output_files\GOSOF80.jic, ohne ROMs
+scripts\build.ps1 80B_ma766               # output_files\GOSOF80.jic, ohne ROMs
 scripts\make_flash_hex_80b.ps1               # liest ..\Gosof80B\roms\*.zip
-cd variants\80B_dev_open ; quartus_cpf -c gosof80_roms.cof   # output_files\gosof80_roms.jic
+cd variants\80B_ma766 ; quartus_cpf -c gosof80_roms.cof   # output_files\gosof80_roms.jic
 ```
 
 Die Release-`.jic` bleibt ROM-frei, `gosof80_roms.jic` wird nicht committet.
@@ -116,7 +116,7 @@ Die Simulation ersetzt den echten Lader durch `sim_models.vhd` und vergleicht ni
 
 ## Pinbelegung und Prüfung der Platine Gosof80B_01 (01.11.2026)
 
-Quelle der Pins: `pins_Gosof80B.xlsx` und `Gosof80B_01.NET`, geprüft gegen den Plan des dev_open-Boards. Belegung in `variants/80B_dev_open/pins.tcl`.
+Quelle der Pins: `pins_Gosof80B.xlsx` und `Gosof80B_01.NET`, geprüft gegen den Plan des dev_open-Boards. Belegung in `variants/80B_ma766/pins.tcl`.
 
 Taster und LEDs des dev_open-Boards laut dessen Schaltplan: SW1 (Pin 88) aktiv-high mit 1 kΩ nach GND, SW2/SW3 (89/90) aktiv-low mit 1 kΩ nach 3,3 V, LED1..4 (101, 100, 99, 98) aktiv-low. Pin 88..91 sind Takteingänge ohne internen Pull-up. Die Hülle gleicht Reset und LEDs aus.
 

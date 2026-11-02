@@ -1,5 +1,5 @@
 -- variant_pkg.vhd - what this board is, as VHDL constants.
--- Variant: 80B_dev_open
+-- Variant: 80B_ma766
 --
 -- First entry in the generated .qsf (scripts/files_80b_common.tcl). The top level and the
 -- flash loader read these constants.

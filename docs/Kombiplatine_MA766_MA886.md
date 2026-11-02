@@ -8,7 +8,7 @@ Eine Platine mit EP4CE6 und SRAM deckt MA-766 und MA-886 ab, je Boardtyp mit eig
 
 | Boardtyp | Variante | Spiele | SRAM nötig |
 |---|---|---|---|
-| MA-766 | `80B_dev_open` | 9 | nein, U1 kann entfallen |
+| MA-766 | `80B_ma766` | 9 | nein, U1 kann entfallen |
 | MA-886 Gen 2 | `80B_ma886_gen2` | Victory, Diamond Lady, TX-Sector, Robo-War, Excalibur | ja |
 | MA-886 Gen 3 | `80B_ma886_gen3` | Bad Girls, Big House, Hot Shots, Night Moves | ja |
 

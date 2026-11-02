@@ -13,7 +13,7 @@ lädt die ROMs beim Start aus dem EPCS16 dorthin.
 
 | Fassung | Spiele | SRAM | LE auf dem E6 (6.272) | Setup clk_50 | Hold (Fast) |
 |---|---|---|---|---|---|
-| MA-766, `80B_dev_open` (Board-ID 8) | 9 | nein | 4.382 (70 %) | 4,992 ns | 0,169 ns |
+| MA-766, `80B_ma766` (Board-ID 8) | 9 | nein | 4.382 (70 %) | 4,992 ns | 0,169 ns |
 | MA-886 Gen 2, `80B_ma886_gen2` (Board-ID 9) | 5 | ja | 4.008 (64 %) | 6,654 ns | 0,186 ns |
 | MA-886 Gen 3, `80B_ma886_gen3` (Board-ID 10) | 4 | ja | 5.646 (90 %) | **0,528 ns** | 0,137 ns |
 | Gen 2 und Gen 3 in einem Bitstream | 9 | ja | über 6.272 (Schätzung) | – | – |
@@ -199,7 +199,7 @@ wie die anderen.
 
 ## Umsetzung (02.11.2026)
 
-Eigener Kern `top/GOSOF80B_886.vhd` (Generic `GEN` 2 oder 3 aus `variant_pkg.vhd`), Hülle `top/board_886_dev_open.vhd`, damit `80B_dev_open` unverändert bleibt. Das Flash-Layout je Spiel ist `yrom` ab +0 und `drom` ab +0x8000, im SRAM wählt A15 zwischen Y und D. Die ROMs baut `scripts/make_flash_hex_886.ps1 -Gen 2|3`, die `gosof80_roms.jic` wird nicht committet.
+Eigener Kern `top/GOSOF80B_886.vhd` (Generic `GEN` 2 oder 3 aus `variant_pkg.vhd`), Hülle `top/board_886_dev_open.vhd`, damit `80B_ma766` unverändert bleibt. Das Flash-Layout je Spiel ist `yrom` ab +0 und `drom` ab +0x8000, im SRAM wählt A15 zwischen Y und D. Die ROMs baut `scripts/make_flash_hex_886.ps1 -Gen 2|3`, die `gosof80_roms.jic` wird nicht committet.
 
 **Simulation** (`sim/gosof886/run_sim.ps1`, GHDL, echte ROMs, SRAM-Modell mit 55 ns, Prüfung des Schreibpulses): alle 9 Spiele PASS, je 1,54 s simulierte Zeit und 30 Sound-Kommandos.
 

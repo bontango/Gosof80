@@ -10,25 +10,25 @@
                                + 2000h  yrom2   Y CPU $C000 (FF where the game has none)
                                + 4000h  drom    D CPU $E000
 
-  FLASH_BASE is read from variants\80B_dev_open\variant_pkg.vhd. 64 slots fit into the
+  FLASH_BASE is read from variants\80B_ma766\variant_pkg.vhd. 64 slots fit into the
   EPCS16, 9 are used. Slot n is selected with S1 = binary n, ON = '1' (not game_sel).
 
   THE RESULT CONTAINS COPYRIGHTED GAME ROMS. Write it below output_files\ (ignored by git)
-  and never into bin\. variants\80B_dev_open\gosof80_roms.cof expects it at
+  and never into bin\. variants\80B_ma766\gosof80_roms.cof expects it at
   output_files\gosof80_roms.hex, which is the default of -Out.
 
 .PARAMETER RomDir
   Folder with the ROM .zip files. Default ..\Gosof80B\roms next to FPGA_Source.
 
 .PARAMETER Out
-  The .hex file to write. Default variants\80B_dev_open\output_files\gosof80_roms.hex.
+  The .hex file to write. Default variants\80B_ma766\output_files\gosof80_roms.hex.
 
 .PARAMETER BinDir
   Also write every slot as slot_<n>.bin into this folder, for sim\gosof80b\run_sim.ps1.
 
 .EXAMPLE
   .\make_flash_hex_80b.ps1
-  cd ..\variants\80B_dev_open ; quartus_cpf -c gosof80_roms.cof
+  cd ..\variants\80B_ma766 ; quartus_cpf -c gosof80_roms.cof
 #>
 param(
     [string]$RomDir,
@@ -39,7 +39,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot  = Split-Path -Parent $ScriptDir
-$VarDir    = Join-Path $RepoRoot 'variants\80B_dev_open'
+$VarDir    = Join-Path $RepoRoot 'variants\80B_ma766'
 if (-not $RomDir) { $RomDir = Join-Path (Split-Path -Parent $RepoRoot) 'Gosof80B\roms' }
 if (-not $Out)    { $Out = Join-Path $VarDir 'output_files\gosof80_roms.hex' }
 

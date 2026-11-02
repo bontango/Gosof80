@@ -1,13 +1,13 @@
 @{
-    Name        = '80B_dev_open'
+    Name        = '80B_ma766'
     Title       = "GOSOF80B (Gottlieb System 80B sound board MA-766) on the Gosof80B PCB with the 'dev_open' Cyclone IV board (EP4CE6E22C8), ROMs from the EPCS16"
     BoardId     = 8
     TopEntity   = 'gosof80b'
     CommonFiles = 'files_80b_common'
     RtlFamily   = 'hw5x_80b'
     Options     = @()
-    BinFolder   = '80B_dev_open'
-    HwName      = '80B_dev_open'
+    BinFolder   = '80B_ma766'
+    HwName      = '80B_ma766'
     ReleaseArtifact = 'jic'
     Dormant     = $false
     VirtualPins = @()

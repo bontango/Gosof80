@@ -74,7 +74,7 @@ EPCS4    0x000000 - 0x028668          komprimierter Bitstream (Stand 18.10.2026)
   aber kein Ton und keine Reaktion auf Eingänge. Gleiche Frequenzen, Hold knapp (0,090 ns), `OPTIMIZE_HOLD_TIMING "ALL PATHS"`.
   Eingangstest für neue Core-Boards: `sim/plltest` (`build.ps1`, `.sof` per JTAG, LED1 = PLL, LED2 = clk_50).
 
-## GOSOF80B / MA-766 (`80B_dev_open`, seit 01.11.2026, vorher `hw5x_80b_cyclone_IV`)
+## GOSOF80B / MA-766 (`80B_ma766`, bis 02.11.2026 `80B_dev_open`, davor `hw5x_80b_cyclone_IV`)
 
 System 80B Generation 1 auf der Platine Gosof80B (`..\Gosof80B\target`) mit dev_open-Board DEV190806036, EPCS16. Eigener Kern `top/GOSOF80B.vhd`, Hülle `top/board_80b_dev_open.vhd`, eigene Dateiliste `scripts/files_80b_common.tcl`
 (`CommonFiles` in `variant.psd1`), Module in `rtl/hw5x_80b/`. Änderungen am Kern `GOSOF80.vhd` wirken hier nicht. ROMs: `scripts/make_flash_hex_80b.ps1`,
@@ -130,7 +130,7 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 
 - Registergeteilte Takte (Cyclone II und HW 5.x: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
-- GOSOF80B (`80B_dev_open`): Schaltplanbefunde Gosof80B_01, Hardwaretest und Hörtest offen, `docs/GOSOF80B_MA766.md`.
+- GOSOF80B (`80B_ma766`): Schaltplanbefunde Gosof80B_01, Hardwaretest und Hörtest offen, `docs/GOSOF80B_MA766.md`.
 - GOSOF80B MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`): Hardwaretest, Hörtest und Vergleich der Pins mit der Final-Netzliste offen, `docs/MA-886_Evaluierung.md`.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
 - Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
