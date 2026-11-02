@@ -3,7 +3,10 @@
 FPGA-Ersatz des Gottlieb-System-80-Soundboards, gemeinsamer Sourcebaum für die
 HW-2.x-Platinen, HW 3.x (Board-ID 6) und HW 4.x (Board-ID 5), beide seit 15.10.2026, sowie HW 5.x (Board-ID 7,
 EP4CE6-Core-Board, ROMs aus dem EPCS4) seit 18.10.2026. Aufbau nach Skill `fpga-varianten-sourcebaum` (Vorlage AtariFA).
-Repo: `github.com/bontango/Gosof80` (privat), direkt auf `main` committen.
+Repo: `github.com/bontango/Gosof80` (öffentlich seit 02.11.2026), direkt auf `main` committen.
+
+`bin/` ist seit 02.11.2026 nicht mehr versioniert: `release.ps1` schreibt die `.jic`/`.pof` und `changelog.txt` weiter dorthin, Ralf stellt sie selbst auf `https://lisy.dev/swrep/soundboards`.
+Handbuch: `docs/GOSOF_HW5x_user_manual.html`, online `https://bontango.github.io/Gosof80/`, vorerst nur Englisch. Nach einem neuen oder umbenannten Handbuch die Startseite neu erzeugen (Skill `projekt-doku-pages`).
 
 ## Architektur (top/GOSOF80.vhd = Kern `gosof80_core`)
 
@@ -57,8 +60,8 @@ EPCS4    0x000000 - 0x028668          komprimierter Bitstream (Stand 18.10.2026)
   `scripts\make_flash_hex.ps1 -Image ..\..\Gosof_Image_v1.21.img` (oder `-SlotFiles`), dann in
   `variants\hw5x_cyclone_IV` `quartus_cpf -c gosof80_roms.cof` → `output_files\gosof80_roms.jic`. Beides
   liegt unter `output_files\` (git-ignoriert). Eine Kopie liegt lokal als
-  `bin\HW5x_Cyclone_IV\GOSOF80_HW5.x_v7.98_roms.jic`; `.gitignore` schließt `bin/*/*_roms.jic` aus, sie
-  wird **nie committet**.
+  `bin\HW5x_Cyclone_IV\GOSOF80_HW5.x_v7.98_roms.jic`; `.gitignore` schließt `/bin/` aus, sie
+  wird **nie committet** und nie veröffentlicht.
 - `reset_sw` liegt auf PIN_88 (Takteingang CLK7, kein interner Pull-up möglich). `pins.tcl` schaltet den
   Pull-up aus `common_header.tcl` dort wieder ab.
 - LEDs: D1 = Trigger, D2 = Sound (aktiv-high, auf v4 invertiert), Core-LED1 = Flash-Fehler (aktiv-low).

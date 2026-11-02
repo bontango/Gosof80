@@ -36,7 +36,11 @@ desktop.ini
 ~$*
 
 # NOTE: rtl/cyclone_*/*.cmp are tracked - the .qip lists them as MISC_FILE.
-# NOTE: bin/ is tracked - it holds the released .jic/.pof, as in AtariFA.
+
+# Released .jic/.pof and changelog.txt: local only (scripts\release.ps1), published on
+# https://lisy.dev/swrep/soundboards. Also holds the HW 5.x .jic WITH game ROMs
+# (scripts\make_flash_hex.ps1 + gosof80_roms.cof), which is copyrighted.
+/bin/
 
 # Votrax verification: reference/model binaries, GHDL library, WAV/f32/txt results
 # (sim/votrax/run_sim.ps1 rebuilds everything)
@@ -45,7 +49,3 @@ sim/flash/build/
 # GOSOF80B: also holds the packed game ROMs (copyrighted)
 sim/gosof80b/build/
 sim/gosof886/build/
-
-# HW 5.x .jic WITH game ROMs (scripts\make_flash_hex.ps1 + gosof80_roms.cof): copyrighted,
-# kept in bin/ for local use only, never committed.
-bin/*/*_roms.jic
