@@ -26,7 +26,9 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
-| `80B_dev_open` | – (neu, MA-766) | – | gebaut 01.11.2026, Kern simuliert, nicht getestet (Platine Gosof80B_01 noch ohne Routing) |
+| `80B_dev_open` | – (neu, MA-766) | – | gebaut 01.11.2026, Kern simuliert, nicht getestet (Pins aus `Gosof80B_01.NET`, nicht gegen die Final-Fassung geprüft) |
+| `80B_ma886_gen2` | – (neu, MA-886) | – | gebaut 02.11.2026, Kern simuliert, nicht getestet |
+| `80B_ma886_gen3` | – (neu, MA-886) | – | gebaut 02.11.2026, Kern simuliert ohne jt51-Klang, nicht getestet |
 | `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00, Teiler statt PLL: Eingänge, Soundtest mit Ton, beide Core-Boards (Ralf, 28.10.2026); Prüfliste HW 5.x unten weitgehend offen |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
@@ -199,6 +201,18 @@ Gottlieb System 80B Generation 1 auf der Platine Gosof80B mit dev_open-Board DEV
 | `80B_dev_open` (01.11.2026) | 3993 | 1739 | 229376 | 4382 / 6272 (70 %) | 28 / 30 | 4,992 ns (clk_50) | 0,169 ns (Fast-Modell) |
 
 Keine negative Slack, kein Critical Warning. Unkomprimierter Bitstream bis 0x59D8A, ROMs 0x80000-0xB5FFF (64 Slots passen bis 0x200000), `.jic` 2.097.375 B.
+
+## GOSOF80B MA-886 (`80B_ma886_gen2` Board-ID 9, `80B_ma886_gen3` Board-ID 10, seit 02.11.2026)
+
+Gottlieb System 80B Generation 2 und 3 auf derselben Platine, mit SRAM U1. Eigener Kern `top/GOSOF80B_886.vhd`, Hülle `top/board_886_dev_open.vhd`, 64 KB je Spiel im EPCS16. Alles Weitere: `docs/MA-886_Evaluierung.md`.
+**Gebaut, Kern simuliert (9 Spiele, ROMs echt, jt51 nur als stummer Stub), nicht auf Hardware getestet und nicht abgehört.**
+
+| Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | Multiplikatoren | Setup-Slack | Hold-Slack |
+|---|---|---|---|---|---|---|---|
+| `80B_ma886_gen2` (02.11.2026) | 3824 | 1502 | 36352 | 4008 / 6272 (64 %) | 5 / 30 | 6,654 ns (clk_50) | 0,186 ns (Fast-Modell) |
+| `80B_ma886_gen3` (02.11.2026) | 5298 | 1631 | 38277 | 5646 / 6272 (90 %) | 1 / 30 | 0,528 ns (clk_50, im jt51) | 0,137 ns (Fast-Modell) |
+
+Keine negative Slack, kein Critical Warning. Unkomprimierter Bitstream bis 0x59D8A, ROMs Gen 2 0x80000-0xCFFFF, Gen 3 0x80000-0xBFFFF, `.jic` 2.097.375 B.
 
 ## Pinunterschiede
 

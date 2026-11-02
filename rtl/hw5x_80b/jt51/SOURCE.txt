@@ -1,0 +1,2 @@
+jt51 (YM2151) by Jose Tejada, GPL-3, https://github.com/jotego/jt51
+Copied unchanged from hdl/ at commit 2ca6601 (02.11.2026). Used by the MA-886 generation 3 variant.

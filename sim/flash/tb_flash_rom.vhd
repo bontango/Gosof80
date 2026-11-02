@@ -12,7 +12,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity tb_flash_rom is
-	generic(SLOT : integer := 4096);  -- bytes per game: 4 KB GOSOF80, 24 KB GOSOF80B
+	generic(SLOT : integer := 4096);  -- bytes per game: 4 KB GOSOF80, 24 KB MA-766, 64 KB MA-886
 end tb_flash_rom;
 
 architecture sim of tb_flash_rom is

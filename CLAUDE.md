@@ -80,6 +80,11 @@ System 80B Generation 1 auf der Platine Gosof80B (`..\Gosof80B\target`) mit dev_
 (`CommonFiles` in `variant.psd1`), Module in `rtl/hw5x_80b/`. Änderungen am Kern `GOSOF80.vhd` wirken hier nicht. ROMs: `scripts/make_flash_hex_80b.ps1`,
 24 KB je Spiel ab `FLASH_BASE` 0x80000, Bitstream unkomprimiert. Anders als auf GOSOF 5.00: Reset-Taster SW1 ist **aktiv-high**, die LEDs sind **aktiv-low**, S1 = Spiel, S2 = Optionen. Prüfung: `sim/gosof80b/run_sim.ps1` (echte ROMs, ca. 25 min pro Spiel), `run_sp0250.ps1`. Details: `docs/GOSOF80B_MA766.md`.
 
+## GOSOF80B / MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`, seit 02.11.2026)
+
+Generation 2 und 3 auf derselben Platine mit SRAM U1, je ein Bitstream. Eigener Kern `top/GOSOF80B_886.vhd` (Generic `GEN` aus `MA886_GEN` in `variant_pkg.vhd`), Hülle `top/board_886_dev_open.vhd`, Dateilisten `scripts/files_886_gen2.tcl` und `files_886_gen3.tcl`, jt51 in `rtl/hw5x_80b/jt51/`. Änderungen an `GOSOF80B.vhd` wirken hier nicht. ROMs: `scripts/make_flash_hex_886.ps1 -Gen 2|3`, 64 KB je Spiel ab 0x80000.
+Gen 3 ist mit 90 % LE und 0,5 ns Setup-Reserve knapp. Bone Busters und Gen 2 + 3 in einem Bitstream passen nicht auf den E6. Prüfung: `sim/gosof886/run_sim.ps1` (echte ROMs, ca. 1–2 h für alle Spiele, jt51 nur als stummer Stub; `-Games` als Strings angeben: `'2.1','3.0'`), `run_mf4.ps1`. Details: `docs/MA-886_Evaluierung.md`.
+
 ## Was ändern → wo
 
 | Änderung | Ort |
@@ -125,7 +130,8 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 
 - Registergeteilte Takte (Cyclone II und HW 5.x: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
-- GOSOF80B (`80B_dev_open`): Schaltplanbefunde Gosof80B_01, Hardwaretest und Hörtest offen, `docs/GOSOF80B_MA766.md`. MA-886: `docs/MA-886_Evaluierung.md`.
+- GOSOF80B (`80B_dev_open`): Schaltplanbefunde Gosof80B_01, Hardwaretest und Hörtest offen, `docs/GOSOF80B_MA766.md`.
+- GOSOF80B MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`): Hardwaretest, Hörtest und Vergleich der Pins mit der Final-Netzliste offen, `docs/MA-886_Evaluierung.md`.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
 - Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
   gegen den MA-216-Schaltplan prüfen.

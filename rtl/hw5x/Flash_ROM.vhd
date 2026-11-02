@@ -134,7 +134,7 @@ use IEEE.numeric_std.all;
 				when start =>
 					-- READ (03h) plus 24 bit address of the slot
 					tx_sr <= x"03" & std_logic_vector( to_unsigned(Base_Addr, 24)
-							 + unsigned(selection) * to_unsigned(Slot_Bytes, 16) );
+							 + resize(unsigned(selection) * to_unsigned(Slot_Bytes, 17), 24) );
 					cs_n <= '0';
 					bit_cnt <= 31;
 					in_cmd <= '1';

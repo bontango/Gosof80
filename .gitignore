@@ -44,6 +44,7 @@ sim/votrax/build/
 sim/flash/build/
 # GOSOF80B: also holds the packed game ROMs (copyrighted)
 sim/gosof80b/build/
+sim/gosof886/build/
 
 # HW 5.x .jic WITH game ROMs (scripts\make_flash_hex.ps1 + gosof80_roms.cof): copyrighted,
 # kept in bin/ for local use only, never committed.
