@@ -6,7 +6,7 @@ EP4CE6-Core-Board, ROMs aus dem EPCS4) seit 18.10.2026. Aufbau nach Skill `fpga-
 Repo: `github.com/bontango/Gosof80` (öffentlich seit 02.11.2026), direkt auf `main` committen.
 
 `bin/` ist seit 02.11.2026 nicht mehr versioniert: `release.ps1` schreibt die `.jic`/`.pof` und `changelog.txt` weiter dorthin, Ralf stellt sie selbst auf `https://lisy.dev/swrep/soundboards`.
-Handbuch: `docs/GOSOF_HW5x_user_manual.html`, online `https://bontango.github.io/Gosof80/`, vorerst nur Englisch. Nach einem neuen oder umbenannten Handbuch die Startseite neu erzeugen (Skill `projekt-doku-pages`).
+Handbuch: `docs/GOSOF_HW5x_user_manual.html` (Leitfassung), `GOSOF_HW5x_Bedienungsanleitung.html`, `GOSOF_HW5x_manuel_utilisateur.html` (seit 04.11.2026), online `https://bontango.github.io/Gosof80/`. Nur als HTML, **Änderungen in allen drei Sprachen nachziehen**, Kapitelnummern gleich; Arbeitsweg über `html_to_md.ps1`/`make_manual.ps1`, Anhang-A-Tabelle per `merge_table.ps1 -SeparatorPrefix '|-----|-----|'`. Nach einem neuen oder umbenannten Handbuch die Startseite neu erzeugen (Skill `projekt-doku-pages`).
 
 ## Architektur (top/GOSOF80.vhd = Kern `gosof80_core`)
 

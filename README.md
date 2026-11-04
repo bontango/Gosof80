@@ -11,7 +11,11 @@ music complete it. Speech comes either as MP3 or, from x.98 on, for MA-216 games
 
 **Read online:** <https://bontango.github.io/Gosof80/>
 
-- [GOSOF HW 5.x user manual (English)](https://bontango.github.io/Gosof80/GOSOF_HW5x_user_manual.html)
+- [User manual (English)](https://bontango.github.io/Gosof80/GOSOF_HW5x_user_manual.html)
+- [Bedienungsanleitung (Deutsch)](https://bontango.github.io/Gosof80/GOSOF_HW5x_Bedienungsanleitung.html)
+- [Manuel d'utilisation (Français)](https://bontango.github.io/Gosof80/GOSOF_HW5x_manuel_utilisateur.html)
+
+All three are for GOSOF HW 5.x.
 
 ## Downloads
 
