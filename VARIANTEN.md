@@ -189,6 +189,11 @@ reagiert das Board nicht auf Eingänge. Geprüft:
 5. Options-DIPs 1–4 wie bei den anderen Platinen; Gottlieb_Test, Gosof_Test (Soundtest), Reset-Taster.
 6. LEDs D1 (Trigger) / D2 (Sound) leuchten richtig herum.
 7. Der W25Q64 des Core-Boards bleibt unbenutzt (normale I/O-Pins, per `.jic` nicht beschreibbar).
+8. Eine mit `scripts\add_roms_to_jic.ps1 -RomDir` erzeugte `.jic` (Handbuch Anhang B.3, Spiele in Slot 0/8/16/32/48)
+   brennen: Programmer akzeptiert sie, die Spiele laufen. Am Rechner geprüft (04.11.2026): Release-`.jic` +
+   `Gosof_Image_v1.21.img` ergibt byte-gleich die `gosof80_roms.jic` vom 28.10.2026 aus `quartus_cpf`;
+   die Slotdateien aus B.3 sind in den benutzten Bereichen byte-gleich mit den Slots von `make_sd.bat`.
+   Ob der Programmer eine so erzeugte Datei annimmt, ist damit nur indirekt belegt (gleiche Bytes).
 
 ## GOSOF80B MA-766 (`80B_ma766`, Board-ID 8, seit 01.11.2026)
 

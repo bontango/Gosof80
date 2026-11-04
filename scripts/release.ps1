@@ -85,6 +85,22 @@ foreach ($dir in $folders) {
     New-Item -ItemType Directory -Force $outDir | Out-Null
     Copy-Item $src $dst -Force
 
+    # HW 5.x: users put their ROMs in with add_roms_to_jic.ps1 (user manual chapter 8),
+    # which goes next to the .jic. Its default FlashBase must match variant_pkg.vhd, and
+    # the bitstream must leave the slots free - -List checks both on the released file.
+    if ($meta.Options -contains 'hw5x') {
+        $pkg = Get-Content (Join-Path $dir.FullName 'variant_pkg.vhd') -Raw
+        if ($pkg -notmatch 'FLASH_BASE\s*:\s*integer\s*:=\s*16#([0-9A-Fa-f_]+)#') { throw "no FLASH_BASE in $($dir.Name)\variant_pkg.vhd" }
+        $fb = [Convert]::ToInt32(($Matches[1] -replace '_', ''), 16)
+        $adder = Join-Path $ScriptDir 'add_roms_to_jic.ps1'
+        if ((Get-Content $adder -Raw) -notmatch ('\[int\]\$FlashBase = 0x{0:X}\b' -f $fb)) {
+            throw ('FLASH_BASE is {0:X} now - change the default of -FlashBase in add_roms_to_jic.ps1 and the user manual' -f $fb)
+        }
+        & $adder -Jic $dst -List
+        if ($LASTEXITCODE -ne 0) { throw "add_roms_to_jic.ps1 does not accept $dst" }
+        Copy-Item $adder $outDir -Force
+    }
+
     $hash = (Get-FileHash $dst -Algorithm SHA256).Hash.Substring(0,16)
     $made += [pscustomobject]@{ Variant = $meta.Name; Version = $ver; File = $dst.Substring($RepoRoot.Length + 1); SHA256 = $hash }
 }

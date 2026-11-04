@@ -62,6 +62,16 @@ EPCS4    0x000000 - 0x028668          komprimierter Bitstream (Stand 18.10.2026)
   liegt unter `output_files\` (git-ignoriert). Eine Kopie liegt lokal als
   `bin\HW5x_Cyclone_IV\GOSOF80_HW5.x_v7.98_roms.jic`; `.gitignore` schließt `/bin/` aus, sie
   wird **nie committet** und nie veröffentlicht.
+- **Anwenderweg ohne Quartus** (seit 04.11.2026): `scripts\add_roms_to_jic.ps1 -Jic <Release>.jic -RomDir <Ordner>`
+  bzw. `-Image <img>` setzt die Slots direkt in Paket 28 der `.jic` (Flash-Byte 0 bei Dateioffset 0x9C,
+  jedes Byte **bitgespiegelt**) und rechnet die CRC-16/X.25 im Schlusspaket (Tag 8) neu. Aus der
+  ROM-freien `.jic` + `Gosof_Image_v1.21.img` entsteht byte-gleich die `gosof80_roms.jic` von `quartus_cpf`
+  (bis auf die Füller-Lücken 29–31/43–47, die das Skript leer lässt). Slotdateien heißen `NN_name.bin`.
+  Prüft den 6502-Reset-Vektor je Slot gegen den Platinentyp des Slots (Slot = DIP-Wert = `not game_sel`:
+  0–7 MA-216, 8–15 MA-309, 16–31 MA-55, 32–47 MA-490, 48–63 System 1). `release.ps1` prüft bei HW 5.x,
+  dass der Default `-FlashBase` = `FLASH_BASE` ist und die Release-`.jic` akzeptiert wird, und legt das Skript
+  neben die `.jic` in `bin\`. Ändert sich `FLASH_BASE`: Default im Skript **und** Handbuch Kap. 8 nachziehen.
+  Aufbau der Slotdateien je Platine: Handbuch Anhang B.
 - `reset_sw` liegt auf PIN_88 (Takteingang CLK7, kein interner Pull-up möglich). `pins.tcl` schaltet den
   Pull-up aus `common_header.tcl` dort wieder ab.
 - LEDs: D1 = Trigger, D2 = Sound (aktiv-high, auf v4 invertiert), Core-LED1 = Flash-Fehler (aktiv-low).
