@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="description" content="Deutsch - GOSOF80B: Platine Gosof80B für MA-766 und MA-886 Gen 2/3" />
+  <title>GOSOF80B Bedienungsanleitung</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+--bg: #fbfaf7;
+--fg: #1d1f21;
+--muted: #5a5f66;
+--accent: #0b5cad;
+--rule: #d9d6cf;
+--code-bg: #f0eee8;
+--th-bg: #ece9e1;
+--row-alt: #f5f3ee;
+--note-bg: #eef4fb;
+--note-rule: #0b5cad;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #17191c;
+--fg: #e4e2dd;
+--muted: #a3a7ad;
+--accent: #6fb1f2;
+--rule: #3a3d42;
+--code-bg: #24272b;
+--th-bg: #2a2d32;
+--row-alt: #1d2024;
+--note-bg: #1c2633;
+--note-rule: #6fb1f2;
+}
+}
+:root[data-theme="dark"] {
+--bg: #17191c;
+--fg: #e4e2dd;
+--muted: #a3a7ad;
+--accent: #6fb1f2;
+--rule: #3a3d42;
+--code-bg: #24272b;
+--th-bg: #2a2d32;
+--row-alt: #1d2024;
+--note-bg: #1c2633;
+--note-rule: #6fb1f2;
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+background: var(--bg);
+color: var(--fg);
+font: 16px/1.6 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+max-width: 58rem;
+margin: 0 auto;
+padding: 2rem 1rem 4rem;
+}
+h1, h2, h3, h4 { line-height: 1.25; margin: 2.2em 0 0.6em; }
+h1 { font-size: 2.2rem; margin-top: 0.5em; border-bottom: 3px solid var(--accent); padding-bottom: 0.2em; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1.05rem; color: var(--muted); }
+a { color: var(--accent); }
+a:not(:hover) { text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+p, ul, ol, table, pre, blockquote { margin: 0 0 1em; }
+li { margin: 0.15em 0; }
+li > p { margin: 0.2em 0; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5em 0; }
+img { max-width: 100%; height: auto; display: block; margin: 1em auto; border-radius: 4px; }
+code {
+font-family: Consolas, "Cascadia Mono", "SFMono-Regular", Menlo, monospace;
+font-size: 0.9em;
+background: var(--code-bg);
+padding: 0.1em 0.3em;
+border-radius: 3px;
+}
+pre {
+background: var(--code-bg);
+padding: 0.8em 1em;
+border-radius: 4px;
+overflow-x: auto;
+line-height: 1.4;
+}
+pre code { background: none; padding: 0; font-size: 0.85em; }
+blockquote {
+background: var(--note-bg);
+border-left: 4px solid var(--note-rule);
+margin-left: 0;
+padding: 0.6em 1em;
+}
+blockquote > :last-child { margin-bottom: 0; }
+table {
+border-collapse: collapse;
+display: block;
+overflow-x: auto;
+max-width: 100%;
+font-size: 0.95em;
+}
+th, td { border: 1px solid var(--rule); padding: 0.3em 0.6em; vertical-align: top; text-align: left; }
+th { background: var(--th-bg); }
+tbody tr:nth-child(even) { background: var(--row-alt); }
+table.gamelist td, table.gamelist th { padding: 0.15em 0.45em; white-space: nowrap; }
+
+.titlepage { margin-bottom: 2.5em; }
+.titlepage p { margin: 0.2em 0; }
+@media (max-width: 600px) {
+body { font-size: 15px; padding: 1rem 1rem 3rem; }
+h1 { font-size: 1.8rem; }
+}
+@media print {
+body { background: #fff; color: #000; max-width: none; font-size: 10.5pt; padding: 0; }
+a { color: #000; text-decoration: none; }
+h2, h3 { break-after: avoid; }
+pre, table, img, blockquote { break-inside: avoid; }
+tbody tr:nth-child(even) { background: #f3f3f3; }
+}
+</style>
+</head>
+<body>
+<h1 id="gosof80b">GOSOF80B</h1>
+<p><strong>Gottlieb System 80B Soundboard on FPGA</strong></p>
+<p><strong>Platine Gosof80B mit dev_open-Board (EP4CE6) / SW
+x.98</strong></p>
+<p><strong>Bedienungsanleitung</strong></p>
+<p><a href="mailto:ralf@lisy.dev">ralf@lisy.dev</a></p>
+<p>v0.90 09.11.2026</p>
+<blockquote>
+<p>Diese Anleitung gibt es vorerst nur auf Deutsch. Für die
+GOSOF-Platinen für System 1 und System 80 gibt es eine eigene Anleitung:
+<a href="GOSOF_HW5x_Bedienungsanleitung.html">GOSOF_HW5x_Bedienungsanleitung.html</a>.</p>
+</blockquote>
+<h2 id="inhalt">Inhalt</h2>
+<ul>
+<li><a href="#wichtiger-hinweis">Wichtiger Hinweis</a></li>
+<li><a href="#1-einleitung">1. Einleitung</a>
+<ul>
+<li><a href="#11-drei-varianten">1.1. Drei Varianten</a></li>
+<li><a href="#12-stand">1.2. Stand</a></li>
+</ul></li>
+<li><a href="#2-platine">2. Platine</a>
+<ul>
+<li><a href="#21-taster-und-leds-des-dev_open-boards">2.1. Taster und
+LEDs des dev_open-Boards</a></li>
+</ul></li>
+<li><a href="#3-einbau">3. Einbau</a></li>
+<li><a href="#4-dip-schalter">4. DIP-Schalter</a>
+<ul>
+<li><a href="#41-s1-spielauswahl">4.1. S1: Spielauswahl</a></li>
+<li><a href="#42-s2-optionen">4.2. S2: Optionen</a></li>
+</ul></li>
+<li><a href="#5-testen">5. Testen</a>
+<ul>
+<li><a href="#51-gosof-testtaster-sw3">5.1. Gosof-Testtaster
+(SW3)</a></li>
+<li><a href="#52-gottlieb-testtaster-sw2">5.2. Gottlieb-Testtaster
+(SW2)</a></li>
+<li><a href="#53-eingangstest-s3">5.3. Eingangstest S3</a></li>
+</ul></li>
+<li><a href="#6-fpga-programmieren">6. FPGA programmieren</a></li>
+<li><a href="#7-spiel-roms">7. Spiel-ROMs</a></li>
+<li><a href="#8-einschränkungen">8. Einschränkungen</a></li>
+<li><a href="#anhang-a-spielauswahl">Anhang A: Spielauswahl</a>
+<ul>
+<li><a href="#a1-ma-766">A.1. MA-766</a></li>
+<li><a href="#a2-ma-886-generation-2">A.2. MA-886 Generation 2</a></li>
+<li><a href="#a3-ma-886-generation-3">A.3. MA-886 Generation 3</a></li>
+</ul></li>
+</ul>
+<h2 id="wichtiger-hinweis">Wichtiger Hinweis</h2>
+<p>Mit GOSOF80B kann Ihr Flipper beschädigt werden. Da es sich um ein
+privates Projekt OHNE kommerzielles Interesse handelt, übernimmt der
+Autor keine Haftung für Schäden, die durch den Einsatz von GOSOF80B
+entstehen!</p>
+<h2 id="1-einleitung">1. Einleitung</h2>
+<p>GOSOF80B ist ein reines Hobbyprojekt: ein Ersatz für die Soundboards
+der Gottlieb-Flipper mit <strong>System 80B</strong>, aufgebaut um ein
+FPGA, das die originalen Sound-ROMs ausführt. Es ist der Bruder von
+GOSOF, dem Ersatz für die Soundboards von System 1, System 80 und System
+80A.</p>
+<p>Das FPGA bildet die komplette Originalkarte nach: beide 6502-CPUs
+(Y-CPU für Musik und Effekte, D-CPU für den DAC), RAM, Soundlatch,
+NMI-Zähler und die Klangerzeuger. Die Spiel-ROMs liegen im
+Konfigurationsflash (EPCS16) des dev_open-Boards, neben dem
+FPGA-Programm. Eine SD-Karte gibt es nicht.</p>
+<h3 id="11-drei-varianten">1.1. Drei Varianten</h3>
+<p>Gottlieb hat für System 80B drei verschiedene Soundboards gebaut. Für
+jedes gibt es ein eigenes FPGA-Programm. Die Platine ist bei allen
+dieselbe, Sie programmieren nur die passende Datei.</p>
+<table>
+<thead>
+<tr>
+<th>Variante</th>
+<th>Originalkarte</th>
+<th>Klangerzeuger</th>
+<th>Spiele</th>
+<th>SRAM U1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>80B_ma766</code></td>
+<td>MA-766 (Generation 1)</td>
+<td>2 × AY-3-8913, SP0250, DAC</td>
+<td>9</td>
+<td>nicht nötig</td>
+</tr>
+<tr>
+<td><code>80B_ma886_gen2</code></td>
+<td>MA-886 Generation 2</td>
+<td>2 × AY-3-8913 mit Filter MF-4, DAC</td>
+<td>5</td>
+<td>nötig</td>
+</tr>
+<tr>
+<td><code>80B_ma886_gen3</code></td>
+<td>MA-886 Generation 3 (mit Zusatzplatine A20 bzw. MA-1294)</td>
+<td>YM2151, DAC</td>
+<td>4</td>
+<td>nötig</td>
+</tr>
+</tbody>
+</table>
+<p>Welche Spiele zu welcher Variante gehören, steht in <a href="#anhang-a-spielauswahl">Anhang A</a>. Ein Spiel läuft nur mit dem
+Programm seiner Variante: Die Adressen der Bausteine sind auf MA-766 und
+MA-886 verschieden.</p>
+<p>Die MA-886-Spiele haben 64 KB ROM je Spiel. Das passt nicht in das
+FPGA. Das Programm kopiert die ROMs deshalb beim Start aus dem Flash in
+das SRAM U1 (AS6C1008, 128 K × 8). Für Gen 2 und Gen 3 muss U1 also
+gesteckt sein, für MA-766 nicht.</p>
+<h3 id="12-stand">1.2. Stand</h3>
+<p>Alle drei Varianten sind gebaut und in der Simulation mit den echten
+ROMs geprüft. Auf der Platine läuft bisher die MA-766-Variante mit Rock;
+sie spielt Musik und Effekte, ein Vergleich mit PinMAME fiel positiv
+aus. Die MA-886-Varianten sind auf Hardware <strong>noch nicht
+getestet</strong>. Rückmeldungen sind willkommen.</p>
+<h2 id="2-platine">2. Platine</h2>
+<table>
+<thead>
+<tr>
+<th>Bauteil</th>
+<th>Funktion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DEV1</td>
+<td>dev_open-Board mit FPGA EP4CE6E22C8 und Konfigurationsflash
+EPCS16</td>
+</tr>
+<tr>
+<td>S1 (6-polig)</td>
+<td>Spielauswahl, siehe <a href="#41-s1-spielauswahl">Kapitel
+4.1</a></td>
+</tr>
+<tr>
+<td>S2 (6-polig)</td>
+<td>Optionen, siehe <a href="#42-s2-optionen">Kapitel 4.2</a></td>
+</tr>
+<tr>
+<td>S3 / K2</td>
+<td>Eingangstest, siehe <a href="#53-eingangstest-s3">Kapitel
+5.3</a></td>
+</tr>
+<tr>
+<td>U1</td>
+<td>SRAM AS6C1008 im DIL32-Sockel, nur für MA-886</td>
+</tr>
+<tr>
+<td>IC2</td>
+<td>ULN2803, Sound-Eingänge von der CPU</td>
+</tr>
+<tr>
+<td>IC1</td>
+<td>Endstufe TDA7267</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Lautstärke</td>
+</tr>
+<tr>
+<td>K3, K5</td>
+<td>Stecker A6P1 und A6P2 wie auf der Originalkarte: Sound-Signale,
+Versorgung</td>
+</tr>
+<tr>
+<td>K6, K7</td>
+<td>Stecker A5P1 (zwei Bauformen): Lautsprecher</td>
+</tr>
+</tbody>
+</table>
+<p>Die Platine wird über die Stecker der Originalkarte versorgt.</p>
+<h3 id="21-taster-und-leds-des-dev_open-boards">2.1. Taster und LEDs des
+dev_open-Boards</h3>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Funktion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SW1</td>
+<td>Reset. Das Programm lädt das Spiel neu aus dem Flash. Nach dem
+Umstellen von S1 drücken.</td>
+</tr>
+<tr>
+<td>SW2</td>
+<td>Gottlieb-Testtaster, siehe <a href="#52-gottlieb-testtaster-sw2">Kapitel 5.2</a> (nur MA-766)</td>
+</tr>
+<tr>
+<td>SW3</td>
+<td>Gosof-Testtaster: Soundtest, siehe <a href="#51-gosof-testtaster-sw3">Kapitel 5.1</a></td>
+</tr>
+<tr>
+<td>LED1 (Trigger)</td>
+<td>leuchtet, solange ein Sound-Signal von der CPU anliegt</td>
+</tr>
+<tr>
+<td>LED2 (Sound)</td>
+<td>die Diagnose-LED der Originalkarte, von der Y-CPU gesteuert. Sie
+zeigt, dass das Soundprogramm läuft.</td>
+</tr>
+<tr>
+<td>LED3 (Flash)</td>
+<td><strong>blinkt</strong>, wenn der Slot des gewählten Spiels im Flash
+leer ist. Die CPUs bleiben dann im Reset, es kommt kein Ton.</td>
+</tr>
+<tr>
+<td>LED4</td>
+<td>ohne Funktion</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-einbau">3. Einbau</h2>
+<p>Die Platine ersetzt das Soundboard im Kopf des Automaten. Die Stecker
+A6P1, A6P2 und A5P1 werden wie bei der Originalkarte aufgesteckt.</p>
+<p>Bitte beachten:</p>
+<ul>
+<li><strong>Lautstärke:</strong> Die Platine hat eine eigene Endstufe
+und gibt direkt auf den Lautsprecherausgang A5P1 aus. Drehen Sie R3 beim
+ersten Einschalten auf eine niedrige Lautstärke und erhöhen Sie dann
+langsam.</li>
+<li><strong>Richtiges Programm:</strong> Prüfen Sie vor dem Einbau,
+welches Soundboard Ihr Automat hat (MA-766 oder MA-886, bei MA-886 mit
+oder ohne YM2151-Zusatzplatine), und programmieren Sie die passende
+Datei, siehe <a href="#6-fpga-programmieren">Kapitel 6</a>. Im Zweifel
+hilft die Spieleliste in <a href="#anhang-a-spielauswahl">Anhang
+A</a>.</li>
+<li><strong>SRAM:</strong> Für MA-886 muss U1 gesteckt sein. Ohne U1
+bleibt die Karte stumm.</li>
+<li><strong>Reset:</strong> Das Reset-Signal der MPU (A6P1-9) ist nicht
+angeschlossen. Die Karte startet nach dem Einschalten
+selbstständig.</li>
+</ul>
+<h2 id="4-dip-schalter">4. DIP-Schalter</h2>
+<p>DIP-Schalter werden nur beim Start gelesen. Stellen Sie sie bei
+ausgeschaltetem Automaten um oder drücken Sie danach SW1 (Reset).</p>
+<h3 id="41-s1-spielauswahl">4.1. S1: Spielauswahl</h3>
+<p>S1 wählt das Spiel, und zwar als Binärzahl: S1-1 zählt 1, S1-2 zählt
+2, S1-3 zählt 4, S1-4 zählt 8, S1-5 zählt 16, S1-6 zählt 32. Alle
+Schalter OFF ist Spiel 0. Die Tabellen für alle drei Varianten stehen in
+<a href="#anhang-a-spielauswahl">Anhang A</a>.</p>
+<p>Steht S1 auf einer Nummer, für die im Flash kein Spiel liegt, blinkt
+LED3 und es kommt kein Ton.</p>
+<h3 id="42-s2-optionen">4.2. S2: Optionen</h3>
+<p><strong>MA-766:</strong></p>
+<table>
+<thead>
+<tr>
+<th>DIP</th>
+<th>ON</th>
+<th>OFF</th>
+<th>Original</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>DIP-Position 1 der Originalkarte</td>
+<td></td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>2</td>
+<td>DIP-Position 2 der Originalkarte</td>
+<td></td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Sound-Leitung S16 löst ebenfalls einen Sound aus (SW3 der
+Originalkarte)</td>
+<td>S16 wird nicht ausgewertet</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>4–6</td>
+<td>ohne Funktion</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>DIP 1 und 2 liest das Soundprogramm genau wie die DIP-Schalter der
+Originalkarte. Ihre Bedeutung steht im Gottlieb-Handbuch des Spiels,
+normalerweise stehen beide auf OFF.</p>
+<p><strong>MA-886 Gen 2 und Gen 3:</strong></p>
+<table>
+<thead>
+<tr>
+<th>DIP</th>
+<th>ON</th>
+<th>OFF</th>
+<th>Original</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1, 2</td>
+<td>ohne Funktion</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Sound-Leitung S16 löst ebenfalls einen Sound aus (Jumper JP8 der
+Originalkarte)</td>
+<td>S16 wird nicht ausgewertet</td>
+<td>OFF</td>
+</tr>
+<tr>
+<td>4–6</td>
+<td>ohne Funktion</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Die MA-886 hat keine DIP-Schalter, die das Soundprogramm liest. Darum
+haben DIP 1 und 2 hier keine Funktion.</p>
+<h2 id="5-testen">5. Testen</h2>
+<h3 id="51-gosof-testtaster-sw3">5.1. Gosof-Testtaster (SW3)</h3>
+<p>Ein Druck auf SW3 spielt die Sounds 1 bis 31 des eingestellten
+Spiels, jeden 5 Sekunden lang. So lässt sich die Karte auf der Werkbank
+prüfen, ohne CPU-Platine. Das geht bei allen drei Varianten.</p>
+<p>Sound 16 bleibt dabei stumm, solange Options-DIP 3 auf OFF steht,
+weil dann S16 nicht ausgewertet wird. Auch andere Nummern können stumm
+bleiben, wenn das Spiel sie nicht belegt.</p>
+<h3 id="52-gottlieb-testtaster-sw2">5.2. Gottlieb-Testtaster (SW2)</h3>
+<p>Nur bei MA-766: SW2 wirkt wie der Testschalter SW1 der Originalkarte.
+Was er auslöst, bestimmt das Soundprogramm des Spiels.</p>
+<p>Bei MA-886 hat SW2 keine Funktion, die Originalkarte hat keinen
+Testschalter.</p>
+<h3 id="53-eingangstest-s3">5.3. Eingangstest S3</h3>
+<p>K2 verbindet die Sound-Eingänge von der CPU mit dem Taster S3.
+Stecken Sie Jumper auf die gewünschten Plätze von K2 und drücken Sie S3,
+um diese Eingänge ohne CPU-Platine zu aktivieren. LED1 leuchtet, solange
+ein Eingang aktiv ist.</p>
+<h2 id="6-fpga-programmieren">6. FPGA programmieren</h2>
+<p>Der Konfigurationsflash des dev_open-Boards wird über dessen
+JTAG-Stecker programmiert. Die FPGA-Software liegt auf dem
+Repository-Server: <a href="https://lisy.dev/swrep/soundboards">https://lisy.dev/swrep/soundboards</a></p>
+<table>
+<thead>
+<tr>
+<th>Variante</th>
+<th>Datei</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MA-766</td>
+<td><code>GOSOF80_80B_ma766_v8.98.jic</code></td>
+</tr>
+<tr>
+<td>MA-886 Gen 2</td>
+<td><code>GOSOF80_80B_ma886_gen2_v9.98.jic</code></td>
+</tr>
+<tr>
+<td>MA-886 Gen 3</td>
+<td><code>GOSOF80_80B_ma886_gen3_v10.98.jic</code></td>
+</tr>
+</tbody>
+</table>
+<p>Die Zahl vor dem Punkt ist die Board-ID der Variante, die Zahl danach
+die Softwareversion.</p>
+<p>Sie brauchen:</p>
+<ul>
+<li>einen USB-Blaster mit JTAG</li>
+<li>eine Stromversorgung für die Platine beim Programmieren, denn der
+USB-Blaster versorgt sie nicht</li>
+<li>die Software Quartus Programmer (v21.1 für Windows unter <a href="https://lisy.dev/swrep/FPGA/Quartus/">https://lisy.dev/swrep/FPGA/Quartus/</a>)</li>
+</ul>
+<p>Programmieren Sie die <code>.jic</code>-Datei im JTAG-Modus. Schalten
+Sie danach die Versorgung aus und wieder ein.</p>
+<p>Diese Dateien enthalten <strong>keine Spiel-ROMs</strong>, weil diese
+urheberrechtlich geschützt sind. Mit der Datei allein blinkt LED3 und es
+kommt kein Ton. Fügen Sie die ROMs wie im nächsten Kapitel beschrieben
+hinzu.</p>
+<h2 id="7-spiel-roms">7. Spiel-ROMs</h2>
+<p>Die ROMs teilen sich den Konfigurationsflash mit dem FPGA-Programm.
+Sie programmieren deshalb eine <code>.jic</code>-Datei, die beides
+enthält. Die Spiele liegen ab Adresse 0x80000 im EPCS16, eines je Nummer
+von S1:</p>
+<table>
+<thead>
+<tr>
+<th>Variante</th>
+<th>Platz je Spiel</th>
+<th>Inhalt eines Slots</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MA-766</td>
+<td>24 KB</td>
+<td>yrom1 (8 KB), yrom2 (8 KB, leer bei Spielen ohne yrom2), drom (8
+KB)</td>
+</tr>
+<tr>
+<td>MA-886 Gen 2 / Gen 3</td>
+<td>64 KB</td>
+<td>yrom (32 KB), drom (32 KB)</td>
+</tr>
+</tbody>
+</table>
+<p>Ein Skript für Anwender, das die ROMs ohne Quartus in die
+veröffentlichte <code>.jic</code> schreibt (wie
+<code>add_roms_to_jic.ps1</code> für GOSOF HW 5.x), gibt es für GOSOF80B
+<strong>noch nicht</strong>. Bis dahin entsteht die <code>.jic</code>
+mit ROMs aus dem Quellcode (<a href="https://github.com/bontango/Gosof80">https://github.com/bontango/Gosof80</a>)
+und Quartus. Die Skripte lesen die ROM-Sätze im PinMAME-Format
+(<code>rock.zip</code>, <code>victory.zip</code> usw.) aus dem Ordner
+<code>Gosof80B\roms</code> neben dem Quellcode:</p>
+<pre class="text"><code>scripts\make_flash_hex_80b.ps1
+cd variants\80B_ma766
+quartus_cpf -c gosof80_roms.cof</code></pre>
+<pre class="text"><code>scripts\make_flash_hex_886.ps1 -Gen 2
+cd variants\80B_ma886_gen2
+quartus_cpf -c gosof80_roms.cof</code></pre>
+<p>Für Gen 3 entsprechend <code>-Gen 3</code> und
+<code>variants\80B_ma886_gen3</code>. Ergebnis ist jeweils
+<code>output_files\gosof80_roms.jic</code> im Ordner der Variante.
+Programmieren Sie diese Datei wie in <a href="#6-fpga-programmieren">Kapitel 6</a> beschrieben. Geben Sie sie
+nicht weiter, sie enthält die ROMs.</p>
+<p>Das Skript zeigt für jedes Spiel Slot, Name und die Reset-Vektoren
+beider CPUs an. Fehlt ein ROM-Satz, bricht es ab.</p>
+<h2 id="8-einschränkungen">8. Einschränkungen</h2>
+<ul>
+<li><strong>Bone Busters</strong> (MA-886 Generation 3a, mit dritter
+CPU) wird nicht unterstützt. Es passt nicht in das FPGA.</li>
+<li><strong>MA-886 Gen 2, Filter MF-4:</strong> Die Gen-2-Spiele
+verstellen im laufenden Sound ein Tiefpassfilter. PinMAME bildet das
+nicht nach, GOSOF80B dagegen schon. Diese Spiele klingen deshalb anders
+als in PinMAME; maßgeblich ist die Originalkarte.</li>
+<li><strong>MA-886 Gen 3:</strong> Der YM2151 wird mit dem bewährten
+Nachbau jt51 erzeugt. Wie bei der Originalkarte wird nur der rechte
+Kanal ausgegeben, PinMAME spielt dagegen beide Kanäle.</li>
+<li><strong>Lautstärkeverhältnis</strong> der Klangerzeuger
+untereinander: übernommen aus PinMAME. Auf der Originalkarte kann es
+etwas anders sein.</li>
+</ul>
+<h2 id="anhang-a-spielauswahl">Anhang A: Spielauswahl</h2>
+<p>S1 bis S6 in diesen Tabellen sind die Schalter 1 bis 6 der DIP-Bank
+<strong>S1</strong> auf der Platine. Die Spielnamen sind die englischen
+Originalnamen, der Name in Klammern ist der des PinMAME-ROM-Satzes.</p>
+<h3 id="a1-ma-766">A.1. MA-766</h3>
+<p>Programm <code>GOSOF80_80B_ma766_v8.98.jic</code>.</p>
+<table>
+<thead>
+<tr>
+<th>S1</th>
+<th>S2</th>
+<th>S3</th>
+<th>S4</th>
+<th>S5</th>
+<th>S6</th>
+<th>Spiel</th>
+<th>ROM-Satz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Rock</td>
+<td><code>rock</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Raven</td>
+<td><code>raven</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Rock Encore</td>
+<td><code>rock_enc</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Hollywood Heat</td>
+<td><code>hlywoodh</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Genesis</td>
+<td><code>genesis</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Gold Wings</td>
+<td><code>goldwing</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Monte Carlo</td>
+<td><code>mntecrlo</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Spring Break</td>
+<td><code>sprbreak</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>Arena</td>
+<td><code>arena</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="a2-ma-886-generation-2">A.2. MA-886 Generation 2</h3>
+<p>Programm <code>GOSOF80_80B_ma886_gen2_v9.98.jic</code>, SRAM U1
+nötig.</p>
+<table>
+<thead>
+<tr>
+<th>S1</th>
+<th>S2</th>
+<th>S3</th>
+<th>S4</th>
+<th>S5</th>
+<th>S6</th>
+<th>Spiel</th>
+<th>ROM-Satz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Victory</td>
+<td><code>victory</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Diamond Lady</td>
+<td><code>diamond</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>TX-Sector</td>
+<td><code>txsector</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Robo-War</td>
+<td><code>robowars</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Excalibur</td>
+<td><code>excalibr</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="a3-ma-886-generation-3">A.3. MA-886 Generation 3</h3>
+<p>Programm <code>GOSOF80_80B_ma886_gen3_v10.98.jic</code>, SRAM U1
+nötig.</p>
+<table>
+<thead>
+<tr>
+<th>S1</th>
+<th>S2</th>
+<th>S3</th>
+<th>S4</th>
+<th>S5</th>
+<th>S6</th>
+<th>Spiel</th>
+<th>ROM-Satz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Bad Girls</td>
+<td><code>badgirls</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Big House</td>
+<td><code>bighouse</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Hot Shots</td>
+<td><code>hotshots</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Night Moves</td>
+<td><code>nmoves</code></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
