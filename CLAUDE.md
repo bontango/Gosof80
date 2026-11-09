@@ -145,6 +145,8 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
 - GOSOF80B (`80B_ma766`): Schaltplanbefunde Gosof80B_01, Hardwaretest und Hörtest offen, `docs/GOSOF80B_MA766.md`.
 - GOSOF80B MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`): Hardwaretest, Hörtest und Vergleich der Pins mit der Final-Netzliste offen, `docs/MA-886_Evaluierung.md`.
+- System 3 (bewertet 09.11.2026, nicht umgesetzt): 9 frühe Spiele über Gen 2/3 mit 8-Bit-Soundbefehl (S32..S128 an Pin 74/80/84),
+  OKI-Spiele ab Cactus Jack's nur mit E10 oder größer. `docs/System3_Evaluierung.md`.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
 - Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
   gegen den MA-216-Schaltplan prüfen.
