@@ -87,7 +87,8 @@ Build 11.11.2026 (`check.ps1 -Fit`), überall +20 Register, keine negative Slack
 
 **Hardwaretest offen:** Black Hole (oder anderes MA-216-Sprachspiel) mit DIP 2 OFF: Sprache im Spiel;
 DIP 2 ON: Sprache vom MP3, auch Sound 19/29/31. Ansage mit DIP 3 OFF sagt „… dot nine nine“.
-Release-`.jic` noch nicht erzeugt (`release.ps1`); bei HW 5.x danach die `.map` gegen `FLASH_BASE` prüfen.
+Release 11.11.2026 (`release.ps1`, nur die 7 GOSOF80-Varianten, nicht GOSOF80B): v0.99 bis v7.99 in `bin\`, Größen
+wie gehabt (EP4CE6 2.097.375 B, 10CL006Y 2.097.377 B). HW 5.x: Bitstream endet bei 0x029568, vor `FLASH_BASE` 0x040000.
 
 ## Ressourcen x.98-Kern (15.10.2026)
 
