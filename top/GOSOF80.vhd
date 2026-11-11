@@ -44,6 +44,12 @@
 --                       OFF test switch says "This is Gosof version x.98 from lisy dot dev"
 --                  DIP4 ON  test mode: every sound as number from MP3 folder 64
 --                           (was game_sel 000000 on HW 2.x; DIP4 "ROM from sector 660" is gone)
+-- Version 0.99 - sound inputs S1..S16 are taken over only after they were stable for
+--                SETTLE_CYCLES cpu_clk cycles (about 1 ms). Speech games drive S16 through the
+--                driver board, it arrives later than S1..S8. The MA-216 program reads port A
+--                once, about 20 cycles after the PA7 IRQ, and missed S16: no speech in the
+--                game with the Votrax emulation (Black Hole, DIP 2 OFF). The MP3 path sent the
+--                wrong file for sounds whose lower bits are speech themselves (BH 19, 29, 31).
 --
 -- Shared core of all board variants (HW 2.x: Cyclone II, Cyclone IV v3/v4, Cyclone 10;
 -- HW 4.x: Cyclone 10). The board shells top\board_hw2x.vhd / top\board_hw4x.vhd
@@ -122,7 +128,12 @@ architecture rtl of gosof80_core is
 	signal test_game		: std_logic; -- test switch as the game sees it
 
 	signal Sound_meta : 	std_logic_vector(4 downto 0);
-	signal Sound_in : 	std_logic_vector(4 downto 0);   -- Sound_meta or the sound test
+	-- input settle filter (v0.99): 1000 cycles = 1.12 ms at 892 kHz, 0.98 ms at 1020 kHz
+	constant SETTLE_CYCLES : natural := 1000;
+	signal Sound_last   : 	std_logic_vector(4 downto 0) := (others => '0');
+	signal Sound_stable : 	std_logic_vector(4 downto 0) := (others => '0');
+	signal settle_cnt   : 	natural range 0 to SETTLE_CYCLES := 0;
+	signal Sound_in : 	std_logic_vector(4 downto 0);   -- Sound_stable or the sound test
 	signal trigger_sound	: std_logic;
 	signal test_activ		: std_logic;
 	signal test_sound		: std_logic_vector(4 downto 0);
@@ -234,8 +245,26 @@ port map(
 	--i_Fast_Clk => clk_50
 	);
 
+-- settle filter (v0.99): Sound_stable follows Sound_meta only after all five lines were
+-- unchanged for SETTLE_CYCLES. S16 comes through the driver board of the game and arrives
+-- later than S1..S8; without the filter the PA7 IRQ fired and the MA-216 program read
+-- port A before S16 was there.
+Settle: process(cpu_clk) is
+begin
+	if rising_edge(cpu_clk) then
+		if Sound_meta /= Sound_last then
+			Sound_last <= Sound_meta;
+			settle_cnt <= 0;
+		elsif settle_cnt < SETTLE_CYCLES then
+			settle_cnt <= settle_cnt + 1;
+		else
+			Sound_stable <= Sound_last;
+		end if;
+	end if;
+end process;
+
 -- sound test (HW 4.x, switch Gosof_Test): plays sound 1..31, 5 s each
-Sound_in <= Sound_meta when test_activ = '0' else test_sound;
+Sound_in <= Sound_stable when test_activ = '0' else test_sound;
 
 gen_soundtest: if IS_HW4 generate
 	STEST: entity work.soundtest

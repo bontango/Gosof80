@@ -32,6 +32,9 @@ Handbuch: `docs/GOSOF_HW5x_user_manual.html` (Leitfassung), `GOSOF_HW5x_Bedienun
   - Versionsansage (`rtl/common/votrax/vtx_announce.vhd`): Testschalter bei Options-DIP 3 OFF,
     Phonemtabellen aus `sim/votrax/tools/gen_announce.py`, Version aus den Generics `BOARD_ID`/`SW_MINOR`
     (`gen_qsf.ps1` schreibt sie als `set_parameter`). Prüfung: `sim/votrax/run_announce_tb.ps1`.
+- Eingänge S1–S16: Synchronizer auf `cpu_clk`, dann Beruhigungsfilter (ab x.99, `SETTLE_CYCLES` = 1000 Takte ≈ 1 ms).
+  Grund: S16 kommt bei Sprachspielen über das Treiberboard später, die MA-216-Firmware liest Port A nur einmal
+  kurz nach dem PA7-IRQ. Filter nicht entfernen oder stark verkürzen (VARIANTEN.md, Abschnitt x.99).
 - Hintergrundmusik bei System 1 und MA-55 (alle Platinen) über `background_sound`.
 - HW 4.x zusätzlich: Soundtest (`soundtest`, Schalter Gosof_Test), CRC-LED. HW 5.x wie HW 4.x, aber ohne SD/CRC.
 

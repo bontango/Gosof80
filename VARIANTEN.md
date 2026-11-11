@@ -59,6 +59,36 @@ Die übrigen Varianten sind am 15.10.2026 voll gebaut, aber nicht auf Hardware g
 | `hw2x_cyclone_IV_v4` | 2188 | 793 | 33792 | 2315 / 6272 | 5,323 ns | 0,452 ns |
 | `hw2x_cyclone_10` | 2188 | 793 | 33792 | 2313 / 6272 | 5,051 ns | 0,452 ns |
 
+## x.99: Beruhigungsfilter an S1–S16 (11.11.2026)
+
+Anlass: Anwendermeldung Black Hole auf HW 5.x (v7.98), DIP 2 OFF (Votrax-Emulation). Im Spiel kommt keine
+Sprache, Attract-Sprache geht, über K2 mit Jumpern und S5 geht Sprache auch. Ursache: Bei den Sprachspielen
+kommt S16 über das Treiberboard und damit später als S1–S8. Die MA-216-Firmware (Black Hole, IRQ-Routine
+`$F767`) liest Port A **einmal**, ca. 20 Takte nach dem PA7-IRQ (`LDA $0200 / AND #$1F`). S16 fehlt dann,
+eine zweite Flanke gibt es nicht. Bis x.97 (nur MP3) fiel das nicht auf: `send_flag` wartet dort auf S16.
+Falsch waren dort nur Sounds, deren untere Bits selbst Sprache sind (Black Hole 19/29/31 → 3/13/15).
+
+Abhilfe in `top/GOSOF80.vhd`: `Sound_in` übernimmt `Sound_meta` erst, wenn alle fünf Leitungen
+`SETTLE_CYCLES` = 1000 `cpu_clk`-Takte unverändert sind (1,12 ms bei 892 kHz, 0,98 ms bei 1020 kHz). Wirkt auf
+PA7/IRQ, Port A/B, MP3-Auslösung und Hintergrundmusik, nicht auf den Soundtest. HW-Eingangsstufe
+(ULN2803, 4,7 k / S16 10 k) ist auf v2.30 und v5.00 gleich, der Filter gilt deshalb für alle Varianten.
+
+Build 11.11.2026 (`check.ps1 -Fit`), überall +20 Register, keine negative Slack:
+
+| Variante | Comb | Reg | LE (Fitter) | Setup-Slack | Hold-Slack (min.) |
+|---|---|---|---|---|---|
+| `hw2x_cyclone_II` | 2139 | 825 | 2255 / 4608 (49 %) | 3,769 ns | 0,215 ns |
+| `hw2x_cyclone_IV_v3` | 4660 | 2307 | 4893 / 6272 (78 %) | 1,914 ns | 0,107 ns |
+| `hw2x_cyclone_IV_v4` | 4656 | 2307 | 4900 / 6272 (78 %) | 1,848 ns | 0,146 ns |
+| `hw2x_cyclone_10` | 4655 | 2307 | 4885 / 6272 (78 %) | 2,085 ns | 0,106 ns |
+| `hw3x_cyclone_IV` | 4661 | 2307 | 4895 / 6272 (78 %) | 1,714 ns | 0,147 ns |
+| `hw4x_cyclone_10` | 4775 | 2377 | 5023 / 6272 (80 %) | 2,032 ns | 0,100 ns |
+| `hw5x_cyclone_IV` | 4505 | 2117 | 4683 / 6272 (75 %) | 1,508 ns | 0,150 ns |
+
+**Hardwaretest offen:** Black Hole (oder anderes MA-216-Sprachspiel) mit DIP 2 OFF: Sprache im Spiel;
+DIP 2 ON: Sprache vom MP3, auch Sound 19/29/31. Ansage mit DIP 3 OFF sagt „… dot nine nine“.
+Release-`.jic` noch nicht erzeugt (`release.ps1`); bei HW 5.x danach die `.map` gegen `FLASH_BASE` prüfen.
+
 ## Ressourcen x.98-Kern (15.10.2026)
 
 | Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | Setup-Slack | Hold-Slack |

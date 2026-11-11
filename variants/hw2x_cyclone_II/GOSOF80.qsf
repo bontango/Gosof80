@@ -15,7 +15,7 @@
 # --- board -----------------------------------------------------------------
 set_global_assignment -name TOP_LEVEL_ENTITY GOSOF80
 set_parameter -name BOARD_ID 0
-set_parameter -name SW_MINOR 98
+set_parameter -name SW_MINOR 99
 set_global_assignment -name FAMILY "Cyclone II"
 set_global_assignment -name DEVICE EP2C5T144C8
 set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
