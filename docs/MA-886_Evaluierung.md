@@ -73,6 +73,74 @@ zusammen. Der EPCS4 der jetzigen Core-Boards reicht nur für etwa 4 Spiele.
 Der Speicher könnte statt aus dem Flash auch von SD-Karte kommen: `rtl/hw4x/sd_reader_hw4x.vhd` kann bereits 64 KB je
 Spiel mit CRC. Der EPCS16 ist aber einfacher, weil die Platine dann keine Karte braucht.
 
+## Serielles RAM statt SRAM (Bewertung 14.11.2026, nicht umgesetzt)
+
+Frage: Kann ein serielles RAM (I2C o. ä.) das SRAM U1 ersetzen und Pins sparen? Das AS6C1008 belegt 28 Pins.
+Fernziel ist die Integration in GottFA80 PLuS HW 2.1x, dort sind nur 5 Pins frei. Größere FPGAs (E15/E22)
+scheiden aus Kostengründen aus.
+
+**Anforderung** (`sram_arbiter.vhd`): zwei 6502 mit 2 MHz am selben Takt, Buszyklus 500 ns = 25 × clk_50.
+Nach dem Laden wird das RAM nur gelesen, und zwar zufällige Einzelbytes. Ab der stabilen Adresse
+(Phase ≈ 13–15) bleiben **≈ 440 ns für beide Zugriffe**. Ein Cache scheidet aus, das Timing muss
+deterministisch bleiben. Gefordert sind also ≤ 220 ns pro Zugriff mit einem Chip oder ≤ 440 ns mit einem
+Chip pro CPU.
+
+| Speicher | Zufallslesen 1 Byte | Pins | reicht? |
+|---|---|---|---|
+| I2C-FRAM (z. B. FM24V10, 3,4 MHz) | ≈ 40–50 Bit, ≥ 12 µs | 2 | **nein**, Faktor 50 zu langsam |
+| SPI-SRAM 23LC1024 (20 MHz, SQI) | 12 Takte = 600 ns | 6 | nein, auch mit 2 Chips |
+| SPI-MRAM/FRAM, 1 Bit (40–50 MHz) | 40 Takte ≈ 1 µs | 4 | nein |
+| **QSPI-PSRAM APS6404L-3SQR-SN**, QPI-Befehl EBh, SCLK 100 MHz (PLL), 1 Chip | 16 Takte + tCPH 18 ns + CE# ≈ 185 ns, 2 × = 370 ns | **6** | **ja**, Reserve ≈ 70 ns |
+| dto., SCLK 50 MHz (clk_50 über DDR-Ausgang), 2 Chips (Y, D) | ≈ 345 ns | 11 (SCLK geteilt) | ja, ohne PLL |
+| dto., SCLK 83 MHz, 1 Chip | 2 × 215 = 430 ns | 6 | zu knapp |
+| AS6C1008 mit 2 × 74HC573 (A0–A15 über den Datenbus gelatcht) | ≈ 120 ns | 12 | ja, robust |
+| heute: AS6C1008 direkt | 55 ns | 28 | ja |
+
+**I2C geht nicht. Gangbar ist QSPI-PSRAM im QPI-Modus**, Empfehlung 1 × APS6404L-3SQR-SN an 6 Pins
+(CE#, SCLK, SIO0–3), feste Zeitschlitze wie heute, 22 Pins gespart.
+
+**Datenblatt** APS6404L-3SQR Rev. 2.3:
+- EBh im QPI-Modus: 2 Takte Befehl + 6 Adresse + 6 Warten + 2 Daten. Bei 3,3 V bis 109 MHz, bei 3,0 V bis 133 MHz.
+- 0Bh hat im QPI-Modus nur 4 Wartetakte, ist aber auf **66 MHz** begrenzt und damit langsamer.
+- Schreiben (02h/38h) ohne Wartetakte, 10 Takte pro Byte. Das Laden von 64 KB ist schneller als das Lesen aus dem EPCS.
+- Einschalten: tPU ≥ 150 µs, dann Reset-Enable/Reset (66h/99h), dann QPI an (35h).
+- tCEM ≤ 8 µs (CE# low, Refresh): Einzelzugriffe liegen weit darunter.
+- tACLK 2–5,5 ns. Über 84 MHz mit der fallenden CLK-Flanke einlesen. Höchstens 15 pF Last.
+
+**Risiken:**
+- 100 MHz an den I/Os des EP4CE6 C8: Hin- und Rückweg sind länger als ein Takt. Die Daten werden
+  deshalb einen Takt später eingelesen, das braucht SDC-Constraints und kurze Leitungen.
+- Der MA-886-Kern läuft heute ohne PLL. Auf HW 5.x war eine Core-Board-PLL defekt. Die Alternative ist
+  die Lösung mit 2 Chips und 50 MHz.
+- Gen 3 hat dann ≈ 92 % LE (Controller geschätzt 150–250 LE statt 64 LE `sram_arbiter`).
+
+**Verfügbarkeit** (LCSC/JLCPCB, 14.11.2026). Den Live-Bestand auf jlcpcb.com lädt die Seite per
+JavaScript nach, vor einer Bestellung also von Hand prüfen:
+
+| Teil | Nummer | Spannung | Gehäuse | Stand |
+|---|---|---|---|---|
+| **APS6404L-3SQR-SN** | **C5333729** | 2,7–3,6 V | SOP-8 | Extended Part, LCSC ab ≈ 0,98 $, ≈ 980 Stück (Suchergebnis, Datum unklar) |
+| APS6404L-3SQN-SN | C3028887 | 3 V | SOP-8 | Extended Part, Bestand nicht lesbar |
+| APS6404L-3SQR-ZR | C3040877 | 3 V | USON-8 3×2 mm | Bestand widersprüchlich |
+| APS6404L-SQR-ZR / -SQN-SN | C43758152 / C5360304 | **1,8 V, nicht nehmen** | | |
+| LY68L6400SLIT (Ersatztyp) | C261881 | 3,3 V | SOP-8 | 1 Stück, nicht für Neuentwicklungen |
+
+**GottFA80 PLuS:**
+- 6 Pins reichen bei 5 freien knapp nicht. Es geht aber, wenn SCLK, SIO0 und SIO1 die EPCS-Leitungen
+  DCLK/ASDO/DATA0 mitbenutzen. Die laufen dort mit `HAS_FLASH_ROM` schon als I/O, und das EPCS
+  ignoriert den Verkehr bei nCSO high. Dann kommen nur 3 Pins dazu (CE#, SIO2, SIO3).
+- Für den Chip ist ohnehin eine neue Platine nötig.
+- Auf dem EP4CE10: PLuS + Gen 2 ≈ 7.900 LE (77 %), 21/46 M9K; PLuS + Gen 3 ≈ 9.500 LE (92 %), knapp.
+
+**Nicht nehmen:** QSPI-NOR-Flash statt RAM. Das Timing wäre gleich, aber die `.jic` beschreibt nur das
+Konfigurationsflash, es gäbe keinen einfachen Weg, die ROMs hineinzuschreiben.
+
+**Nächste Schritte, falls gewünscht:**
+- GHDL-Modell des APS6404L und `qspi_psram_arbiter.vhd` als Ersatz für `sram_arbiter.vhd`, Prüfung mit
+  `sim/gosof886/run_sim.ps1`.
+- Danach Hardwaretest ohne neue Platine: Adapter mit dem PSRAM im DIL32-Sockel von U1, sechs der
+  SRAM-Leitungen in `pins.tcl` umlegen.
+
 ## Unterschiede zum MA-766
 
 Gegen den Schaltplan und PinMAME geprüft, im ROM-Scan bestätigt:
