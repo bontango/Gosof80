@@ -27,8 +27,8 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `80B_ma766` | – (neu, MA-766) | – | gebaut 01.11.2026, Kern simuliert, nicht getestet (Pins aus `Gosof80B_01.NET`, nicht gegen die Final-Fassung geprüft) |
-| `80B_ma886_gen2` | – (neu, MA-886) | – | gebaut 02.11.2026, Kern simuliert, nicht getestet |
-| `80B_ma886_gen3` | – (neu, MA-886) | – | gebaut 02.11.2026, Kern simuliert ohne jt51-Klang, nicht getestet |
+| `80B_ma886_gen2` | – (neu, MA-886) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert; **Schreibtisch ok** (Ralf, 14.11.2026: erzeugt Sounds), im Gerät nicht getestet |
+| `80B_ma886_gen3` | – (neu, MA-886) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert ohne jt51-Klang; **Schreibtisch ok** (Ralf, 14.11.2026: erzeugt Sounds), im Gerät nicht getestet |
 | `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00, Teiler statt PLL: Eingänge, Soundtest mit Ton, beide Core-Boards (Ralf, 28.10.2026); Prüfliste HW 5.x unten weitgehend offen |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
@@ -241,7 +241,9 @@ Keine negative Slack, kein Critical Warning. Unkomprimierter Bitstream bis 0x59D
 ## GOSOF80B MA-886 (`80B_ma886_gen2` Board-ID 9, `80B_ma886_gen3` Board-ID 10, seit 02.11.2026)
 
 Gottlieb System 80B Generation 2 und 3 auf derselben Platine, mit SRAM U1. Eigener Kern `top/GOSOF80B_886.vhd`, Hülle `top/board_886_dev_open.vhd`, 64 KB je Spiel im EPCS16. Alles Weitere: `docs/MA-886_Evaluierung.md`.
-**Gebaut, Kern simuliert (9 Spiele, ROMs echt, jt51 nur als stummer Stub), nicht auf Hardware getestet und nicht abgehört.**
+**Gebaut, Kern simuliert (9 Spiele, ROMs echt, jt51 nur als stummer Stub).**
+
+**Schreibtischtest (Ralf, 14.11.2026):** Beide Varianten erzeugen Sounds. Getestet wurden die am 14.11.2026 neu gebauten Bitstreams (Stand x.99, Synthese- und Fitterzahlen wie am 02.11.2026), jeweils als `gosof80_roms.jic` mit den ROMs aus `make_flash_hex_886.ps1`. **Der Test im Gerät steht noch aus.**
 
 | Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | Multiplikatoren | Setup-Slack | Hold-Slack |
 |---|---|---|---|---|---|---|---|

@@ -147,7 +147,7 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 - Registergeteilte Takte (Cyclone II und HW 5.x: CPU-Takt aus `Gosof_PLL`-Teiler; alle: `uart_clk_out`): Hold auf Cyclone II
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
 - GOSOF80B (`80B_ma766`): Schaltplanbefunde Gosof80B_01, Hardwaretest und Hörtest offen, `docs/GOSOF80B_MA766.md`.
-- GOSOF80B MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`): Hardwaretest, Hörtest und Vergleich der Pins mit der Final-Netzliste offen, `docs/MA-886_Evaluierung.md`.
+- GOSOF80B MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`): Schreibtisch ok (14.11.2026, beide erzeugen Sounds); Test im Gerät, Hörtest und Vergleich der Pins mit der Final-Netzliste offen, `docs/MA-886_Evaluierung.md`.
 - System 3 (bewertet 09.11.2026, nicht umgesetzt): 9 frühe Spiele über Gen 2/3 mit 8-Bit-Soundbefehl (S32..S128 an Pin 74/80/84),
   OKI-Spiele ab Cactus Jack's nur mit E10 oder größer. `docs/System3_Evaluierung.md`.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).

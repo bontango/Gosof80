@@ -1,6 +1,6 @@
 # MA-886 (System 80B, Generation 2 und 3): Evaluierung
 
-Stand 02.11.2026: umgesetzt als Varianten `80B_ma886_gen2` und `80B_ma886_gen3`, gebaut und simuliert, **nicht auf Hardware getestet und nicht abgehört**.
+Stand 02.11.2026: umgesetzt als Varianten `80B_ma886_gen2` und `80B_ma886_gen3`, gebaut und simuliert. Schreibtischtest am 14.11.2026: beide Varianten erzeugen Sounds. **Der Test im Gerät steht noch aus.**
 Die Evaluierung vom 31.10.2026 hatte den E10 empfohlen. Das ist überholt, siehe Ergebnis. Quellen: Schaltplan
 `Gosof80B\schematics\MA-886-schematic.jpg` (E-26146, 20.9.88), PinMAME `gts80s.c`/`gts80games.c`,
 die ROM-Sätze in `Gosof80B\roms`, Fitterläufe mit Quartus 22.1.
