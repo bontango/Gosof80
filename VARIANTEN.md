@@ -26,7 +26,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `hw2x_cyclone_10` | **ok** (Ralf, 14.10.2026) | nicht getestet | gebaut 15.10.2026, nicht getestet |
 | `hw3x_cyclone_IV` | HW3.x v4.97 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
 | `hw4x_cyclone_10` | v4.01 aus dem Altbaum (Release) | – | gebaut 15.10.2026, nicht getestet |
-| `80B_ma766` | – (neu, MA-766) | – | gebaut 01.11.2026, Kern simuliert, nicht getestet (Pins aus `Gosof80B_01.NET`, nicht gegen die Final-Fassung geprüft) |
+| `80B_ma766` | – (neu, MA-766) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert; **Schreibtisch ok** (Ralf, 14.11.2026), im Gerät nicht getestet (Pins aus `Gosof80B_01.NET`, nicht gegen die Final-Fassung geprüft) |
 | `80B_ma886_gen2` | – (neu, MA-886) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert; **Schreibtisch ok** (Ralf, 14.11.2026: erzeugt Sounds), im Gerät nicht getestet |
 | `80B_ma886_gen3` | – (neu, MA-886) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert ohne jt51-Klang; **Schreibtisch ok** (Ralf, 14.11.2026: erzeugt Sounds), im Gerät nicht getestet |
 | `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00, Teiler statt PLL: Eingänge, Soundtest mit Ton, beide Core-Boards (Ralf, 28.10.2026); Prüfliste HW 5.x unten weitgehend offen |
@@ -229,7 +229,9 @@ reagiert das Board nicht auf Eingänge. Geprüft:
 ## GOSOF80B MA-766 (`80B_ma766`, Board-ID 8, seit 01.11.2026)
 
 Gottlieb System 80B Generation 1 auf der Platine Gosof80B mit dev_open-Board DEV190806036 (bis 31.10.2026 `hw5x_80b_cyclone_IV` für GOSOF 5.00), eigener Kern, 24 KB je Spiel im EPCS16. Alles Weitere:
-`docs/GOSOF80B_MA766.md`. **Gebaut, Kern simuliert (9 Spiele, ROMs echt), nicht auf Hardware getestet und noch nicht abgehört.** Die Simulation nutzt die Platinenhülle nicht: Reset- und LED-Polarität sowie die Pins prüft erst die Hardware.
+`docs/GOSOF80B_MA766.md`. **Gebaut, Kern simuliert (9 Spiele, ROMs echt).** Die Simulation nutzt die Platinenhülle nicht: Reset- und LED-Polarität sowie die Pins prüft erst die Hardware.
+
+**Schreibtischtest (Ralf, 14.11.2026): erfolgreich.** Getestet wurde der am 14.11.2026 neu gebaute Bitstream (Stand x.99, Fitterzahlen wie am 01.11.2026) als `gosof80_roms.jic` mit den ROMs aus `make_flash_hex_80b.ps1`. **Der Test im Gerät steht noch aus.**
 
 | Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | M9K | Setup-Slack | Hold-Slack |
 |---|---|---|---|---|---|---|---|

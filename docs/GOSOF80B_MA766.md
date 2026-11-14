@@ -4,7 +4,7 @@ FPGA-Fassung auf der Platine Gosof80B (`..\Gosof80B\target\Gosof80B_01.*`) mit d
 `80B_ma766`, Board-ID 8. Bis 31.10.2026 hieß sie `hw5x_80b_cyclone_IV` und war für GOSOF 5.00 gedacht, bis 02.11.2026 `80B_dev_open`. Quellen: Schaltplan `..\Gosof80B\schematics\MA-766-schematic.jpg`
 (E-24711), PinMAME `src\wpc\gts80s.c` und `src\sound\sp0250.c`, ROM-Analyse und Simulation.
 
-**Stand 01.11.2026: gebaut, Kern simuliert, nicht auf Hardware getestet und noch nicht abgehört. Layout `Gosof80B_Final` und Gerber liegen vor (01.11.2026), die Pins stammen aber aus `Gosof80B_01.NET` und sind nicht gegen die Final-Fassung geprüft. Offene Schaltplanbefunde siehe unten.**
+**Stand 14.11.2026: gebaut, Kern simuliert, Schreibtischtest erfolgreich (14.11.2026), Test im Gerät steht aus. Layout `Gosof80B_Final` und Gerber liegen vor (01.11.2026), die Pins stammen aber aus `Gosof80B_01.NET` und sind nicht gegen die Final-Fassung geprüft. Offene Schaltplanbefunde siehe unten.**
 
 ## Aufbau (`top/GOSOF80B.vhd`)
 
