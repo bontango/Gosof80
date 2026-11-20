@@ -134,7 +134,7 @@ tbody tr:nth-child(even) { background: #f3f3f3; }
 <body>
 <h1 id="gosof">GOSOF</h1>
 <p><strong>Gottlieb Soundboard on FPGA</strong></p>
-<p><strong>HW 5.x / SW 7.98</strong></p>
+<p><strong>HW 5.x / SW 7.100</strong></p>
 <p><strong>manuel d&#39;utilisation</strong></p>
 <p><a href="mailto:ralf@lisy.dev">ralf@lisy.dev</a></p>
 <p>v1.01 04.11.2026</p>
@@ -359,7 +359,7 @@ pour les &#39;petites&#39; cartes son) du jeu configuré.</p>
 <p>Avec le DIP d&#39;option 3 sur ON, le bouton de test &#39;Gottlieb&#39; agit
 comme l&#39;interrupteur de test de la carte son d&#39;origine.</p>
 <p>Avec le DIP d&#39;option 3 sur OFF, il joue l&#39;annonce de version : &quot;This
-is Gosof version 7.98 from lisy dot dev&quot;. Cela fonctionne aussi sans
+is Gosof version 7.100 from lisy dot dev&quot;. Cela fonctionne aussi sans
 DFPlayer Mini.</p>
 <h3 id="53-dip-doption-4--mode-test">5.3. DIP d&#39;option 4 : mode
 test</h3>
@@ -410,7 +410,7 @@ Blaster n&#39;alimente pas la carte</li>
 <li>le logiciel Quartus Programmer (v21.1 pour Windows sur <a href="https://lisy.dev/swrep/FPGA/Quartus/">https://lisy.dev/swrep/FPGA/Quartus/</a>)</li>
 <li>les cavaliers VIOB et VIOC de la carte core sur 3,3 V</li>
 </ul>
-<p>Programmez le fichier <code>GOSOF80_HW5.x_v7.98.jic</code> en mode
+<p>Programmez le fichier <code>GOSOF80_HW5.x_v7.100.jic</code> en mode
 JTAG. Après la programmation, coupez puis rétablissez
 l&#39;alimentation.</p>
 <p>Ce fichier ne contient <strong>aucune ROM de jeu</strong>, car elles
@@ -429,7 +429,7 @@ PC Windows avec le Windows PowerShell intégré. Vous n&#39;avez besoin ni de
 Quartus ni du code source, seulement :</p>
 <ul>
 <li>du <code>.jic</code> publié, par exemple
-<code>GOSOF80_HW5.x_v7.98.jic</code></li>
+<code>GOSOF80_HW5.x_v7.100.jic</code></li>
 <li>de <code>add_roms_to_jic.ps1</code>, qui se trouve à côté du
 <code>.jic</code> sur <a href="https://lisy.dev/swrep/soundboards">https://lisy.dev/swrep/soundboards</a>
 (et dans le dossier <code>scripts</code> de <a href="https://github.com/bontango/Gosof80">https://github.com/bontango/Gosof80</a>)</li>
@@ -440,8 +440,8 @@ Ko par jeu, construit comme décrit à l&#39;<a href="#annexe-b--créer-vos-prop
 </ul>
 <p>Placez le tout dans un même dossier, ouvrez-y une invite de commandes
 et tapez l&#39;une de ces commandes :</p>
-<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98.jic -Image Gosof_Image_v1.21.img
-powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98.jic -RomDir roms</code></pre>
+<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100.jic -Image Gosof_Image_v1.21.img
+powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100.jic -RomDir roms</code></pre>
 <ul>
 <li><code>-Image</code> reprend tous les jeux de l&#39;image de carte SD.
 Leurs slots sont indiqués à l&#39;<a href="#annexe-a--choix-du-jeu">annexe
@@ -453,7 +453,7 @@ Les fichiers portant d&#39;autres noms sont ignorés.</li>
 <li>Vous pouvez donner les deux options. Les fichiers de
 <code>-RomDir</code> remplacent alors les jeux de l&#39;image.</li>
 </ul>
-<p>Le script écrit <code>GOSOF80_HW5.x_v7.98_roms.jic</code> et affiche
+<p>Le script écrit <code>GOSOF80_HW5.x_v7.100_roms.jic</code> et affiche
 pour chaque jeu le slot, la carte son et le vecteur de reset. Programmez
 ce fichier comme décrit au chapitre <a href="#7-programmation-du-fpga">7</a>. Ne le diffusez pas, car il
 contient les ROM. Le <code>.jic</code> publié reste inchangé.</p>
@@ -464,7 +464,7 @@ la carte son de son slot. En général, le fichier est alors dans le
 mauvais slot ou a été assemblé dans le mauvais ordre. Vérifiez-le à
 l&#39;aide de l&#39;annexe B avant de programmer la carte.</p>
 <p>Pour voir quels slots d&#39;un <code>.jic</code> contiennent un jeu :</p>
-<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98_roms.jic -List</code></pre>
+<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100_roms.jic -List</code></pre>
 <p>Si D1 clignote après la programmation, il n&#39;y a pas de ROM pour le
 jeu choisi sur S2.</p>
 <h2 id="annexe-a--choix-du-jeu">Annexe A : choix du jeu</h2>

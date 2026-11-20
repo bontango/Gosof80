@@ -134,7 +134,7 @@ tbody tr:nth-child(even) { background: #f3f3f3; }
 <body>
 <h1 id="gosof">GOSOF</h1>
 <p><strong>Gottlieb Soundboard on FPGA</strong></p>
-<p><strong>HW 5.x / SW 7.98</strong></p>
+<p><strong>HW 5.x / SW 7.100</strong></p>
 <p><strong>user manual</strong></p>
 <p><a href="mailto:ralf@lisy.dev">ralf@lisy.dev</a></p>
 <p>v1.01 04.11.2026</p>
@@ -354,7 +354,7 @@ sounds (15 in case of &#39;small&#39; soundboards) for the configured game.</p>
 <p>With option DIP 3 ON, the &#39;Gottlieb&#39; test button acts like the test
 switch of the original soundboard.</p>
 <p>With option DIP 3 OFF, it plays the version announcement: &quot;This is
-Gosof version 7.98 from lisy dot dev&quot;. This also works without a
+Gosof version 7.100 from lisy dot dev&quot;. This also works without a
 DFPlayer Mini.</p>
 <h3 id="53-option-dip-4-test-mode">5.3. Option DIP 4: test mode</h3>
 <p>With option DIP 4 ON, the sound number to play (the signal from the
@@ -404,7 +404,7 @@ does not power the board</li>
 <li>the Quartus programmer software (v21.1 for Windows is at <a href="https://lisy.dev/swrep/FPGA/Quartus/">https://lisy.dev/swrep/FPGA/Quartus/</a>)</li>
 <li>the jumpers VIOB and VIOC on the core board set to 3.3 V</li>
 </ul>
-<p>Program the file <code>GOSOF80_HW5.x_v7.98.jic</code> in JTAG mode.
+<p>Program the file <code>GOSOF80_HW5.x_v7.100.jic</code> in JTAG mode.
 After programming, switch the power off and on again.</p>
 <p>This file contains <strong>no game ROMs</strong>, because they are
 copyrighted. With this file alone D1 blinks and there is no sound. Add
@@ -420,7 +420,7 @@ PC with the built-in Windows PowerShell. You need neither Quartus nor
 the source code, only:</p>
 <ul>
 <li>the released <code>.jic</code>, e.g.
-<code>GOSOF80_HW5.x_v7.98.jic</code></li>
+<code>GOSOF80_HW5.x_v7.100.jic</code></li>
 <li><code>add_roms_to_jic.ps1</code>, which is next to the
 <code>.jic</code> on <a href="https://lisy.dev/swrep/soundboards">https://lisy.dev/swrep/soundboards</a>
 (and in the folder <code>scripts</code> of <a href="https://github.com/bontango/Gosof80">https://github.com/bontango/Gosof80</a>)</li>
@@ -430,8 +430,8 @@ per game, built as described in <a href="#appendix-b-making-your-own-slot-files"
 </ul>
 <p>Put everything into one folder, open a command prompt there and type
 one of these commands:</p>
-<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98.jic -Image Gosof_Image_v1.21.img
-powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98.jic -RomDir roms</code></pre>
+<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100.jic -Image Gosof_Image_v1.21.img
+powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100.jic -RomDir roms</code></pre>
 <ul>
 <li><code>-Image</code> takes all games of the SD card image. Their
 slots are listed in <a href="#appendix-a-game-select">Appendix
@@ -443,7 +443,7 @@ other names are ignored.</li>
 <li>You can give both options. The files from <code>-RomDir</code> then
 replace the games from the image.</li>
 </ul>
-<p>The script writes <code>GOSOF80_HW5.x_v7.98_roms.jic</code> and lists
+<p>The script writes <code>GOSOF80_HW5.x_v7.100_roms.jic</code> and lists
 the slot, soundboard and reset vector for each game. Program this file
 as described in chapter <a href="#7-programming-the-fpga">7</a>. Do not
 distribute it, because it contains the ROMs. The released
@@ -455,7 +455,7 @@ usually means the file is in the wrong slot or was put together in the
 wrong order. Check it against Appendix B before you program the
 board.</p>
 <p>To see which slots of a <code>.jic</code> hold a game:</p>
-<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98_roms.jic -List</code></pre>
+<pre class="text"><code>powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100_roms.jic -List</code></pre>
 <p>If D1 blinks after programming, there is no ROM for the game selected
 on S2.</p>
 <h2 id="appendix-a-game-select">Appendix A: game select</h2>

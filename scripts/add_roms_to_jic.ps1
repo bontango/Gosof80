@@ -40,7 +40,7 @@
   THE RESULT CONTAINS COPYRIGHTED GAME ROMS. Use it for your own board, do not pass it on.
 
 .PARAMETER Jic
-  The released .jic, e.g. GOSOF80_HW5.x_v7.98.jic.
+  The released .jic, e.g. GOSOF80_HW5.x_v7.100.jic.
 
 .PARAMETER RomDir
   Folder with one 4 KB file per game. The file name starts with the slot number,
@@ -68,13 +68,13 @@
   Write nothing, only show which slots of -Jic hold a game.
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98.jic -RomDir roms
+  powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100.jic -RomDir roms
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98.jic -Image Gosof_Image_v1.21.img
+  powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100.jic -Image Gosof_Image_v1.21.img
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.98_roms.jic -List
+  powershell -ExecutionPolicy Bypass -File add_roms_to_jic.ps1 -Jic GOSOF80_HW5.x_v7.100_roms.jic -List
 #>
 param(
     [Parameter(Mandatory = $true)][string]$Jic,
