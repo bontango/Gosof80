@@ -50,6 +50,11 @@
 --                once, about 20 cycles after the PA7 IRQ, and missed S16: no speech in the
 --                game with the Votrax emulation (Black Hole, DIP 2 OFF). The MP3 path sent the
 --                wrong file for sounds whose lower bits are speech themselves (BH 19, 29, 31).
+-- Version 0.100 - Votrax speech louder and with more bass (hearing test on hw2x_cyclone_IV_v4,
+--                20.11.2026): speech 1.0 = 768 instead of 512 (VTX_SPEECH_GAIN 12), bass shelf
+--                +6 dB below 99 Hz (VTX_BASS_SHIFT 6, VTX_BASS_BOOST 1), constants in
+--                variant_pkg. SwMinor has three digits from now on, the version announcement
+--                says "x dot one zero zero".
 --
 -- Shared core of all board variants (HW 2.x: Cyclone II, Cyclone IV v3/v4, Cyclone 10;
 -- HW 4.x: Cyclone 10). The board shells top\board_hw2x.vhd / top\board_hw4x.vhd
@@ -186,6 +191,10 @@ architecture rtl of gosof80_core is
 	signal votrax_on		:  std_logic;
 	signal vtx_ar			:  std_logic;
 	signal vtx_audio		:  signed(15 downto 0);
+	-- speech bass shelf (VTX_BASS_SHIFT / VTX_BASS_BOOST in variant_pkg)
+	signal bass_div		:  integer range 0 to 1249 := 0;
+	signal bass_acc		:  signed(16 + VTX_BASS_SHIFT downto 0) := (others => '0');
+	signal vtx_bassed		:  signed(17 downto 0);
 	signal audio_mix		:  std_logic_vector(9 downto 0);
 	signal ann_enable		:  std_logic; -- option DIP 3 OFF: test switch says the version
 	signal ann_busy		:  std_logic;
@@ -712,9 +721,34 @@ audio_dat <= audio_dat_latch when ( SB_type = is_MA216 or SB_type = is_MA309) el
 -- With the emulation on, the sound DAC is scaled x3 instead of x4 (-2.5 dB): with speech
 -- x2 the tones were still a bit louder than the speech. MP3 mode keeps the old level.
 -- The version announcement is mixed in whenever it runs, on top of the tone level in use.
+-- Speech level per board: VTX_SPEECH_GAIN in variant_pkg, in 1/8 (8 = 512 as above,
+-- 12 = 768). Since x.100 all boards use 768: 512 was too quiet on hardware (hearing test
+-- on hw2x_cyclone_IV_v4, 20.11.2026, with the volume control of the machine turned up).
+--
+-- Bass shelf on the speech (before the gain): a first order low pass at 40 kHz
+-- (clk_50 / 1250), time constant 2^VTX_BASS_SHIFT samples (5 -> 199 Hz, 6 -> 99 Hz),
+-- added VTX_BASS_BOOST times: 1 = +6 dB below the corner, 2 = +9.5 dB, 0 = off
+-- (the filter is then removed by synthesis). Since x.100 all boards use 6 / 1 (+6 dB below
+-- 99 Hz); 199 Hz was tried first on hw2x_cyclone_IV_v4, 99 Hz sounded right (20.11.2026).
+Speech_Bass: process(clk_50) is
+begin
+	if rising_edge(clk_50) then
+		if bass_div = 1249 then
+			bass_div <= 0;
+			bass_acc <= bass_acc + resize(vtx_audio, bass_acc'length)
+			            - shift_right(bass_acc, VTX_BASS_SHIFT);
+		else
+			bass_div <= bass_div + 1;
+		end if;
+	end if;
+end process;
+
+vtx_bassed <= resize(vtx_audio, 18)
+              + to_signed(to_integer(shift_right(bass_acc, VTX_BASS_SHIFT)) * VTX_BASS_BOOST, 18);
+
 Audio_Mixer: process(clk_50) is
 	variable d : integer range -128 to 127;
-	variable s : integer range -4096 to 4095;
+	variable s : integer range -16384 to 16383;
 begin
 	if rising_edge(clk_50) then
 		d := to_integer(unsigned(audio_dat)) - 128;
@@ -724,7 +758,7 @@ begin
 			s := d * 4;
 		end if;
 		if votrax_on = '1' or ann_busy = '1' then
-			s := s + to_integer(shift_right(vtx_audio, 4));
+			s := s + to_integer(shift_right(to_signed(to_integer(vtx_bassed) * VTX_SPEECH_GAIN, 24), 7));
 		end if;
 		if s > 511 then s := 511; elsif s < -512 then s := -512; end if;
 		audio_mix <= std_logic_vector(to_unsigned(s + 512, 10));

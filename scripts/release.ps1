@@ -52,7 +52,7 @@ if (-not $DryRun -and -not $Note) { throw '-Note is required (or use -DryRun)' }
 
 $version = Import-PowerShellDataFile (Join-Path $ScriptDir 'version.psd1')
 $minor   = $version.SwMinor
-if ($minor -notmatch '^\d{2}$') { throw "SwMinor in scripts\version.psd1 must be two digits, is '$minor'" }
+if ($minor -notmatch '^\d{2,3}$') { throw "SwMinor in scripts\version.psd1 must be two or three digits, is '$minor'" }
 
 $folders = Get-ChildItem $VarRoot -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'variant.psd1') }
 if ($Variants) { $folders = $folders | Where-Object { $Variants -contains $_.Name } }

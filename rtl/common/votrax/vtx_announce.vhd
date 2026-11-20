@@ -1,5 +1,6 @@
 -- Version announcement through the Votrax SC-01 emulation:
--- "This is Gosof version <BOARD_ID> dot <SW_MINOR/10> <SW_MINOR mod 10> from lisy dot dev".
+-- "This is Gosof version <BOARD_ID> dot [<SW_MINOR/100>] <SW_MINOR/10> <SW_MINOR mod 10> from lisy dot dev",
+-- the minor digit by digit; the hundreds digit only from SW_MINOR 100 on (x.100: "one zero zero").
 -- bontango www.lisy.dev, 10.2026
 --
 -- start (one clk pulse) begins the sentence, busy is '1' until the STOP phoneme has been
@@ -32,8 +33,8 @@ end vtx_announce;
 
 architecture rtl of vtx_announce is
 
-	constant SEQ_MAX : natural := ANN_PRE'length + ANN_DOT'length + ANN_GAP'length
-	                              + ANN_POST'length + 3 * DIGIT_MAX;
+	constant SEQ_MAX : natural := ANN_PRE'length + ANN_DOT'length + 2 * ANN_GAP'length
+	                              + ANN_POST'length + 4 * DIGIT_MAX;
 
 	-- the whole sentence, folded to a constant by synthesis
 	function build_seq return phon_list_t is
@@ -50,6 +51,10 @@ architecture rtl of vtx_announce is
 		add(ANN_PRE, ANN_PRE'length);
 		add(ANN_DIGIT(BOARD_ID mod 10), ANN_DIGIT_LEN(BOARD_ID mod 10));
 		add(ANN_DOT, ANN_DOT'length);
+		if SW_MINOR >= 100 then
+			add(ANN_DIGIT((SW_MINOR / 100) mod 10), ANN_DIGIT_LEN((SW_MINOR / 100) mod 10));
+			add(ANN_GAP, ANN_GAP'length);
+		end if;
 		add(ANN_DIGIT((SW_MINOR / 10) mod 10), ANN_DIGIT_LEN((SW_MINOR / 10) mod 10));
 		add(ANN_GAP, ANN_GAP'length);
 		add(ANN_DIGIT(SW_MINOR mod 10), ANN_DIGIT_LEN(SW_MINOR mod 10));

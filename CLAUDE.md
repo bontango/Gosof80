@@ -110,7 +110,8 @@ Gen 3 ist mit 90 % LE und 0,5 ns Setup-Reserve knapp. Bone Busters und Gen 2 + 3
 | Chip / Quartus-Version / EDA | `variants/<n>/device.tcl` |
 | globale Quartus-Optionen | `scripts/common_header.tcl` |
 | Megafunction neu erzeugen | in **jedem** `rtl/cyclone_*`-Ordner, gleiche Entity-Namen; Cyclone II mit 13.0sp1 |
-| Version | `scripts/version.psd1` (`SwMinor`), Board-ID in `variant.psd1` |
+| Version | `scripts/version.psd1` (`SwMinor`, seit x.100 dreistellig), Board-ID in `variant.psd1` |
+| Sprachpegel / Bässe der Votrax-Emulation | `VTX_SPEECH_GAIN`, `VTX_BASS_SHIFT`, `VTX_BASS_BOOST` in `variants/<n>/variant_pkg.vhd` (alle Kern-Varianten gleich halten) |
 | Timing | `rtl/common/GOSOF80.sdc` (gemeinsam, nennt nur Hierarchienamen) |
 | Konstante je Platine (z. B. `HAS_VOTRAX`) | `variants/<n>/variant_pkg.vhd` |
 | Votrax-Rechenweg / Formate | **zuerst** `sim/votrax/model/vmodel.c` (die Spezifikation), dann VHDL, dann `sim/votrax/run_sim.ps1` – VHDL muss bitgleich zum Modell bleiben |
@@ -151,5 +152,5 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
 - System 3 (bewertet 09.11.2026, nicht umgesetzt): 9 frühe Spiele über Gen 2/3 mit 8-Bit-Soundbefehl (S32..S128 an Pin 74/80/84),
   OKI-Spiele ab Cactus Jack's nur mit E10 oder größer. `docs/System3_Evaluierung.md`.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
-- Votrax: Hörtest der angehobenen Sprachlautstärke (Sprache ×2, Töne ×3/4 bei aktiver Emulation, seit 15.10.2026), Inflection-Verdrahtung (I1/I2 an D6/D7?)
-  gegen den MA-216-Schaltplan prüfen.
+- Votrax: Inflection-Verdrahtung (I1/I2 an D6/D7?) gegen den MA-216-Schaltplan prüfen. Lautstärke erledigt in x.100
+  (Hörtest auf v4, 20.11.2026: Sprache 768, Bässe +6 dB unter 99 Hz, Töne ×3; `VTX_SPEECH_GAIN`/`VTX_BASS_*` in `variant_pkg.vhd`).

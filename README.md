@@ -40,7 +40,7 @@ This tree is **one** source for all board variants.
 | `80B_ma886_gen3` | Gosof80B, System 80B MA-886 Gen 3 | EP4CE6E22C8 | 22.1std Lite | – | 10 |
 
 Version scheme: `<BoardId>.<SwMinor>`. The board ID is in `variants/<name>/variant.psd1`,
-`SwMinor` (currently `98`) once in `scripts/version.psd1`. What has been tested on hardware is
+`SwMinor` (currently `100`, two or three digits: after 7.99 came 7.100) once in `scripts/version.psd1`. What has been tested on hardware is
 in `VARIANTEN.md`.
 
 ## Layout

@@ -1,5 +1,6 @@
 """Version announcement of the GOSOF80 (test switch with option DIP 3 OFF):
-"This is Gosof version <board> dot <minor/10> <minor%10> from lisy dot dev".
+"This is Gosof version <board> dot [<minor/100>] <minor/10> <minor%10> from lisy dot dev",
+the minor digit by digit, the hundreds digit only from minor 100 on (x.100).
 
 Single source of the phoneme sequences. Writes
   rtl/common/votrax/vtx_announce_pkg.vhd   word tables for vtx_announce.vhd
@@ -34,7 +35,7 @@ DIGITS = [
     "N AH1 EH3 Y N",      # nine
 ]
 DOT = "PA0 D AH1 AH2 T PA0"
-GAP = "PA0"                # between the two digits of the minor version
+GAP = "PA0"                # between the digits of the minor version
 # "from lisy dot dev"
 POST = "PA1 F R AH1 M PA0 L I1 I3 S I3 Y PA0 D AH1 AH2 T PA0 D EH1 EH3 V PA1 STOP"
 
@@ -44,8 +45,9 @@ def codes(words):
 
 
 def sentence(board, minor):
-    return (codes(PRE) + codes(DIGITS[board % 10]) + codes(DOT) + codes(DIGITS[minor // 10 % 10])
-            + codes(GAP) + codes(DIGITS[minor % 10]) + codes(POST))
+    hundreds = codes(DIGITS[minor // 100 % 10]) + codes(GAP) if minor >= 100 else []
+    return (codes(PRE) + codes(DIGITS[board % 10]) + codes(DOT) + hundreds
+            + codes(DIGITS[minor // 10 % 10]) + codes(GAP) + codes(DIGITS[minor % 10]) + codes(POST))
 
 
 def bus(code, infl=0):

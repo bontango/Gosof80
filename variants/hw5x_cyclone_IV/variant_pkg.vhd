@@ -11,6 +11,12 @@ package variant_pkg is
 	constant HAS_VOTRAX : boolean := true;
 	-- HW 4.x / 5.x board: sound test (Gosof_Test).
 	constant IS_HW4 : boolean := true;
+	-- Votrax speech level in the mixer, in 1/8: 8 = speech 1.0 -> 512 (DAC full scale), 12 = 768.
+	constant VTX_SPEECH_GAIN : natural := 12;
+	-- Votrax speech bass shelf: low pass corner 2^SHIFT samples at 40 kHz (5 = 199 Hz, 6 = 99 Hz),
+	-- added BOOST times (0 = off, 1 = +6 dB, 2 = +9.5 dB).
+	constant VTX_BASS_SHIFT : natural := 6;
+	constant VTX_BASS_BOOST : natural := 1;
 	-- Where game 0 starts in the configuration flash (EPCS4, 512 KB); game n at
 	-- FLASH_BASE + n * 1000h. Behind the compressed bitstream, see rtl/hw5x/Flash_ROM.vhd.
 	constant FLASH_BASE : integer := 16#040000#;

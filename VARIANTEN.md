@@ -59,6 +59,40 @@ Die übrigen Varianten sind am 15.10.2026 voll gebaut, aber nicht auf Hardware g
 | `hw2x_cyclone_IV_v4` | 2188 | 793 | 33792 | 2315 / 6272 | 5,323 ns | 0,452 ns |
 | `hw2x_cyclone_10` | 2188 | 793 | 33792 | 2313 / 6272 | 5,051 ns | 0,452 ns |
 
+## x.100: Votrax-Sprache lauter und mit mehr Bass (20.11.2026)
+
+Anlass: Sprache der Emulation auf `hw2x_cyclone_IV_v4` zu leise (Ralf, 20.11.2026). Ursache: Sprache hat einen
+Scheitelfaktor von ~8 (Effektivwert 0,14 bei Spitzen ~1,1), die rechteckigen Töne bei ×3 liegen bei −2,5 dBFS, die
+Sprache bei 512 bei −15,9 dBFS. Neu in `top/GOSOF80.vhd` (`Audio_Mixer`, `Speech_Bass`), einstellbar je Variante in
+`variant_pkg.vhd`:
+
+- `VTX_SPEECH_GAIN` = 12: Sprache 1,0 = 768 statt 512 (+3,5 dB), 0,7 % der Sprach-Samples werden begrenzt.
+- `VTX_BASS_SHIFT` = 6, `VTX_BASS_BOOST` = 1: Tiefpass 1. Ordnung bei 40 kHz (clk_50/1250), Kante 99 Hz,
+  einmal zur Sprache addiert = +6 dB darunter. Zuerst 199 Hz probiert, 99 Hz klang richtig.
+- Töne bleiben bei aktiver Emulation ×3.
+
+Hörtests auf `hw2x_cyclone_IV_v4` (Ralf, 20.11.2026): 768 „immer noch um einiges zu leise“, mit
+nachgestelltem Lautstärkeregler des Geräts **passt die Lautstärke**; Bässe 99 Hz +6 dB **passt**.
+
+SwMinor ist ab hier dreistellig (`release.ps1` erlaubt 2–3 Ziffern). Die Ansage sagt „… dot one zero zero“
+(`vtx_announce.vhd` und `gen_announce.py` mit Hunderterstelle, `run_announce_tb.ps1 -Minor 99` und `-Minor 100` ok).
+
+Build 20.11.2026 (`check.ps1 -Fit`), keine negative Slack. Cyclone II unverändert (ohne Votrax, `.pof` byte-gleich v0.99):
+
+| Variante | Comb | Reg | LE (Fitter) | Setup-Slack |
+|---|---|---|---|---|
+| `hw2x_cyclone_II` | 2139 | 825 | 2255 / 4608 (49 %) | 3,769 ns |
+| `hw2x_cyclone_IV_v3` | 4795 | 2345 | 5036 / 6272 (80 %) | 1,552 ns |
+| `hw2x_cyclone_IV_v4` | 4797 | 2345 | 5033 / 6272 (80 %) | 2,076 ns |
+| `hw2x_cyclone_10` | 4790 | 2345 | 5028 / 6272 (80 %) | 1,586 ns |
+| `hw3x_cyclone_IV` | 4801 | 2345 | 5029 / 6272 (80 %) | 2,030 ns |
+| `hw4x_cyclone_10` | 4916 | 2415 | 5156 / 6272 (82 %) | 1,953 ns |
+| `hw5x_cyclone_IV` | 4625 | 2154 | 4798 / 6272 (76 %) | 2,114 ns |
+
+Release 20.11.2026 (`release.ps1`, nur die 7 GOSOF80-Varianten): v0.100 bis v7.100 in `bin\`, Größen wie gehabt.
+HW 5.x: Bitstream endet bei 0x029C2E, vor `FLASH_BASE` 0x040000. **Auf Hardware getestet ist nur der
+Testbuild auf `hw2x_cyclone_IV_v4`** (gleiche Konstanten, aber noch mit zweistelliger Ansage), die Release-Dateien selbst nicht.
+
 ## x.99: Beruhigungsfilter an S1–S16 (11.11.2026)
 
 Anlass: Anwendermeldung Black Hole auf HW 5.x (v7.98), DIP 2 OFF (Votrax-Emulation). Im Spiel kommt keine
