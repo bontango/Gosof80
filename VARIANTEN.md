@@ -29,6 +29,7 @@ Auf HW 4.x ist der Testschalter `Gottlieb_Test`; `Gosof_Test` startet weiter den
 | `80B_ma766` | – (neu, MA-766) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert; **Schreibtisch ok** (Ralf, 14.11.2026), im Gerät nicht getestet (Pins aus `Gosof80B_01.NET`, nicht gegen die Final-Fassung geprüft) |
 | `80B_ma886_gen2` | – (neu, MA-886) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert; **Schreibtisch ok** (Ralf, 14.11.2026: erzeugt Sounds), im Gerät nicht getestet |
 | `80B_ma886_gen3` | – (neu, MA-886) | – | gebaut 14.11.2026 (Stand x.99), Kern simuliert ohne jt51-Klang; **Schreibtisch ok** (Ralf, 14.11.2026: erzeugt Sounds), im Gerät nicht getestet |
+| `80B_sys3_g1` | – (neu, System 3 Gruppe 1) | – | gebaut 21.11.2026 (Stand x.100), Kern simuliert ohne jt51-Klang (8 Spiele, 8-Bit-Befehle); Schreibtisch und Gerät nicht getestet |
 | `hw5x_cyclone_IV` | – (neu) | – | Platine GOSOF 5.00, Teiler statt PLL: Eingänge, Soundtest mit Ton, beide Core-Boards (Ralf, 28.10.2026); Prüfliste HW 5.x unten weitgehend offen |
 
 x.97: Die Releases in `bin/` sind byte-gleich mit den Build-Ausgaben des alten Baums (md5,
@@ -287,6 +288,26 @@ Gottlieb System 80B Generation 2 und 3 auf derselben Platine, mit SRAM U1. Eigen
 | `80B_ma886_gen3` (02.11.2026) | 5298 | 1631 | 38277 | 5646 / 6272 (90 %) | 1 / 30 | 0,528 ns (clk_50, im jt51) | 0,137 ns (Fast-Modell) |
 
 Keine negative Slack, kein Critical Warning. Unkomprimierter Bitstream bis 0x59D8A, ROMs Gen 2 0x80000-0xCFFFF, Gen 3 0x80000-0xBFFFF, `.jic` 2.097.375 B.
+
+Seit 21.11.2026 haben beide Varianten `Sound[5..7]` (S32..S128, PIN_74/80/84) und `MA886_SYS3 = false`. Neu gebaut am 21.11.2026: Synthesezahlen
+unverändert (Gen 2 3824/1502/36352, Gen 3 5298/1631/38277), Fitter Gen 3 5633 LE, Setup-Slack 0,835 ns.
+
+## GOSOF80B System 3, Gruppe 1 (`80B_sys3_g1` Board-ID 11, seit 21.11.2026)
+
+Gen-3-Kern mit `SYS3` (8-Bit-Soundbefehl S1..S128) für LCA, Bell Ringer, Silver Slugger, Vegas, Deadly Weapon, Title Fight, Car Hop, Hoops.
+Nudge It (Gen 2) ist nicht dabei. Details: `docs/System3_Evaluierung.md`.
+
+| Variante | Comb | Reg | Mem (Bit) | LE (Fitter) | Setup-Slack |
+|---|---|---|---|---|---|
+| `80B_sys3_g1` (21.11.2026) | 5310 | 1643 | 38277 | 5644 / 6272 (90 %) | 0,358 ns (clk_50) |
+
+**Simulation** (`sim\gosof886\run_sim.ps1`, echte ROMs, jt51 als stummer Stub): alle 8 Spiele bestanden (21.11.2026): je 36 Befehle (1..31, 32, 64, 128, A5h, FEh), beide CPUs quittieren jeden, Latch = Befehl, `bad_rom=0`, `nmi_bad=0`.
+Die System-3-ROMs brauchen nach dem Reset ca. 830 ms, bis die Y-CPU Befehle annimmt; die D-CPU hält ihren IRQ so lange gesperrt.
+Bell Ringer spielt nach dem Reset einen Startsound, seine D-CPU nimmt erst nach ca. 1,7 s Befehle an.
+Mit 300 ms Vorlauf (wie bei 80B) fehlen deshalb die ersten Quittungen. `run_sim.ps1` nimmt für `s.*` 2000 ms.
+Gegenprobe Gen 3 (`3.0`, Bad Girls) nach der Kernänderung: bestanden.
+
+**Nicht getestet:** Schreibtisch, Gerät (Kabelbaum A6P1 mit S32..S128, Audio über A5/LM2002).
 
 ## Pinunterschiede
 

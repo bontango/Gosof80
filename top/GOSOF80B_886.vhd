@@ -15,6 +15,10 @@
 --
 -- GEN = 2: Victory, Diamond Lady, TX-Sector, Robo-War, Excalibur. 2 x AY-3-8913 + filter MF-4.
 -- GEN = 3: Bad Girls, Big House, Hot Shots, Night Moves. YM2151 (jt51), right channel only.
+-- GEN = 3, SYS3 = true: Gottlieb System 3 without OKI (group 1, MA-886-XXX + MA-1294): Lights Camera
+-- Action, Bell Ringer, Silver Slugger, Vegas, Deadly Weapon, Title Fight, Car Hop, Hoops. Same board and
+-- memory map as generation 3, but the MPU sends 8 bit commands (S1..S128, A6P1, schematic E-26146 of
+-- Title Fight). PinMAME mGTS3S80B3 -> gts80s_b3. Details: docs\System3_Evaluierung.md.
 -- One bitstream per generation, both together do not fit into the EP4CE6. Bone Busters (third CPU)
 -- does not fit at all. Sources: schematics E-26146 and E-25549 (Gosof80B\schematics), PinMAME
 -- src\wpc\gts80s.c. Details: docs\MA-886_Evaluierung.md. The MA-766 has its own core GOSOF80B.vhd.
@@ -28,7 +32,8 @@ use ieee.numeric_std.all;
 
 entity gosof80b_886_core is
 	generic(
-		GEN : natural := 2   -- 2 or 3
+		GEN : natural := 2;     -- 2 or 3
+		SYS3 : boolean := false -- System 3: 8 bit sound command (S32, S64, S128 used)
 	);
 	port(
 		clk_50	: in std_logic;
@@ -36,8 +41,9 @@ entity gosof80b_886_core is
 		gosof_test	: in std_logic;  -- GOSOF sound test, '0' = pressed
 		Audio_O	: buffer std_logic;
 
-		-- Sound input S1,S2,S4,S8,S16: '1' = line of the MPU low (ULN2803 on the board)
-		Sound :	in 	std_logic_vector(4 downto 0);
+		-- Sound input S1,S2,S4,S8,S16,S32,S64,S128: '1' = line of the MPU low (ULN2803 on the board).
+		-- S32..S128 (bits 7..5) only with SYS3, open on System 80B machines.
+		Sound :	in 	std_logic_vector(7 downto 0);
 
 		-- SB_Opt(3): JP8 of the original, ON ('0') = S16 also triggers a sound
 		SB_Opt :	in 	std_logic_vector(1 to 3);
@@ -121,8 +127,12 @@ architecture rtl of gosof80b_886_core is
 	-- sound command: Sound -> A2 (trigger) / A3 (latch) / A4 (IRQ flip-flops)
 	signal test_activ	: std_logic;
 	signal test_sound	: std_logic_vector(4 downto 0);
-	signal sound_mux	: std_logic_vector(4 downto 0);
-	signal sound_in	: std_logic_vector(4 downto 0);
+	signal sound_mux	: std_logic_vector(7 downto 0);
+	signal sound_in	: std_logic_vector(7 downto 0);
+	signal sound_lo	: std_logic_vector(4 downto 0);
+	signal hi_r1, hi_r2, hi_q : std_logic_vector(7 downto 5) := "000";
+	signal sound_hi	: std_logic;        -- S32..S128 active (SYS3 only)
+	signal sound_cmd	: std_logic_vector(7 downto 0); -- what the latch A3 takes over
 	signal trigger		: std_logic;
 	signal trigger_d	: std_logic := '0';
 	signal strobe_cnt	: integer range 0 to 8 := 0;
@@ -181,17 +191,40 @@ port map(
 	sound => test_sound
 );
 
-sound_mux <= Sound when test_activ = '0' else test_sound;
+sound_mux <= Sound when test_activ = '0' else "000" & test_sound;
 
 META1: entity work.Cross_Slow_To_Fast_Clock_Bus
 port map(
-	i_D => sound_mux,
-	o_Q => sound_in,
+	i_D => sound_mux(4 downto 0),
+	o_Q => sound_lo,
 	i_Fast_Clk => cpu_clk
 );
 
+-- S32..S128: same three stages as Cross_Slow_To_Fast_Clock_Bus (shared module, 5 bits wide).
+-- Without SYS3 nothing reads them and synthesis removes the registers.
+Sync_Hi: process(cpu_clk) is
+begin
+	if rising_edge(cpu_clk) then
+		hi_r1 <= sound_mux(7 downto 5);
+		hi_r2 <= hi_r1;
+		hi_q  <= hi_r2;
+	end if;
+end process;
+
+sound_in <= hi_q & sound_lo;
+
 -- A2 (7430): any line low triggers. S16 only over JP8, as SW3 on the MA-766.
-trigger <= sound_in(0) or sound_in(1) or sound_in(2) or sound_in(3) or (sound_in(4) and not SB_Opt(3));
+-- System 80B: only S1..S16 are wired, the latch reads S32..S128 as '1'. System 3: all 8 lines.
+S80B_CMD: if not SYS3 generate
+	sound_hi <= '0';
+	sound_cmd <= "111" & not sound_in(4 downto 0);
+end generate;
+SYS3_CMD: if SYS3 generate
+	sound_hi <= sound_in(5) or sound_in(6) or sound_in(7);
+	sound_cmd <= not sound_in;
+end generate;
+
+trigger <= sound_in(0) or sound_in(1) or sound_in(2) or sound_in(3) or (sound_in(4) and not SB_Opt(3)) or sound_hi;
 
 -- As on the MA-766: the rising edge of A2 pin 8, delayed by the .01 uF, clocks the latch A3 and the
 -- IRQ flip-flops A4. Same 4 us delay as there. Reading the latch clears the IRQ of that CPU.
@@ -212,7 +245,7 @@ begin
 			elsif strobe_cnt /= 0 then
 				strobe_cnt <= strobe_cnt - 1;
 				if strobe_cnt = 1 then
-					sound_latch <= "111" & not sound_in;
+					sound_latch <= sound_cmd;
 					y_irq_n <= '0';
 					d_irq_n <= '0';
 				end if;

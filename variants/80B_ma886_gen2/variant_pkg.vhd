@@ -11,4 +11,6 @@ package variant_pkg is
 	constant FLASH_BASE : integer := 16#080000#;
 	-- Generation of the MA-886: 2 x AY-3-8913, filter MF-4
 	constant MA886_GEN : natural := 2;
+	-- System 3 (8 bit sound command, S32..S128): only in 80B_sys3_g1
+	constant MA886_SYS3 : boolean := false;
 end package variant_pkg;

@@ -38,6 +38,7 @@ This tree is **one** source for all board variants.
 | `80B_ma766` | Gosof80B, System 80B MA-766 | EP4CE6E22C8 | 22.1std Lite | – | 8 |
 | `80B_ma886_gen2` | Gosof80B, System 80B MA-886 Gen 2 | EP4CE6E22C8 | 22.1std Lite | – | 9 |
 | `80B_ma886_gen3` | Gosof80B, System 80B MA-886 Gen 3 | EP4CE6E22C8 | 22.1std Lite | – | 10 |
+| `80B_sys3_g1` | Gosof80B, System 3 group 1 (MA-886-XXX + MA-1294, without OKI) | EP4CE6E22C8 | 22.1std Lite | – | 11 |
 
 Version scheme: `<BoardId>.<SwMinor>`. The board ID is in `variants/<name>/variant.psd1`,
 `SwMinor` (currently `100`, two or three digits: after 7.99 came 7.100) once in `scripts/version.psd1`. What has been tested on hardware is

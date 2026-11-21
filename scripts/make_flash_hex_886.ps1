@@ -1,7 +1,8 @@
 <#
 .SYNOPSIS
   Builds the Intel HEX file with the game ROMs of the MA-886 for the configuration flash, from the
-  PinMAME ROM sets in ..\Gosof80B\roms. Sister of make_flash_hex_80b.ps1.
+  PinMAME ROM sets in ..\Gosof80B\roms (System 3: ..\Gosof80B\roms\SYS3\roms_Gruppe1). Sister of
+  make_flash_hex_80b.ps1.
 
 .DESCRIPTION
   One file per generation, the bitstream of a generation only knows its own games. 64 KB per game:
@@ -16,10 +17,12 @@
   which is the default of -Out.
 
 .PARAMETER Gen
-  2 or 3.
+  2 or 3 (variants 80B_ma886_gen2 / gen3), or sys3 (variant 80B_sys3_g1, System 3 group 1:
+  Lights Camera Action, Bell Ringer, Silver Slugger, Vegas, Deadly Weapon, Title Fight, Car Hop, Hoops).
 
 .PARAMETER RomDir
-  Folder with the ROM .zip files. Default ..\Gosof80B\roms next to FPGA_Source.
+  Folder with the ROM .zip files. Default ..\Gosof80B\roms next to FPGA_Source, for sys3
+  ..\Gosof80B\roms\SYS3\roms_Gruppe1.
 
 .PARAMETER Out
   The .hex file to write.
@@ -30,9 +33,13 @@
 .EXAMPLE
   .\make_flash_hex_886.ps1 -Gen 2
   cd ..\variants\80B_ma886_gen2 ; quartus_cpf -c gosof80_roms.cof
+
+.EXAMPLE
+  .\make_flash_hex_886.ps1 -Gen sys3
+  cd ..\variants\80B_sys3_g1 ; quartus_cpf -c gosof80_roms.cof
 #>
 param(
-    [Parameter(Mandatory = $true)][ValidateSet(2, 3)][int]$Gen,
+    [Parameter(Mandatory = $true)][ValidateSet('2', '3', 'sys3')][string]$Gen,
     [string]$RomDir,
     [string]$Out,
     [string]$BinDir
@@ -41,8 +48,12 @@ param(
 $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot  = Split-Path -Parent $ScriptDir
-$VarDir    = Join-Path $RepoRoot "variants\80B_ma886_gen$Gen"
-if (-not $RomDir) { $RomDir = Join-Path (Split-Path -Parent $RepoRoot) 'Gosof80B\roms' }
+if ($Gen -eq 'sys3') { $VarDir = Join-Path $RepoRoot 'variants\80B_sys3_g1' }
+else { $VarDir = Join-Path $RepoRoot "variants\80B_ma886_gen$Gen" }
+if (-not $RomDir) {
+    $RomDir = Join-Path (Split-Path -Parent $RepoRoot) 'Gosof80B\roms'
+    if ($Gen -eq 'sys3') { $RomDir = Join-Path $RomDir 'SYS3\roms_Gruppe1' }
+}
 if (-not $Out)    { $Out = Join-Path $VarDir 'output_files\gosof80_roms.hex' }
 
 $RomBytes  = 32768
@@ -54,13 +65,26 @@ $FlashBase = [Convert]::ToInt32(($Matches[1] -replace '_', ''), 16)
 
 # Original set excaliba.zip is not here, excalibr.zip is. Bone Busters is not on the list: its third
 # CPU does not fit into the EP4CE6.
-if ($Gen -eq 2) {
+if ($Gen -eq '2') {
     $Slots = @(
         @{ Name = 'Victory';      Zip = 'victory.zip';  Y = '^yrom1'; D = '^drom1' }
         @{ Name = 'Diamond Lady'; Zip = 'diamond.zip';  Y = '^yrom1'; D = '^drom1' }
         @{ Name = 'TX-Sector';    Zip = 'txsector.zip'; Y = '^yrom1'; D = '^drom1' }
         @{ Name = 'Robo-War';     Zip = 'robowars.zip'; Y = '^yrom1'; D = '^drom1' }
         @{ Name = 'Excalibur';    Zip = 'excalibr.zip'; Y = '^yrom1'; D = '^drom1' }
+    )
+} elseif ($Gen -eq 'sys3') {
+    # System 3 group 1 (docs\System3_Evaluierung.md), in the order of release. Nudge It needs
+    # generation 2 and is not in this variant. Bell Ringer names its files br_yrom1 / br_drom1.
+    $Slots = @(
+        @{ Name = 'Lights Camera Action'; Zip = 'lca.zip';      Y = 'yrom1'; D = 'drom1' }
+        @{ Name = 'Bell Ringer';          Zip = 'bellring.zip'; Y = 'yrom1'; D = 'drom1' }
+        @{ Name = 'Silver Slugger';       Zip = 'silvslug.zip'; Y = 'yrom1'; D = 'drom1' }
+        @{ Name = 'Vegas';                Zip = 'vegas.zip';    Y = 'yrom1'; D = 'drom1' }
+        @{ Name = 'Deadly Weapon';        Zip = 'deadweap.zip'; Y = 'yrom1'; D = 'drom1' }
+        @{ Name = 'Title Fight';          Zip = 'tfight.zip';   Y = 'yrom1'; D = 'drom1' }
+        @{ Name = 'Car Hop';              Zip = 'carhop.zip';   Y = 'yrom1'; D = 'drom1' }
+        @{ Name = 'Hoops';                Zip = 'hoops.zip';    Y = 'yrom1'; D = 'drom1' }
     )
 } else {
     $Slots = @(
@@ -134,7 +158,7 @@ for ($n = 0; $n -lt $Slots.Count; $n++) {
     $addr = $FlashBase + $n * $SlotBytes
     [GosofFlash886]::Data($sb, $addr, $slot, 0, $SlotBytes)
     if ($BinDir) { [System.IO.File]::WriteAllBytes((Join-Path $BinDir "slot_$n.bin"), $slot) }
-    Write-Host ('slot {0}: {1:X6} {2,-13} RST Y {3:X4} D {4:X4}' -f $n, $addr, $g.Name, $rstY, $rstD)
+    Write-Host ('slot {0}: {1:X6} {2,-20} RST Y {3:X4} D {4:X4}' -f $n, $addr, $g.Name, $rstY, $rstD)
 }
 [GosofFlash886]::End($sb)
 

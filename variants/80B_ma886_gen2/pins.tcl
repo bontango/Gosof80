@@ -5,7 +5,9 @@
 # Merged into GOSOF80.qsf by scripts\gen_qsf.ps1. Hand maintained.
 #
 # Not used by the MA-886 core, inputs with weak pull-up (RESERVE_ALL_UNUSED_PINS):
-#   S32 = 74, S64 = 80, S128 = 84, S2_DIP4..6 = 65, 67, 69, SW2 = 89 (no switch read on these boards)
+#   S2_DIP4..6 = 65, 67, 69, SW2 = 89 (no switch read on these boards)
+# S32..S128 are assigned in every MA-886 variant (the PCB wires them), but only the System 3 variant
+# (MA886_SYS3 in variant_pkg.vhd) reads them. On System 80B machines these lines are open.
 set_location_assignment PIN_91 -to clk_50
 # SW1: button to +3.3V with 1k to GND, so ACTIVE HIGH. top\board_886_dev_open.vhd inverts it.
 set_location_assignment PIN_88 -to reset_sw
@@ -20,6 +22,9 @@ set_location_assignment PIN_72 -to Sound[1]
 set_location_assignment PIN_70 -to Sound[2]
 set_location_assignment PIN_68 -to Sound[3]
 set_location_assignment PIN_86 -to Sound[4]
+set_location_assignment PIN_74 -to Sound[5]
+set_location_assignment PIN_80 -to Sound[6]
+set_location_assignment PIN_84 -to Sound[7]
 set_location_assignment PIN_87 -to Audio_O
 # S2 "options"
 set_location_assignment PIN_54 -to SB_Opt[1]

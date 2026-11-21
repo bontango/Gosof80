@@ -1,7 +1,7 @@
 -- Board shell of GOSOF80B MA-886 on the Gosof80B PCB with the 'dev_open' board DEV190806036
 -- (EP4CE6E22C8): pin names of the board, mapped onto the core gosof80b_886_core
 -- (top\GOSOF80B_886.vhd). Generation from variant_pkg.vhd. The SRAM U1 is needed here.
--- Not used: Gottlieb_Test (these boards read no switch), S32..S128, options S2 4..6.
+-- Not used: Gottlieb_Test (these boards read no switch), options S2 4..6. S32..S128 only with MA886_SYS3.
 -- BOARD_ID / SW_MINOR come from the generated .qsf (set_parameter), nothing reads them here.
 
 library ieee;
@@ -18,7 +18,7 @@ entity gosof80b is
 		reset_sw	: in std_logic;               -- SW1 of the board, ACTIVE HIGH (1k to GND, button to +3.3V)
 		Audio_O	: buffer std_logic;
 		Gosof_Test		: in std_logic := '1';     -- SW3 of the board = GOSOF sound test, active low
-		Sound :	in 	std_logic_vector(4 downto 0);
+		Sound :	in 	std_logic_vector(7 downto 0);   -- S1..S128, S32..S128 only read with MA886_SYS3
 		SB_Opt :	in 	std_logic_vector(1 to 3);
 		LED_trigger 	: out STD_LOGIC;     -- LED1 of the board, active low
 		LED_sound 	: out STD_LOGIC;        -- LED2 of the board, active low: LED D1 of the original
@@ -53,7 +53,7 @@ begin
 	SRAM_DQ <= sram_do when sram_oe_d = '1' else (others => 'Z');
 
 	core: entity work.gosof80b_886_core
-	generic map(GEN => MA886_GEN)
+	generic map(GEN => MA886_GEN, SYS3 => MA886_SYS3)
 	port map(
 		clk_50 => clk_50, reset_sw => reset_n, gosof_test => Gosof_Test,
 		Audio_O => Audio_O,

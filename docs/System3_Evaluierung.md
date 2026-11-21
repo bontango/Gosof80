@@ -1,6 +1,7 @@
 # Gottlieb System 3 mit GOSOF80B: Evaluierung
 
-Stand 09.11.2026: nur bewertet, nichts umgesetzt. Quellen: PinWiki „Gottlieb System 3“, PinMAME
+Stand 09.11.2026: bewertet. **21.11.2026: Gruppe 1 ohne Nudge It umgesetzt als eigene Variante `80B_sys3_g1`
+(Board-ID 11)**, siehe Abschnitt „Umsetzung“. Quellen: PinWiki „Gottlieb System 3“, PinMAME
 `src/wpc/gts3.c`, `gts3games.c`, `gts80s.c`, `gts80s.h` (lokal in `N:\Projekte\my_PINMAME\pinmame-master`).
 Hintergrund zu MA-886, SRAM und Platzbedarf: `MA-886_Evaluierung.md`.
 
@@ -60,6 +61,33 @@ LE-Bedarf: einige zusätzliche Register und Eingänge, für Gen 3 (90 %) unkriti
    Spielen bis Hoops. R58 (10 kΩ) führt laut MA-886-Plan den YM2151-Ausgang in den Summierer. Für Gruppe 1 bleibt die Mischung damit wie bei Gen 3.
 4. **ROM-Sätze:** `lca`, `bellring`, `silvslug`, `vegas`, `deadweap`, `tfight`, `carhop`, `hoops`, `nudgeit` liegen nicht in `Gosof80B\roms`.
 5. **Reihenfolge:** zuerst Gen 3 auf der 80B-Hardware zum Laufen bringen, dann System 3.
+
+### Umsetzung (21.11.2026): Variante `80B_sys3_g1`
+
+Ralf hat sich gegen die rückwärtskompatible Erweiterung von Gen 2/3 entschieden. Stattdessen gibt es eine
+**eigene Variante nur mit Gen 3**. Die Bitstreams `80B_ma886_gen2`/`gen3` bleiben funktional unverändert.
+
+- **Schaltplan** (Title-Fight-Handbuch, `Gosof80B\schematics\SB_A6_Title_Fight.jpg` E-26146, `SB_A5_A20_Title_Fight.jpg`
+  E-26145/E-24715): A6 ist eine MA-886-723. **A6P1 trägt S1, S2, S4, S8, S16, S32, S64, S128**, A2 (7430) verknüpft alle 8 Leitungen,
+  S16 läuft wie bei 80B über JP7/JP8, A3 (LS374) übernimmt 8 Bit. A20 = MA-1294 (YM2151 + YM3014 + MC3403) am Expand-Sockel S4,
+  digital wie A20/MA-1033. A5 (MA-1366) trägt den Endverstärker LM2002, Audio kommt von A6P2-9 auf A5P1-2.
+  Damit sind die offenen Punkte 1 (Stecker, soweit es den Plan betrifft) und 4 (ROM-Sätze, jetzt in
+  `Gosof80B\roms\SYS3\roms_Gruppe1`) erledigt.
+- **Kern** `top/GOSOF80B_886.vhd`: Generic `SYS3`, Port `Sound` mit 8 Bit. Bei `SYS3` lösen S32..S128 zusätzlich aus,
+  und das Latch nimmt `not sound_in` (alle 8 Bit). Ohne `SYS3` gilt wie bisher `"111" & not sound_in(4 downto 0)`.
+  S32..S128 werden mit eigenen 3 Registerstufen synchronisiert, `Cross_Slow_To_Fast_Clock_Bus` (5 Bit, mit anderen Kernen geteilt) bleibt unverändert.
+- **Pins:** `Sound[5..7]` = PIN_74/80/84 mit Pull-up in allen drei MA-886-Varianten, die Platine verdrahtet sie ohnehin.
+  `MA886_SYS3` in `variant_pkg.vhd` (nur `80B_sys3_g1` = true).
+- **ROMs:** `scripts\make_flash_hex_886.ps1 -Gen sys3`, Slots 0–7 = LCA, Bell Ringer, Silver Slugger, Vegas, Deadly Weapon,
+  Title Fight, Car Hop, Hoops (S1 binär).
+- **Simulation:** `sim\gosof886\run_sim.ps1 -Games 's.0',…,'s.7'`. Die Testbench schickt bei `SYS3` zusätzlich 32, 64, 128, A5h, FEh,
+  S16 allein muss auslösen (JP8 ON), und das Latch muss den Befehl enthalten. Die System-3-ROMs brauchen nach dem Reset
+  ca. 830 ms, bis die Y-CPU Befehle annimmt; die D-CPU hält ihren IRQ bis dahin gesperrt (`SEI`, IRQ-Handler liest sofort `$4000`).
+  Bell Ringer spielt nach dem Reset einen Startsound, seine D-CPU nimmt erst nach ca. 1,7 s Befehle an.
+  `run_sim.ps1` wartet deshalb bei `s.*` 2000 ms statt 300 ms. Ergebnis: siehe `VARIANTEN.md`.
+- **Handbuch:** DIP 3 (S16) bei System 3 auf ON, Anhang A.4.
+- **Offen:** Test im Gerät (Kabelbaum A6P1, Audioweg über A5/LM2002 = offener Punkt 2), R58 (Punkt 3). Für Nudge It wäre
+  eine eigene Variante mit Gen 2 + `SYS3` nötig.
 
 ## Gruppe 2: mit OKI MSM6295 (MA-1629)
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="description" content="Deutsch - GOSOF80B: Platine Gosof80B für MA-766 und MA-886 Gen 2/3" />
+  <meta name="description" content="Deutsch - GOSOF80B: Platine Gosof80B für MA-766, MA-886 Gen 2/3 und System 3 (Gruppe 1)" />
   <title>GOSOF80B Bedienungsanleitung</title>
   <style>
 
@@ -149,7 +149,7 @@ GOSOF-Platinen für System 1 und System 80 gibt es eine eigene Anleitung:
 <li><a href="#wichtiger-hinweis">Wichtiger Hinweis</a></li>
 <li><a href="#1-einleitung">1. Einleitung</a>
 <ul>
-<li><a href="#11-drei-varianten">1.1. Drei Varianten</a></li>
+<li><a href="#11-vier-varianten">1.1. Vier Varianten</a></li>
 <li><a href="#12-stand">1.2. Stand</a></li>
 </ul></li>
 <li><a href="#2-platine">2. Platine</a>
@@ -179,6 +179,7 @@ LEDs des dev_open-Boards</a></li>
 <li><a href="#a1-ma-766">A.1. MA-766</a></li>
 <li><a href="#a2-ma-886-generation-2">A.2. MA-886 Generation 2</a></li>
 <li><a href="#a3-ma-886-generation-3">A.3. MA-886 Generation 3</a></li>
+<li><a href="#a4-system-3-gruppe-1">A.4. System 3, Gruppe 1</a></li>
 </ul></li>
 </ul>
 <h2 id="wichtiger-hinweis">Wichtiger Hinweis</h2>
@@ -192,14 +193,19 @@ der Gottlieb-Flipper mit <strong>System 80B</strong>, aufgebaut um ein
 FPGA, das die originalen Sound-ROMs ausführt. Es ist der Bruder von
 GOSOF, dem Ersatz für die Soundboards von System 1, System 80 und System
 80A.</p>
+<p>Auch die frühen Spiele mit <strong>System 3</strong> (1989 bis 1991,
+von Lights, Camera, Action bis Hoops) laufen mit GOSOF80B. Gottlieb hat
+für sie dieselbe Grundplatine MA-886 mit YM2151-Zusatzplatine verwendet.
+Die späteren System-3-Spiele mit Sprachchip OKI MSM6295 (ab Cactus Jack's)
+werden nicht unterstützt.</p>
 <p>Das FPGA bildet die komplette Originalkarte nach: beide 6502-CPUs
 (Y-CPU für Musik und Effekte, D-CPU für den DAC), RAM, Soundlatch,
 NMI-Zähler und die Klangerzeuger. Die Spiel-ROMs liegen im
 Konfigurationsflash (EPCS16) des dev_open-Boards, neben dem
 FPGA-Programm. Eine SD-Karte gibt es nicht.</p>
-<h3 id="11-drei-varianten">1.1. Drei Varianten</h3>
+<h3 id="11-vier-varianten">1.1. Vier Varianten</h3>
 <p>Gottlieb hat für System 80B drei verschiedene Soundboards gebaut. Für
-jedes gibt es ein eigenes FPGA-Programm. Die Platine ist bei allen
+jedes gibt es ein eigenes FPGA-Programm, dazu ein viertes für System 3. Die Platine ist bei allen
 dieselbe, Sie programmieren nur die passende Datei.</p>
 <table>
 <thead>
@@ -233,18 +239,29 @@ dieselbe, Sie programmieren nur die passende Datei.</p>
 <td>4</td>
 <td>nötig</td>
 </tr>
+<tr>
+<td><code>80B_sys3_g1</code></td>
+<td>System 3: MA-886-XXX mit Zusatzplatine A20 (MA-1294 bzw. MA-1033)</td>
+<td>YM2151, DAC</td>
+<td>8</td>
+<td>nötig</td>
+</tr>
 </tbody>
 </table>
+<p>Die System-3-Variante gleicht Gen 3. Anders ist nur der Soundbefehl:
+Die System-3-CPU schickt 8 Bit über die Leitungen S1 bis S128, System 80B
+nur 5 Bit über S1 bis S16.</p>
 <p>Welche Spiele zu welcher Variante gehören, steht in <a href="#anhang-a-spielauswahl">Anhang A</a>. Ein Spiel läuft nur mit dem
 Programm seiner Variante: Die Adressen der Bausteine sind auf MA-766 und
 MA-886 verschieden.</p>
 <p>Die MA-886-Spiele haben 64 KB ROM je Spiel. Das passt nicht in das
 FPGA. Das Programm kopiert die ROMs deshalb beim Start aus dem Flash in
-das SRAM U1 (AS6C1008, 128 K × 8). Für Gen 2 und Gen 3 muss U1 also
-gesteckt sein, für MA-766 nicht.</p>
+das SRAM U1 (AS6C1008, 128 K × 8). Für Gen 2, Gen 3 und System 3 muss U1
+also gesteckt sein, für MA-766 nicht.</p>
 <h3 id="12-stand">1.2. Stand</h3>
-<p>Alle drei Varianten sind gebaut und in der Simulation mit den echten
-ROMs geprüft. Auf der Platine läuft bisher die MA-766-Variante mit Rock;
+<p>Alle vier Varianten sind gebaut und in der Simulation mit den echten
+ROMs geprüft. Die System-3-Variante ist neu (21.11.2026) und auf Hardware
+noch nicht getestet. Auf der Platine läuft bisher die MA-766-Variante mit Rock;
 sie spielt Musik und Effekte, ein Vergleich mit PinMAME fiel positiv
 aus. Die MA-886-Varianten sind auf Hardware <strong>noch nicht
 getestet</strong>. Rückmeldungen sind willkommen.</p>
@@ -367,6 +384,12 @@ bleibt die Karte stumm.</li>
 <li><strong>Reset:</strong> Das Reset-Signal der MPU (A6P1-9) ist nicht
 angeschlossen. Die Karte startet nach dem Einschalten
 selbstständig.</li>
+<li><strong>System 3:</strong> Die Karte liest hier alle acht
+Sound-Leitungen S1 bis S128 von A6P1. Stellen Sie Options-DIP 3 auf ON,
+siehe <a href="#42-s2-optionen">Kapitel 4.2</a>. Die Endstufe sitzt bei
+System 3 auf der Zusatzstromversorgung A5 (LM2002). Ob der Ausgang der
+Platine dort ohne Änderung passt, ist noch nicht im Automaten
+geprüft.</li>
 </ul>
 <h2 id="4-dip-schalter">4. DIP-Schalter</h2>
 <p>DIP-Schalter werden nur beim Start gelesen. Stellen Sie sie bei
@@ -420,7 +443,7 @@ Originalkarte)</td>
 <p>DIP 1 und 2 liest das Soundprogramm genau wie die DIP-Schalter der
 Originalkarte. Ihre Bedeutung steht im Gottlieb-Handbuch des Spiels,
 normalerweise stehen beide auf OFF.</p>
-<p><strong>MA-886 Gen 2 und Gen 3:</strong></p>
+<p><strong>MA-886 Gen 2, Gen 3 und System 3:</strong></p>
 <table>
 <thead>
 <tr>
@@ -454,11 +477,17 @@ Originalkarte)</td>
 </table>
 <p>Die MA-886 hat keine DIP-Schalter, die das Soundprogramm liest. Darum
 haben DIP 1 und 2 hier keine Funktion.</p>
+<p><strong>System 3: DIP 3 auf ON.</strong> Bei System 3 ist S16 ein
+gewöhnliches Bit des 8-Bit-Soundbefehls. Steht DIP 3 auf OFF, lösen Befehle,
+bei denen nur S16 aktiv ist, keinen Sound aus. Die Leitungen S32, S64 und S128
+löst die System-3-Variante immer aus.</p>
 <h2 id="5-testen">5. Testen</h2>
 <h3 id="51-gosof-testtaster-sw3">5.1. Gosof-Testtaster (SW3)</h3>
 <p>Ein Druck auf SW3 spielt die Sounds 1 bis 31 des eingestellten
 Spiels, jeden 5 Sekunden lang. So lässt sich die Karte auf der Werkbank
-prüfen, ohne CPU-Platine. Das geht bei allen drei Varianten.</p>
+prüfen, ohne CPU-Platine. Das geht bei allen vier Varianten. Bei
+System 3 spielt der Test ebenfalls nur die Sounds 1 bis 31, höhere Nummern
+nicht.</p>
 <p>Sound 16 bleibt dabei stumm, solange Options-DIP 3 auf OFF steht,
 weil dann S16 nicht ausgewertet wird. Auch andere Nummern können stumm
 bleiben, wenn das Spiel sie nicht belegt.</p>
@@ -495,6 +524,10 @@ Repository-Server: <a href="https://lisy.dev/swrep/soundboards">https://lisy.dev
 <tr>
 <td>MA-886 Gen 3</td>
 <td><code>GOSOF80_80B_ma886_gen3_v10.98.jic</code></td>
+</tr>
+<tr>
+<td>System 3, Gruppe 1</td>
+<td><code>GOSOF80_80B_sys3_g1_v11.100.jic</code></td>
 </tr>
 </tbody>
 </table>
@@ -534,7 +567,7 @@ von S1:</p>
 KB)</td>
 </tr>
 <tr>
-<td>MA-886 Gen 2 / Gen 3</td>
+<td>MA-886 Gen 2 / Gen 3 / System 3</td>
 <td>64 KB</td>
 <td>yrom (32 KB), drom (32 KB)</td>
 </tr>
@@ -555,7 +588,9 @@ quartus_cpf -c gosof80_roms.cof</code></pre>
 cd variants\80B_ma886_gen2
 quartus_cpf -c gosof80_roms.cof</code></pre>
 <p>Für Gen 3 entsprechend <code>-Gen 3</code> und
-<code>variants\80B_ma886_gen3</code>. Ergebnis ist jeweils
+<code>variants\80B_ma886_gen3</code>. Für System 3 <code>-Gen sys3</code> und
+<code>variants\80B_sys3_g1</code>; das Skript liest die ROM-Sätze dann aus
+<code>Gosof80B\roms\SYS3\roms_Gruppe1</code>. Ergebnis ist jeweils
 <code>output_files\gosof80_roms.jic</code> im Ordner der Variante.
 Programmieren Sie diese Datei wie in <a href="#6-fpga-programmieren">Kapitel 6</a> beschrieben. Geben Sie sie
 nicht weiter, sie enthält die ROMs.</p>
@@ -565,6 +600,10 @@ beider CPUs an. Fehlt ein ROM-Satz, bricht es ab.</p>
 <ul>
 <li><strong>Bone Busters</strong> (MA-886 Generation 3a, mit dritter
 CPU) wird nicht unterstützt. Es passt nicht in das FPGA.</li>
+<li><strong>Nudge It</strong> (System 3, 1990) braucht wie Gen 2 zwei
+AY-3-8913 statt des YM2151 und ist in der System-3-Variante nicht
+enthalten. Die System-3-Spiele mit <strong>OKI MSM6295</strong> (ab Cactus
+Jack's, 1991) passen nicht in das FPGA.</li>
 <li><strong>MA-886 Gen 2, Filter MF-4:</strong> Die Gen-2-Spiele
 verstellen im laufenden Sound ein Tiefpassfilter. PinMAME bildet das
 nicht nach, GOSOF80B dagegen schon. Diese Spiele klingen deshalb anders
@@ -813,6 +852,106 @@ nötig.</p>
 <td>off</td>
 <td>Night Moves</td>
 <td><code>nmoves</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="a4-system-3-gruppe-1">A.4. System 3, Gruppe 1</h3>
+<p>Programm <code>GOSOF80_80B_sys3_g1_v11.100.jic</code>, SRAM U1
+nötig, Options-DIP 3 auf ON. Nudge It ist nicht dabei (siehe
+<a href="#8-einschränkungen">Kapitel 8</a>).</p>
+<table>
+<thead>
+<tr>
+<th>S1</th>
+<th>S2</th>
+<th>S3</th>
+<th>S4</th>
+<th>S5</th>
+<th>S6</th>
+<th>Spiel</th>
+<th>ROM-Satz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Lights, Camera, Action</td>
+<td><code>lca</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Bell Ringer</td>
+<td><code>bellring</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Silver Slugger</td>
+<td><code>silvslug</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Vegas</td>
+<td><code>vegas</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Deadly Weapon</td>
+<td><code>deadweap</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Title Fight</td>
+<td><code>tfight</code></td>
+</tr>
+<tr>
+<td>off</td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Car Hop</td>
+<td><code>carhop</code></td>
+</tr>
+<tr>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td><span style="color:var(--accent);font-weight:bold">on</span></td>
+<td>off</td>
+<td>off</td>
+<td>off</td>
+<td>Hoops</td>
+<td><code>hoops</code></td>
 </tr>
 </tbody>
 </table>

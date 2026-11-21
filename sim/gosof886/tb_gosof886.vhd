@@ -1,7 +1,8 @@
 -- tb_gosof886.vhd - runs one game (slot.bin) on top\GOSOF80B_886.vhd with the SRAM model and reports
 -- what the CPUs do. Sequence: wait for the start, sound commands 1..31 as the MPU sends them (lines
--- active for 2 ms, then Gap_ms pause).
--- Checks: both CPUs read the latch for every command, S16 alone (16) does not trigger, the NMI
+-- active for 2 ms, then Gap_ms pause). With SYS3 (System 3) also 32, 64, 128, A5h, FEh over all 8 lines.
+-- Checks: both CPUs read the latch for every command, the latch holds the command, S16 alone (16) does
+-- not trigger (System 3: JP8 ON, it does), the NMI
 -- period is (256 - rate) * 1024 us, the bytes of the SRAM read by the CPU are never 'X' (55 ns met).
 -- Audio goes to audio.raw (16 bit, 50 MHz / 1134). Started by sim\gosof886\run_sim.ps1.
 
@@ -12,6 +13,7 @@ use ieee.numeric_std.all;
 entity tb_gosof886 is
 	generic(
 		GEN     : natural := 2;
+		SYS3    : boolean := false;
 		Boot_ms : natural := 300;
 		Gap_ms  : natural := 40
 	);
@@ -19,7 +21,25 @@ end tb_gosof886;
 
 architecture sim of tb_gosof886 is
 	signal clk      : std_logic := '0';
-	signal sound    : std_logic_vector(4 downto 0) := (others => '0');
+	signal sound    : std_logic_vector(7 downto 0) := (others => '0');
+
+	-- commands in the order they are sent: 1..31, with SYS3 also those over 31
+	type nat_arr is array (natural range <>) of natural;
+	constant EXTRA : nat_arr(0 to 4) := (32, 64, 128, 165, 254);
+	function last_index return natural is
+	begin
+		if SYS3 then return 31 + EXTRA'length; else return 31; end if;
+	end function;
+	function cmd_at(i : natural) return natural is
+	begin
+		if i <= 31 then return i; else return EXTRA(i - 32); end if;
+	end function;
+	-- SB_Opt(3) = JP8: on System 3 S16 is an ordinary data bit and has to trigger
+	function sb_opt_sel return std_logic_vector is
+	begin
+		if SYS3 then return "110"; else return "111"; end if;
+	end function;
+	constant SB_OPT : std_logic_vector(1 to 3) := sb_opt_sel;
 	signal audio    : std_logic;
 	signal trigger, led, err : std_logic;
 	signal cs, mosi, sck : std_logic;
@@ -36,10 +56,10 @@ begin
 	sram_dq <= sram_do when sram_oe_d = '1' else (others => 'Z');
 
 	dut: entity work.gosof80b_886_core
-	generic map(GEN => GEN)
+	generic map(GEN => GEN, SYS3 => SYS3)
 	port map(
 		clk_50 => clk, reset_sw => '1', gosof_test => '1',
-		Audio_O => audio, Sound => sound, SB_Opt => "111", game_sel => "111111",
+		Audio_O => audio, Sound => sound, SB_Opt => SB_OPT, game_sel => "111111",
 		trigger_o => trigger, diag_led_o => led, flash_error_o => err,
 		FLASH_CS => cs, FLASH_MISO => '0', FLASH_MOSI => mosi, FLASH_CLK => sck,
 		sram_a => sram_a, sram_di => sram_dq, sram_do => sram_do, sram_oe_d => sram_oe_d,
@@ -64,6 +84,7 @@ begin
 		alias mix      is <<signal .tb_gosof886.dut.audio_mix : unsigned(16 downto 0)>>;
 		alias mf4_n    is <<signal .tb_gosof886.dut.mf4_n    : std_logic_vector(7 downto 0)>>;
 		alias ym_wr_n  is <<signal .tb_gosof886.dut.ym_wr_n  : std_logic>>;
+		alias latch    is <<signal .tb_gosof886.dut.sound_latch : std_logic_vector(7 downto 0)>>;
 
 		type byte_file is file of character;
 		file raw : byte_file;
@@ -97,6 +118,8 @@ begin
 		variable last_rate    : unsigned(7 downto 0) := x"00";
 		variable first_cycle  : natural := 0;
 		variable cmd          : natural := 0;
+		variable idx          : natural := 0;
+		variable expect       : std_logic_vector(7 downto 0);
 		variable y_cmd_acks   : natural := 0;
 		variable d_cmd_acks   : natural := 0;
 		variable bad_cmds     : natural := 0;
@@ -186,8 +209,9 @@ begin
 						       " AY " & integer'image(ay_bdir) & " YM " & integer'image(ym_writes) &
 						       " DAC " & integer'image(dac_writes) & " LED edges " & integer'image(led_edges);
 						phase := 1;
-						cmd := 1;
-						sound <= std_logic_vector(to_unsigned(cmd, 5));
+						idx := 1;
+						cmd := cmd_at(idx);
+						sound <= std_logic_vector(to_unsigned(cmd, 8));
 						y_cmd_acks := 0; d_cmd_acks := 0;
 						phase_end := phase_end + 4000;
 					when 1 =>
@@ -195,7 +219,10 @@ begin
 						phase := 2;
 						phase_end := phase_end + Gap_ms * 2000 - 4000;
 					when 2 =>
-						if cmd = 16 then
+						-- what A3 must hold: the inverted lines, S32..S128 read as '1' on System 80B
+						expect := not std_logic_vector(to_unsigned(cmd, 8));
+						if not SYS3 then expect(7 downto 5) := "111"; end if;
+						if cmd = 16 and not SYS3 then
 							if y_cmd_acks /= 0 or d_cmd_acks /= 0 then
 								report "cmd 16 (S16 alone) must not trigger: acks " & integer'image(y_cmd_acks) & " " & integer'image(d_cmd_acks) severity error;
 								bad_cmds := bad_cmds + 1;
@@ -203,12 +230,16 @@ begin
 						elsif y_cmd_acks /= 1 or d_cmd_acks /= 1 then
 							report "cmd " & integer'image(cmd) & ": acks Y " & integer'image(y_cmd_acks) & " D " & integer'image(d_cmd_acks) severity warning;
 							bad_cmds := bad_cmds + 1;
+						elsif latch /= expect then
+							report "cmd " & integer'image(cmd) & ": latch " & integer'image(to_integer(unsigned(latch))) & " expected " & integer'image(to_integer(unsigned(expect))) severity warning;
+							bad_cmds := bad_cmds + 1;
 						end if;
-						if cmd = 31 then
+						if idx = last_index then
 							exit;
 						else
-							cmd := cmd + 1;
-							sound <= std_logic_vector(to_unsigned(cmd, 5));
+							idx := idx + 1;
+							cmd := cmd_at(idx);
+							sound <= std_logic_vector(to_unsigned(cmd, 8));
 							y_cmd_acks := 0; d_cmd_acks := 0;
 							phase := 1;
 							phase_end := phase_end + 4000;

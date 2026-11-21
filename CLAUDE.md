@@ -99,6 +99,7 @@ System 80B Generation 1 auf der Platine Gosof80B (`..\Gosof80B\target`) mit dev_
 ## GOSOF80B / MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`, seit 02.11.2026)
 
 Generation 2 und 3 auf derselben Platine mit SRAM U1, je ein Bitstream. Eigener Kern `top/GOSOF80B_886.vhd` (Generic `GEN` aus `MA886_GEN` in `variant_pkg.vhd`), Hülle `top/board_886_dev_open.vhd`, Dateilisten `scripts/files_886_gen2.tcl` und `files_886_gen3.tcl`, jt51 in `rtl/hw5x_80b/jt51/`. Änderungen an `GOSOF80B.vhd` wirken hier nicht. ROMs: `scripts/make_flash_hex_886.ps1 -Gen 2|3`, 64 KB je Spiel ab 0x80000.
+**System 3, Gruppe 1** (`80B_sys3_g1`, Board-ID 11, seit 21.11.2026): derselbe Kern mit `GEN = 3` und Generic `SYS3` (`MA886_SYS3` in `variant_pkg.vhd`), 8-Bit-Soundbefehl über S1..S128 (`Sound[5..7]` = PIN_74/80/84, in allen drei 886-Varianten zugewiesen, gelesen nur bei `SYS3`). 8 Spiele LCA bis Hoops, ROMs `make_flash_hex_886.ps1 -Gen sys3` aus `..\Gosof80B\roms\SYS3\roms_Gruppe1`, Simulation `run_sim.ps1 -Games 's.0',…'s.7'`. Nudge It (Gen 2) ist nicht dabei. Details: `docs/System3_Evaluierung.md`.
 Gen 3 ist mit 90 % LE und 0,5 ns Setup-Reserve knapp. Bone Busters und Gen 2 + 3 in einem Bitstream passen nicht auf den E6. Prüfung: `sim/gosof886/run_sim.ps1` (echte ROMs, ca. 1–2 h für alle Spiele, jt51 nur als stummer Stub; `-Games` als Strings angeben: `'2.1','3.0'`), `run_mf4.ps1`. Details: `docs/MA-886_Evaluierung.md`.
 
 ## Was ändern → wo
@@ -149,8 +150,8 @@ Danach `scripts\gen_qsf.ps1` und `scripts\check.ps1 -Fit`. Abnahme sind die Synt
   nur per Fitter-Einstellung erfüllt (`OPTIMIZE_HOLD_TIMING "ALL PATHS"`). Saubere Lösung: Clock-Enables auf `clk_50`.
 - GOSOF80B (`80B_ma766`): Schreibtisch ok (14.11.2026); Schaltplanbefunde Gosof80B_01, Test im Gerät und Hörtest offen, `docs/GOSOF80B_MA766.md`.
 - GOSOF80B MA-886 (`80B_ma886_gen2`, `80B_ma886_gen3`): Schreibtisch ok (14.11.2026, beide erzeugen Sounds); Test im Gerät, Hörtest und Vergleich der Pins mit der Final-Netzliste offen, `docs/MA-886_Evaluierung.md`.
-- System 3 (bewertet 09.11.2026, nicht umgesetzt): 9 frühe Spiele über Gen 2/3 mit 8-Bit-Soundbefehl (S32..S128 an Pin 74/80/84),
-  OKI-Spiele ab Cactus Jack's nur mit E10 oder größer. `docs/System3_Evaluierung.md`.
+- System 3: Gruppe 1 ohne Nudge It als `80B_sys3_g1` umgesetzt (21.11.2026, gebaut und simuliert), Hardwaretest offen
+  (Kabelbaum A6P1, Audio über A5/LM2002). Nudge It bräuchte Gen 2 + `SYS3`. OKI-Spiele ab Cactus Jack's nur mit E10 oder größer. `docs/System3_Evaluierung.md`.
 - Warnungsbereinigung (10036, 10920 an der T65-Adressleitung).
 - Votrax: Inflection-Verdrahtung (I1/I2 an D6/D7?) gegen den MA-216-Schaltplan prüfen. Lautstärke erledigt in x.100
   (Hörtest auf v4, 20.11.2026: Sprache 768, Bässe +6 dB unter 99 Hz, Töne ×3; `VTX_SPEECH_GAIN`/`VTX_BASS_*` in `variant_pkg.vhd`).

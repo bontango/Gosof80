@@ -7,19 +7,23 @@
   slot.bin, log and audio.wav. GHDL has no Verilog: for generation 3 sim_models.vhd stands in for the
   jt51, so the YM2151 writes are counted but its sound is not simulated.
 .PARAMETER Games
-  Which games, as gen.slot in quotes, e.g. '2.0','3.1'. Default all 9.
+  Which games, as gen.slot in quotes, e.g. '2.0','3.1'. Default the 9 System 80B games.
+  System 3 group 1 (variant 80B_sys3_g1, GEN 3 + SYS3) as s.<slot>, 's.0'..'s.7'.
 .PARAMETER BootMs
-  Milliseconds before the first sound command.
+  Milliseconds before the first sound command. Default 300 for System 80B, 2000 for System 3: its Y CPU
+  takes about 830 ms after reset before it takes commands, the D CPU keeps its IRQ masked until then (Bell Ringer: while it plays its start sound, ~1.7 s).
 .PARAMETER GapMs
   Milliseconds per sound command.
 .PARAMETER Jobs
   How many GHDL processes at the same time.
 .EXAMPLE
   .\run_sim.ps1 -Games '2.1','3.0'
+.EXAMPLE
+  .\run_sim.ps1 -Games 's.0','s.5'
 #>
 param(
     [string[]]$Games = @('2.0','2.1','2.2','2.3','2.4','3.0','3.1','3.2','3.3'),
-    [int]$BootMs = 300,
+    [int]$BootMs = 0,
     [int]$GapMs = 40,
     [int]$Jobs = 4
 )
@@ -31,9 +35,11 @@ $Rtl   = Join-Path $Repo 'rtl'
 $Ghdl  = 'C:\Users\bonta\tools\ghdl\bin\ghdl.exe'
 
 New-Item -ItemType Directory -Force $Build | Out-Null
-foreach ($g in 2, 3) {
+$sets = @($Games | ForEach-Object { ($_ -split '\.')[0] } | Sort-Object -Unique)
+foreach ($g in $sets) {
     $b = Join-Path $Build "gen$g"
-    & (Join-Path $Repo 'scripts\make_flash_hex_886.ps1') -Gen $g -BinDir $b -Out (Join-Path $b 'gosof80_roms.hex') 6>$null
+    if ($g -eq 's') { $genArg = 'sys3' } else { $genArg = $g }
+    & (Join-Path $Repo 'scripts\make_flash_hex_886.ps1') -Gen $genArg -BinDir $b -Out (Join-Path $b 'gosof80_roms.hex') 6>$null
 }
 
 Push-Location $Build
@@ -76,9 +82,11 @@ while ($pending.Count -gt 0 -or $running.Count -gt 0) {
         $id = $pending.Dequeue()
         $g, $n = $id -split '\.'
         $dir = Join-Path $Build "run_${g}_$n"
+        if ($g -eq 's') { $genOpt = '-gGEN=3'; $sysOpt = '-gSYS3=true'; $boot = 2000 } else { $genOpt = "-gGEN=$g"; $sysOpt = '-gSYS3=false'; $boot = 300 }
+        if ($BootMs -gt 0) { $boot = $BootMs }
         New-Item -ItemType Directory -Force $dir | Out-Null
         Copy-Item (Join-Path $Build "gen$g\slot_$n.bin") (Join-Path $dir 'slot.bin') -Force
-        $a = @('-r', '--std=08', '-frelaxed', '-fsynopsys', '--workdir=..', 'tb_gosof886', '--ieee-asserts=disable-at-0', "-gGEN=$g", "-gBoot_ms=$BootMs", "-gGap_ms=$GapMs")
+        $a = @('-r', '--std=08', '-frelaxed', '-fsynopsys', '--workdir=..', 'tb_gosof886', '--ieee-asserts=disable-at-0', $genOpt, $sysOpt, "-gBoot_ms=$boot", "-gGap_ms=$GapMs")
         $running[$id] = Start-Process -FilePath $Ghdl -ArgumentList $a -WorkingDirectory $dir -NoNewWindow -PassThru `
             -RedirectStandardOutput (Join-Path $dir 'stdout.log') -RedirectStandardError (Join-Path $dir 'stderr.log')
     }
